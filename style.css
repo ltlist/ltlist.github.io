@@ -145,21 +145,15 @@ width:100%;
     background:#0d1117;
 }
 
-/* iframe full box */
 .ad-box iframe{
     width:100%;
     height:100%;
     border:none;
 }
 
-/* RESPONSIVE HP */
+/* MOBILE */
 @media(max-width:500px){
-    .ad-box{
-        width:100%;
-        height:auto;
-    }
-
-    .ad-box iframe{
-        height:60px;
-    }
+.ad-box{
+    width:100%;
+}
 }
