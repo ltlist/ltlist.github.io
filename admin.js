@@ -1,9 +1,10 @@
-let data=JSON.parse(localStorage.getItem("adm")||"[]");
+let data = JSON.parse(localStorage.getItem("adm")||"[]");
 
-const list=document.getElementById("list");
+const list = document.getElementById("list");
 
 function render(){
 list.innerHTML="";
+
 data.forEach((x,i)=>{
 list.innerHTML+=`
 <tr>
@@ -12,19 +13,21 @@ list.innerHTML+=`
 <td><button onclick="del(${i})">Hapus</button></td>
 </tr>`;
 });
+
 localStorage.setItem("adm",JSON.stringify(data));
 }
 
 function add(){
+
 data.push({
 id:Date.now().toString(),
 nama:nama.value,
 koin:koin.value,
-trust:trust.value,
 reward:reward.value,
 link:link.value,
 cooldown:Number(cooldown.value)
 });
+
 render();
 }
 
@@ -33,7 +36,7 @@ data.splice(i,1);
 render();
 }
 
-function save(){
+function exportJSON(){
 let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
 let a=document.createElement("a");
 a.href=URL.createObjectURL(blob);
