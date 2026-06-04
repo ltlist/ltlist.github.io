@@ -1,0 +1,11 @@
+{
+  "iv": "BigjDBWxUxJzM0XbnGd/wg==",
+  "salt": "",
+  "ct": "ukMgvDgU8ZvlmT2ICMa9mUA=",
+  "v": 1,
+  "iter": 1000,
+  "ks": 256,
+  "ts": 64,
+  "mode": "gcm",
+  "cipher": "aes"
+}
