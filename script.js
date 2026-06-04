@@ -1,10 +1,7 @@
 // Konfigurasi
 const SEMUA_KOIN = ["all", "LTC", "BTC", "TRX", "DOGE", "USDT", "BCH", "SOL", "ZEC", "TON", "DASH"];
-// Ganti [USERNAME] dengan nama akun GitHub kamu
-const PRIVATE_JSON_URL = "https://raw.githubusercontent.com/ltlist/jabrig-core/main/data/faucets.json
-";
-// Token akses pribadi (buat di GitHub Settings > Developer settings > Personal access tokens)
-const GITHUB_TOKEN = "MASUKKAN_TOKEN_AKSES_DISINI";
+const PRIVATE_JSON_URL = "https://raw.githubusercontent.com/ltlist/jabrig-core/main/data/faucets.json";
+const GITHUB_TOKEN = "TEMPEL_TOKEN_KAMU_DISINI"; // Ganti dengan token yang sudah dibuat
 
 let faucets = [];
 
@@ -26,7 +23,7 @@ async function loadFaucetData() {
     console.error("Gagal memuat data:", error);
     document.getElementById("faucetList").innerHTML = `
       <tr><td colspan="5" style="text-align:center; padding:2rem; color:#ff6b6b;">
-        Gagal memuat data. Silakan coba lagi nanti.
+        Gagal memuat data. Cek URL dan Token Anda.
       </td></tr>
     `;
   }
@@ -36,9 +33,9 @@ async function loadFaucetData() {
 function hitungJumlahFaucet() {
   const jumlah = {};
   const aktif = faucets.filter(f => f.active);
-  
+
   jumlah["all"] = aktif.length;
-  
+
   SEMUA_KOIN.slice(1).forEach(koin => {
     jumlah[koin] = aktif.filter(f => f.coin === koin).length;
   });
@@ -55,9 +52,9 @@ function buatFilterKoin() {
   SEMUA_KOIN.forEach((koin, indeks) => {
     const elemen = document.createElement("label");
     elemen.className = "radio-item";
-    
+
     const teks = jumlah[koin] > 0 ? `${koin} (${jumlah[koin]})` : koin;
-    
+
     elemen.innerHTML = `
       <input type="radio" name="filterKoin" value="${koin}" ${indeks === 0 ? "checked" : ""}>
       ${teks}
