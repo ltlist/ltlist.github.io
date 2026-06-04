@@ -1,21 +1,15 @@
 // Konfigurasi
 const SEMUA_KOIN = ["all", "LTC", "BTC", "TRX", "DOGE", "USDT", "BCH", "SOL", "ZEC", "TON", "DASH"];
-const PRIVATE_JSON_URL = "https://raw.githubusercontent.com/ltlist/muda-core/main/data/faucets.json";
-const GITHUB_TOKEN = "TEMPEL_TOKEN_KAMU_DISINI"; // Ganti dengan token yang sudah dibuat
+const DATA_URL = "https://raw.githubusercontent.com/ltlist/muda-core/main/data/faucets.json";
 
 let faucets = [];
 
-// Ambil data dari repo privat
+// Ambil data dari repo muda-core
 async function loadFaucetData() {
   try {
-    const response = await fetch(PRIVATE_JSON_URL, {
-      headers: {
-        "Authorization": `token ${GITHUB_TOKEN}`
-      }
-    });
-
-    if (!response.ok) throw new Error("Tidak bisa mengakses data");
-
+    const response = await fetch(DATA_URL);
+    if (!response.ok) throw new Error("File data tidak ditemukan");
+    
     faucets = await response.json();
     buatFilterKoin();
     tampilkanFaucet();
@@ -23,7 +17,7 @@ async function loadFaucetData() {
     console.error("Gagal memuat data:", error);
     document.getElementById("faucetList").innerHTML = `
       <tr><td colspan="5" style="text-align:center; padding:2rem; color:#ff6b6b;">
-        Gagal memuat data. Cek URL dan Token Anda.
+        Gagal memuat data. Cek koneksi atau URL data.
       </td></tr>
     `;
   }
@@ -33,9 +27,9 @@ async function loadFaucetData() {
 function hitungJumlahFaucet() {
   const jumlah = {};
   const aktif = faucets.filter(f => f.active);
-
+  
   jumlah["all"] = aktif.length;
-
+  
   SEMUA_KOIN.slice(1).forEach(koin => {
     jumlah[koin] = aktif.filter(f => f.coin === koin).length;
   });
@@ -52,9 +46,9 @@ function buatFilterKoin() {
   SEMUA_KOIN.forEach((koin, indeks) => {
     const elemen = document.createElement("label");
     elemen.className = "radio-item";
-
+    
     const teks = jumlah[koin] > 0 ? `${koin} (${jumlah[koin]})` : koin;
-
+    
     elemen.innerHTML = `
       <input type="radio" name="filterKoin" value="${koin}" ${indeks === 0 ? "checked" : ""}>
       ${teks}
@@ -97,4 +91,5 @@ function tampilkanFaucet(filter = "all") {
   });
 }
 
+// Jalankan saat halaman dimuat
 window.addEventListener("load", loadFaucetData);
