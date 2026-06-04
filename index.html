@@ -13,18 +13,23 @@
 
 <header class="header">
 <h1>LTList</h1>
-<p>Daftar faucet otomatis dari GitHub</p>
+<p>Faucet Multi Coin</p>
 </header>
 
 <div class="control-panel">
+
 <input id="search" placeholder="🔍 Cari faucet">
+
 <select id="filterKoin">
-<option value="all">Semua</option>
-<option value="BTC">BTC</option>
-<option value="ETH">ETH</option>
-<option value="Multi">Multi</option>
+<option value="all">Semua Coin</option>
+<option value="LTC">LTC</option>
+<option value="DOGE">DOGE</option>
+<option value="USDT">USDT</option>
+<option value="ZER">ZER</option>
 </select>
+
 <button id="sortBtn">Sort</button>
+
 </div>
 
 <div id="kotakPesan" class="pesan pesan-info">Loading...</div>
@@ -35,8 +40,7 @@
 <tr>
 <th>No</th>
 <th>Nama</th>
-<th>Koin</th>
-<th>Reward</th>
+<th>Coin</th>
 <th>Aksi</th>
 </tr>
 </thead>
@@ -46,16 +50,12 @@
 </div>
 
 <footer class="footer">
-© <span id="tahun"></span> LTList
+© LTList Faucet
 </footer>
 
 </div>
 
 <script src="script.js"></script>
-
-<script>
-document.getElementById("tahun").textContent = new Date().getFullYear();
-</script>
 
 </body>
 </html>
