@@ -1,74 +1,71 @@
-// Kunci rahasia
-const KUNCI = "A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p";
-
-window.onload = function() {
-  muatData();
+// Data langsung dimasukkan di sini (tanpa enkripsi dulu)
+const DATA_FAUCET = {
+  "site_info": {
+    "title": "LTList • Koleksi Faucet Terbaik",
+    "description": "Daftar faucet kripto terpercaya, terbukti membayar!"
+  },
+  "faucet_list": [
+    {
+      "id": 1,
+      "nama": "FaucetCrypto",
+      "koin": "BTC / LTC / DOGE / BCH",
+      "tingkat_kepercayaan": "⭐⭐⭐⭐⭐ SANGAT AMAN",
+      "estimasi_hadiah": "0.000001 - 0.001 BTC",
+      "jadwal_klaim": "Setiap 5 Menit",
+      "tautan_rujukan": "https://faucetcrypto.com/ref/GANTI_KODE_KAMU"
+    },
+    {
+      "id": 2,
+      "nama": "Cointiply",
+      "koin": "BTC / DOGE / DASH / LTC",
+      "tingkat_kepercayaan": "⭐⭐⭐⭐⭐ TERPERCAYA",
+      "estimasi_hadiah": "Bervariasi hingga 50.000 koin/hari",
+      "jadwal_klaim": "Setiap Jam",
+      "tautan_rujukan": "https://cointiply.com/r/GANTI_KODE_KAMU"
+    },
+    {
+      "id": 3,
+      "nama": "FreeBitcoin",
+      "koin": "BTC",
+      "tingkat_kepercayaan": "⭐⭐⭐⭐ AMAN",
+      "estimasi_hadiah": "Hingga $200 + Bunga 4.08%",
+      "jadwal_klaim": "Setiap Jam",
+      "tautan_rujukan": "https://freebitco.in/?r=GANTI_KODE_KAMU"
+    },
+    {
+      "id": 4,
+      "nama": "FireFaucet.win",
+      "koin": "SEMUA KRIPTO POPULER",
+      "tingkat_kepercayaan": "⭐⭐⭐⭐ SANGAT BAGUS",
+      "estimasi_hadiah": "Bonus harian + tugas tambahan",
+      "jadwal_klaim": "Setiap 30 Menit",
+      "tautan_rujukan": "https://firefaucet.win/?ref=GANTI_KODE_KAMU"
+    }
+  ]
 };
 
-async function muatData() {
-  const pesan = document.getElementById("pesan");
+window.onload = function() {
+  tampilkanData();
+};
+
+function tampilkanData() {
   const tabel = document.getElementById("isiTabel");
+  const pesan = document.getElementById("pesan");
 
-  try {
-    pesan.textContent = "🔄 Memuat data...";
+  pesan.className = "kotak pesan-berhasil";
+  pesan.textContent = `✅ Berhasil memuat ${DATA_FAUCET.faucet_list.length} faucet terpercaya!`;
 
-    // Ambil file terenkripsi
-    const res = await fetch("data-terkunci.json");
-    if (!res.ok) throw new Error("File data tidak ditemukan");
-
-    const terenkripsi = await res.json();
-
-    // Dekripsi data
-    const dekripsi = await dekripsiAES(terenkripsi, KUNCI);
-    const data = JSON.parse(dekripsi);
-
-    // Tampilkan data
-    pesan.className = "kotak pesan-berhasil";
-    pesan.textContent = `✅ Berhasil memuat ${data.faucet_list.length} faucet!`;
-
-    tabel.innerHTML = "";
-    data.faucet_list.forEach((item, i) => {
-      const baris = document.createElement("tr");
-      baris.innerHTML = `
-        <td>${i+1}</td>
-        <td><strong>${item.nama}</strong></td>
-        <td><span class="lencana-koin">${item.koin}</span></td>
-        <td><span class="bintang">${item.tingkat_kepercayaan}</span></td>
-        <td>${item.estimasi_hadiah}<span class="waktu">⏱️ ${item.jadwal_klaim}</span></td>
-        <td><a href="${item.tautan_rujukan}" target="_blank" class="tombol-klaim">Klaim</a></td>
-      `;
-      tabel.appendChild(baris);
-    });
-
-  } catch (err) {
-    pesan.className = "kotak pesan-gagal";
-    pesan.textContent = `❌ Gagal: ${err.message}`;
-    tabel.innerHTML = `<tr><td colspan="6" class="teks-tengah">Data tidak dapat ditampilkan</td></tr>`;
-  }
-}
-
-// Fungsi dekripsi yang pasti cocok
-async function dekripsiAES(data, sandi) {
-  const iv = base64KeBin(data.iv);
-  const ct = base64KeBin(data.ct);
-  const salt = base64KeBin(data.salt || "");
-
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw", new TextEncoder().encode(sandi), {name: "PBKDF2"}, false, ["deriveKey"]
-  );
-
-  const key = await crypto.subtle.deriveKey(
-    {name: "PBKDF2", salt: salt, iterations: 1000, hash: "SHA-256"},
-    keyMaterial, {name: "AES-GCM", length: 256}, false, ["decrypt"]
-  );
-
-  const hasil = await crypto.subtle.decrypt({name: "AES-GCM", iv: iv}, key, ct);
-  return new TextDecoder().decode(hasil);
-}
-
-function base64KeBin(str) {
-  const bin = atob(str);
-  const arr = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-  return arr.buffer;
+  tabel.innerHTML = "";
+  DATA_FAUCET.faucet_list.forEach((item, indeks) => {
+    const baris = document.createElement("tr");
+    baris.innerHTML = `
+      <td>${indeks + 1}</td>
+      <td><strong>${item.nama}</strong></td>
+      <td><span class="lencana-koin">${item.koin}</span></td>
+      <td><span class="bintang">${item.tingkat_kepercayaan}</span></td>
+      <td>${item.estimasi_hadiah}<span class="waktu">⏱️ ${item.jadwal_klaim}</span></td>
+      <td><a href="${item.tautan_rujukan}" target="_blank" rel="noopener noreferrer nofollow" class="tombol-klaim">Klaim Sekarang</a></td>
+    `;
+    tabel.appendChild(baris);
+  });
 }
