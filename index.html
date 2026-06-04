@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Faucet List</title>
+
+<style>
+body{
+    font-family:Arial,sans-serif;
+    background:#f4f4f4;
+    margin:0;
+}
+
+.header{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.menu{
+    background:white;
+    padding:10px;
+    text-align:center;
+}
+
+.menu a{
+    text-decoration:none;
+    padding:8px 12px;
+    margin:3px;
+    display:inline-block;
+    background:#eee;
+    border-radius:5px;
+    color:#333;
+}
+
+.card{
+    background:white;
+    margin:10px;
+    padding:15px;
+    border-radius:8px;
+    box-shadow:0 1px 4px rgba(0,0,0,.1);
+}
+
+.name{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.reward{
+    color:green;
+    margin-top:5px;
+}
+
+.timer{
+    color:#666;
+    margin-top:5px;
+}
+
+.visit{
+    display:inline-block;
+    margin-top:10px;
+    padding:8px 15px;
+    background:#28a745;
+    color:white;
+    text-decoration:none;
+    border-radius:5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+JABRIG FAUCET LIST
+</div>
+
+<div class="menu">
+<a href="#">BTC</a>
+<a href="#">DOGE</a>
+<a href="#">LTC</a>
+<a href="#">TRX</a>
+</div>
+
+<div id="faucets"></div>
+
+<script>
+
+const faucets = [
+
+{
+name:"Example Faucet",
+reward:"20 Satoshi",
+timer:"60 Minutes",
+url:"#"
+},
+
+{
+name:"Crypto Faucet",
+reward:"15 Satoshi",
+timer:"30 Minutes",
+url:"#"
+}
+
+];
+
+let html="";
+
+faucets.forEach(f=>{
+
+html += `
+<div class="card">
+<div class="name">${f.name}</div>
+<div class="reward">Reward: ${f.reward}</div>
+<div class="timer">Timer: ${f.timer}</div>
+<a class="visit" href="${f.url}" target="_blank">
+VISIT
+</a>
+</div>
+`;
+
+});
+
+document.getElementById("faucets").innerHTML=html;
+
+</script>
+
+</body>
+</html>
