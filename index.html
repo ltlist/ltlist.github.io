@@ -1,52 +1,177 @@
 <!DOCTYPE html>
-<html lang="id-ID">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daftar Faucet Kripto Terpercaya | Faucet List</title>
-  <meta name="description" content="Kumpulan faucet kripto aktif dan terpercaya: Bitcoin, Litecoin, TRX, DOGE, USDT, dan lainnya. Update otomatis, mudah diklaim.">
-  <meta name="keywords" content="faucet kripto, faucet bitcoin, faucet litecoin, faucet trx, faucet doge, faucet usdt, daftar faucet terpercaya">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://ltlist.github.io/">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Faucet Kripto Terpercaya</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        dark: '#0F172A',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-hover {
+                transition: all 0.3s ease;
+            }
+            .card-hover:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            }
+        }
+    </style>
 </head>
-<body>
-  <div class="container">
-    <header class="page-header">
-      <h1>Daftar Faucet Kripto Aktif</h1>
-      <p class="subtitle">Pilih koin untuk melihat daftar faucet yang tersedia</p>
+<body class="font-inter bg-slate-50 text-slate-800">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-primary to-blue-700 text-white py-8 px-4">
+        <div class="container mx-auto max-w-6xl">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">💧 Daftar Faucet Kripto</h1>
+            <p class="text-blue-100 text-lg">Kumpulan situs faucet terpercaya untuk mendapatkan kripto gratis</p>
+        </div>
     </header>
 
-    <!-- Filter Pilihan Koin -->
-    <section class="filter-section" aria-label="Filter berdasarkan jenis koin">
-      <div class="filter-box">
-        <div id="filterContainer" class="radio-list"></div>
-      </div>
-    </section>
+    <!-- Filter & Pencarian -->
+    <div class="bg-white shadow-sm py-4 px-4 sticky top-0 z-10">
+        <div class="container mx-auto max-w-6xl flex flex-col md:flex-row gap-4 justify-between items-center">
+            <div class="flex gap-2">
+                <button class="px-4 py-2 bg-primary text-white rounded-lg text-sm filter-btn active" data-filter="semua">Semua</button>
+                <button class="px-4 py-2 bg-slate-100 rounded-lg text-sm filter-btn" data-filter="btc">Bitcoin</button>
+                <button class="px-4 py-2 bg-slate-100 rounded-lg text-sm filter-btn" data-filter="eth">Ethereum</button>
+                <button class="px-4 py-2 bg-slate-100 rounded-lg text-sm filter-btn" data-filter="doge">Dogecoin</button>
+                <button class="px-4 py-2 bg-slate-100 rounded-lg text-sm filter-btn" data-filter="lainnya">Lainnya</button>
+            </div>
+            <div class="relative w-full md:w-64">
+                <input type="text" id="search" placeholder="Cari nama faucet..." class="w-full px-4 py-2 border border-slate-200 rounded-lg pl-10">
+                <i class="fa fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            </div>
+        </div>
+    </div>
 
-    <!-- Tabel Daftar Faucet -->
-    <section class="table-section" aria-label="Daftar faucet kripto">
-      <div class="table-wrapper">
-        <table id="faucetTable">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama Faucet</th>
-              <th>Koin</th>
-              <th>Kepercayaan</th>
-              <th>Nilai Klaim</th>
-            </tr>
-          </thead>
-          <tbody id="faucetList"></tbody>
-        </table>
-      </div>
-    </section>
+    <!-- Daftar Faucet -->
+    <main class="container mx-auto max-w-6xl py-8 px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="faucetList">
+            
+            <!-- Contoh Item Faucet -->
+            <div class="bg-white rounded-xl shadow-sm p-5 card-hover faucet-item" data-kategori="btc">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-semibold text-slate-800">FreeBitcoin</h3>
+                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Terpercaya</span>
+                </div>
+                <p class="text-slate-600 text-sm mb-3">Klaim Bitcoin setiap jam, ada undian dan bunga saldo</p>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">BTC</span>
+                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">Setiap 60 menit</span>
+                </div>
+                <a href="https://freebitco.in" target="_blank" rel="nofollow" class="block w-full text-center bg-primary hover:bg-primary/90 text-white py-2.5 rounded-lg font-medium transition">
+                    <i class="fa fa-external-link mr-1"></i> Kunjungi Sekarang
+                </a>
+            </div>
 
-    <footer class="page-footer">
-      <p>&copy; 2026 Faucet List | Semua daftar diperbarui secara berkala</p>
+            <div class="bg-white rounded-xl shadow-sm p-5 card-hover faucet-item" data-kategori="eth">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-semibold text-slate-800">Cointiply</h3>
+                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Populer</span>
+                </div>
+                <p class="text-slate-600 text-sm mb-3">Dapatkan koin dari faucet, survei, dan menonton iklan</p>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">BTC/ETH</span>
+                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">Setiap jam</span>
+                </div>
+                <a href="https://cointiply.com" target="_blank" rel="nofollow" class="block w-full text-center bg-primary hover:bg-primary/90 text-white py-2.5 rounded-lg font-medium transition">
+                    <i class="fa fa-external-link mr-1"></i> Kunjungi Sekarang
+                </a>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-5 card-hover faucet-item" data-kategori="doge">
+                <div class="flex justify-between items-start mb-3">
+                    <h3 class="text-xl font-semibold text-slate-800">FaucetCrypto</h3>
+                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Aktif</span>
+                </div>
+                <p class="text-slate-600 text-sm mb-3">Pilihan 15+ koin, klaim setiap 30 menit, penarikan cepat</p>
+                <div class="flex items-center gap-2 mb-4">
+                    <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">DOGE/LTC</span>
+                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">Setiap 30 menit</span>
+                </div>
+                <a href="https://faucetcrypto.com" target="_blank" rel="nofollow" class="block w-full text-center bg-primary hover:bg-primary/90 text-white py-2.5 rounded-lg font-medium transition">
+                    <i class="fa fa-external-link mr-1"></i> Kunjungi Sekarang
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 text-slate-400 py-8 px-4">
+        <div class="container mx-auto max-w-6xl text-center">
+            <p>&copy; 2026 Daftar Faucet Kripto | Website gratis di GitHub.io</p>
+            <p class="text-sm mt-2">Catatan: Situs ini hanya sebagai informasi, kami tidak bertanggung jawab atas layanan pihak ketiga</p>
+        </div>
     </footer>
-  </div>
 
-  <script src="script.js"></script>
+    <!-- Script Filter & Pencarian -->
+    <script>
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const faucetItems = document.querySelectorAll('.faucet-item');
+        const searchInput = document.getElementById('search');
+
+        // Filter berdasarkan kategori
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Hapus kelas aktif
+                filterButtons.forEach(b => b.classList.remove('active', 'bg-primary', 'text-white'));
+                filterButtons.forEach(b => b.classList.add('bg-slate-100'));
+                
+                // Tambah kelas aktif ke tombol diklik
+                btn.classList.add('active', 'bg-primary', 'text-white');
+                btn.classList.remove('bg-slate-100');
+
+                const filter = btn.dataset.filter;
+                filterItems(filter);
+            });
+        });
+
+        // Fungsi filter
+        function filterItems(filter) {
+            faucetItems.forEach(item => {
+                const kategori = item.dataset.kategori;
+                if(filter === 'semua' || kategori === filter) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Pencarian real-time
+        searchInput.addEventListener('input', () => {
+            const keyword = searchInput.value.toLowerCase();
+            faucetItems.forEach(item => {
+                const nama = item.querySelector('h3').textContent.toLowerCase();
+                const deskripsi = item.querySelector('p').textContent.toLowerCase();
+                
+                if(nama.includes(keyword) || deskripsi.includes(keyword)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    </script>
 </body>
 </html>
