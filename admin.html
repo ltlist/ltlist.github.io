@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LTList Admin</title>
+<title>Admin LTList</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -13,16 +13,21 @@
 
 <header class="header">
 <h1>ADMIN PANEL</h1>
-<p>Kelola data faucet LTList</p>
+<p>Tambah Faucet</p>
 </header>
 
 <div class="form-grid">
 
 <input id="nama" placeholder="Nama Faucet">
-<input id="koin" placeholder="Koin (BTC/ETH/Multi)">
-<input id="reward" placeholder="Reward">
+
+<select id="koin">
+<option>LTC</option>
+<option>DOGE</option>
+<option>USDT</option>
+<option>ZER</option>
+</select>
+
 <input id="link" placeholder="Link Faucet">
-<input id="cooldown" placeholder="Cooldown (menit)">
 
 </div>
 
@@ -31,15 +36,12 @@
 <button onclick="exportJSON()">Export JSON</button>
 </div>
 
-<div id="kotakPesan" class="pesan pesan-info">Admin Ready</div>
-
 <div class="tabel-pembungkus">
 <table>
 <thead>
 <tr>
 <th>Nama</th>
-<th>Koin</th>
-<th>Reward</th>
+<th>Coin</th>
 <th>Aksi</th>
 </tr>
 </thead>
