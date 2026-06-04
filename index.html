@@ -1,49 +1,67 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="judulSitus">LTList • Koleksi Faucet Terbaik</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LTList • Faucet List</title>
+
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <div class="container">
-        <!-- Bagian Header -->
-        <header class="header">
-            <h1 id="judulUtama">LTList</h1>
-            <p id="deskripsiSitus">Memuat informasi...</p>
-        </header>
 
-        <!-- Pesan Status -->
-        <div id="kotakPesan" class="pesan pesan-info">🔄 Sedang memuat daftar faucet...</div>
+<div class="container">
 
-        <!-- Tabel Daftar Faucet -->
-        <div class="tabel-pembungkus">
-            <table id="tabelFaucet">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Faucet</th>
-                        <th>Koin</th>
-                        <th>Kepercayaan</th>
-                        <th>Perkiraan Hadiah</th>
-                        <th>Klaim</th>
-                    </tr>
-                </thead>
-                <tbody id="isiTabel">
-                    <tr>
-                        <td colspan="6" class="teks-tengah">Menunggu data dimuat...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <header class="header">
+        <h1>LTList</h1>
+        <p>Daftar faucet terbaik & update otomatis</p>
+    </header>
 
-        <!-- Bagian Footer -->
-        <footer class="footer">
-            <p>© <span id="tahunSekarang"></span> LTList | Semua daftar terverifikasi & terbukti membayar</p>
-        </footer>
+    <div class="control-panel">
+        <input type="text" id="search" placeholder="🔍 Cari faucet...">
+
+        <select id="filterKoin">
+            <option value="all">Semua Koin</option>
+            <option value="BTC">BTC</option>
+            <option value="ETH">ETH</option>
+            <option value="Multi">Multi</option>
+        </select>
+
+        <button id="sortBtn">🔽 Sort Nama</button>
     </div>
 
-    <script src="script.js"></script>
+    <div id="kotakPesan" class="pesan pesan-info">
+        🔄 Memuat data dari GitHub...
+    </div>
+
+    <div class="tabel-pembungkus">
+        <table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama Faucet</th>
+                    <th>Koin</th>
+                    <th>Kepercayaan</th>
+                    <th>Reward</th>
+                    <th>Klaim</th>
+                </tr>
+            </thead>
+
+            <tbody id="isiTabel"></tbody>
+        </table>
+    </div>
+
+    <footer class="footer">
+        © <span id="tahun"></span> LTList
+    </footer>
+
+</div>
+
+<script src="script.js"></script>
+
+<script>
+document.getElementById("tahun").textContent = new Date().getFullYear();
+</script>
+
 </body>
 </html>
