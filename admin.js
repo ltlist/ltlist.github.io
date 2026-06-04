@@ -3,8 +3,7 @@ let data = JSON.parse(localStorage.getItem("adm") || "[]");
 const list = document.getElementById("list");
 
 function render(){
-
-list.innerHTML = "";
+list.innerHTML="";
 
 data.forEach((x,i)=>{
 list.innerHTML += `
@@ -19,12 +18,12 @@ localStorage.setItem("adm", JSON.stringify(data));
 }
 
 function add(){
-
 data.push({
 id: Date.now().toString(),
 nama: nama.value,
 koin: koin.value,
-link: link.value
+link: link.value,
+cooldown: Number(cooldown.value)
 });
 
 render();
