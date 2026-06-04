@@ -1,7 +1,7 @@
 // Konfigurasi
 const SEMUA_KOIN = ["all", "LTC", "BTC", "TRX", "DOGE", "USDT", "BCH", "SOL", "ZEC", "TON", "DASH"];
 // Ambil dari folder sendiri, aman tanpa masalah CORS
-const DATA_URL = "./data/faucets.json";
+const DATA_URL = "./faucets.json";
 
 let faucets = [];
 
