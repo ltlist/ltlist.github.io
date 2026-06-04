@@ -1,26 +1,51 @@
+/* Reset Dasar */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
 }
 
 body {
-  background-color: #1e1e1e;
-  color: #ffffff;
+  font-family: 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  background-color: #121212;
+  color: #f0f0f0;
+  line-height: 1.6;
   padding: 1rem;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
+/* Header */
+.page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1rem;
+}
+
+.page-header h1 {
+  color: #ffffff;
+  font-size: 1.7rem;
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: #b0b0b0;
+  font-size: 1rem;
+}
+
+/* Filter Koin */
+.filter-section {
+  margin-bottom: 2rem;
+}
+
 .filter-box {
-  background-color: #2d2d2d;
+  background-color: #1e1e1e;
   border-radius: 12px;
-  margin-bottom: 1.5rem;
   overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .radio-list {
@@ -31,15 +56,15 @@ body {
 .radio-item {
   display: flex;
   align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #444444;
+  padding: 1.1rem 1.5rem;
+  border-bottom: 1px solid #333333;
   cursor: pointer;
   font-size: 1.1rem;
-  transition: background 0.2s;
+  transition: background-color 0.2s ease;
 }
 
 .radio-item:hover {
-  background-color: #383838;
+  background-color: #2a2a2a;
 }
 
 .radio-item:last-child {
@@ -54,32 +79,46 @@ body {
   cursor: pointer;
 }
 
+/* Tabel Responsif */
+.table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #2d2d2d;
-  border-radius: 6px;
-  overflow: hidden;
+  background-color: #1e1e1e;
 }
 
 th, td {
   padding: 1rem;
   text-align: left;
-  border-bottom: 1px solid #444444;
+  border-bottom: 1px solid #333333;
 }
 
 th {
-  background-color: #383838;
-  font-weight: bold;
+  background-color: #292929;
+  font-weight: 600;
+  color: #ffffff;
+  position: sticky;
+  top: 0;
+}
+
+tr:hover {
+  background-color: #252525;
 }
 
 a {
   color: #4da6ff;
   text-decoration: none;
+  font-weight: 500;
 }
 
 a:hover {
   text-decoration: underline;
+  color: #82bfff;
 }
 
 .trust {
@@ -91,4 +130,31 @@ a:hover {
 .stars {
   color: #ffc107;
   letter-spacing: 2px;
+}
+
+/* Footer */
+.page-footer {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 1.5rem;
+  color: #888888;
+  font-size: 0.9rem;
+  border-top: 1px solid #2a2a2a;
+}
+
+/* Responsif untuk HP */
+@media (max-width: 600px) {
+  .page-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .radio-item {
+    padding: 1rem 1.2rem;
+    font-size: 1rem;
+  }
+
+  th, td {
+    padding: 0.8rem 0.7rem;
+    font-size: 0.9rem;
+  }
 }
