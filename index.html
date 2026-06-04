@@ -24,9 +24,6 @@
     </script>
     <style type="text/tailwindcss">
         @layer utilities {
-            .content-auto {
-                content-visibility: auto;
-            }
             .card-hover {
                 transition: all 0.3s ease;
             }
@@ -63,56 +60,10 @@
         </div>
     </div>
 
-    <!-- Daftar Faucet -->
+    <!-- Daftar Faucet (akan diisi otomatis dari file lain) -->
     <main class="container mx-auto max-w-6xl py-8 px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="faucetList">
-            
-            <!-- Contoh Item Faucet -->
-            <div class="bg-white rounded-xl shadow-sm p-5 card-hover faucet-item" data-kategori="btc">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-xl font-semibold text-slate-800">FreeBitcoin</h3>
-                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Terpercaya</span>
-                </div>
-                <p class="text-slate-600 text-sm mb-3">Klaim Bitcoin setiap jam, ada undian dan bunga saldo</p>
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">BTC</span>
-                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">Setiap 60 menit</span>
-                </div>
-                <a href="https://freebitco.in" target="_blank" rel="nofollow" class="block w-full text-center bg-primary hover:bg-primary/90 text-white py-2.5 rounded-lg font-medium transition">
-                    <i class="fa fa-external-link mr-1"></i> Kunjungi Sekarang
-                </a>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm p-5 card-hover faucet-item" data-kategori="eth">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-xl font-semibold text-slate-800">Cointiply</h3>
-                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Populer</span>
-                </div>
-                <p class="text-slate-600 text-sm mb-3">Dapatkan koin dari faucet, survei, dan menonton iklan</p>
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">BTC/ETH</span>
-                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">Setiap jam</span>
-                </div>
-                <a href="https://cointiply.com" target="_blank" rel="nofollow" class="block w-full text-center bg-primary hover:bg-primary/90 text-white py-2.5 rounded-lg font-medium transition">
-                    <i class="fa fa-external-link mr-1"></i> Kunjungi Sekarang
-                </a>
-            </div>
-
-            <div class="bg-white rounded-xl shadow-sm p-5 card-hover faucet-item" data-kategori="doge">
-                <div class="flex justify-between items-start mb-3">
-                    <h3 class="text-xl font-semibold text-slate-800">FaucetCrypto</h3>
-                    <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Aktif</span>
-                </div>
-                <p class="text-slate-600 text-sm mb-3">Pilihan 15+ koin, klaim setiap 30 menit, penarikan cepat</p>
-                <div class="flex items-center gap-2 mb-4">
-                    <span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">DOGE/LTC</span>
-                    <span class="text-xs bg-slate-100 px-2 py-1 rounded">Setiap 30 menit</span>
-                </div>
-                <a href="https://faucetcrypto.com" target="_blank" rel="nofollow" class="block w-full text-center bg-primary hover:bg-primary/90 text-white py-2.5 rounded-lg font-medium transition">
-                    <i class="fa fa-external-link mr-1"></i> Kunjungi Sekarang
-                </a>
-            </div>
-
+            <!-- Konten muncul dari data-faucet.js -->
         </div>
     </main>
 
@@ -124,54 +75,7 @@
         </div>
     </footer>
 
-    <!-- Script Filter & Pencarian -->
-    <script>
-        const filterButtons = document.querySelectorAll('.filter-btn');
-        const faucetItems = document.querySelectorAll('.faucet-item');
-        const searchInput = document.getElementById('search');
-
-        // Filter berdasarkan kategori
-        filterButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                // Hapus kelas aktif
-                filterButtons.forEach(b => b.classList.remove('active', 'bg-primary', 'text-white'));
-                filterButtons.forEach(b => b.classList.add('bg-slate-100'));
-                
-                // Tambah kelas aktif ke tombol diklik
-                btn.classList.add('active', 'bg-primary', 'text-white');
-                btn.classList.remove('bg-slate-100');
-
-                const filter = btn.dataset.filter;
-                filterItems(filter);
-            });
-        });
-
-        // Fungsi filter
-        function filterItems(filter) {
-            faucetItems.forEach(item => {
-                const kategori = item.dataset.kategori;
-                if(filter === 'semua' || kategori === filter) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
-
-        // Pencarian real-time
-        searchInput.addEventListener('input', () => {
-            const keyword = searchInput.value.toLowerCase();
-            faucetItems.forEach(item => {
-                const nama = item.querySelector('h3').textContent.toLowerCase();
-                const deskripsi = item.querySelector('p').textContent.toLowerCase();
-                
-                if(nama.includes(keyword) || deskripsi.includes(keyword)) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        });
-    </script>
+    <!-- Panggil file data faucet -->
+    <script src="data-faucet.js"></script>
 </body>
 </html>
