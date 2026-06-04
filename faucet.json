@@ -1,26 +1,14 @@
 [
   {
-    "id": "fb",
-    "nama": "FreeBitcoin",
-    "koin": "BTC",
-    "reward": "0.000003 BTC",
-    "link": "https://freebitco.in",
-    "cooldown": 60
+    "id": "1",
+    "nama": "Free LTC Faucet",
+    "koin": "LTC",
+    "link": "https://example.com"
   },
   {
-    "id": "ff",
-    "nama": "Viefaucet",
-    "koin": "Multi",
-    "reward": "Variatif",
-    "link": "https://viefaucet.com?r=628a3fcce668400634e6c96d",
-    "cooldown": 30
-  },
-  {
-    "id": "ct",
-    "nama": "Cointiply",
-    "koin": "BTC",
-    "reward": "0.000001 BTC+",
-    "link": "https://cointiply.com",
-    "cooldown": 45
+    "id": "2",
+    "nama": "DOGE Faucet",
+    "koin": "DOGE",
+    "link": "https://example.com"
   }
 ]
