@@ -54,5 +54,19 @@
     "koin": "LTC",
     "link": "https://fc.snails.racing/fp/ltc/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV",
     "cooldown": 60
+  },
+  {
+    "id": "1780593309171",
+    "nama": "Rimicoin",
+    "koin": "ZER",
+    "link": "https://rimicoins.com/?ref=78",
+    "cooldown": 10
+  },
+  {
+    "id": "1780593461559",
+    "nama": "Zerfaucet Site",
+    "koin": "ZER",
+    "link": "https://zerfaucet.site/?ref=462",
+    "cooldown": 2
   }
 ]
