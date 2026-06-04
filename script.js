@@ -31,15 +31,20 @@ let r=item.cooldown-((Date.now()-last)/60000);
 return r>0?Math.ceil(r):0;
 }
 
-// LOAD
+// LOAD DATA
 async function load(){
 try{
 let res=await fetch(DATA_URL);
 data=await res.json();
-document.getElementById("kotakPesan").innerText="OK data loaded";
+
+document.getElementById("kotakPesan").innerText =
+"✅ Data berhasil dimuat";
+
 render();
+
 }catch(e){
-document.getElementById("kotakPesan").innerText="ERROR load data";
+document.getElementById("kotakPesan").innerText =
+"❌ Gagal load data";
 }
 }
 
@@ -47,13 +52,18 @@ document.getElementById("kotakPesan").innerText="ERROR load data";
 function render(){
 let f=[...data];
 
+// search
 let k=search.value.toLowerCase();
 if(k)f=f.filter(x=>x.nama.toLowerCase().includes(k));
 
+// filter
 if(filterKoin.value!="all")
 f=f.filter(x=>x.koin==filterKoin.value);
 
-f.sort((a,b)=>sortAsc?a.nama.localeCompare(b.nama):b.nama.localeCompare(a.nama));
+// sort
+f.sort((a,b)=>
+sortAsc?a.nama.localeCompare(b.nama):b.nama.localeCompare(a.nama)
+);
 
 tbody.innerHTML="";
 
@@ -68,9 +78,9 @@ tbody.innerHTML+=`
 <td>${x.koin}</td>
 <td>${x.reward}</td>
 <td>
-${ready?
-`<a href="${x.link}" target="_blank" onclick="setLast('${x.id}')">Claim</a>`
-:`⏳ ${r}m`}
+${ready
+? `<a href="${x.link}" target="_blank" onclick="setLast('${x.id}')">Claim</a>`
+: `⏳ ${r}m`}
 </td>
 </tr>
 `;
@@ -84,7 +94,7 @@ filterKoin.onchange=render;
 sortBtn.onclick=()=>{
 sortAsc=!sortAsc;
 render();
-}
+};
 
 load();
 setInterval(render,30000);
