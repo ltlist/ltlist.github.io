@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "name": "Faucetbravo",
+    "coin": "BTC",
+    "trust": 3,
+    "stars": 3,
+    "url": "https://faucetbravo.com",
+    "active": true
+  },
+  {
+    "id": 2,
+    "name": "btcfaucet",
+    "coin": "BTC",
+    "trust": 2,
+    "stars": 3,
+    "url": "https://btcfaucet.com",
+    "active": true
+  },
+  {
+    "id": 3,
+    "name": "CryptoNovaPay.com",
+    "coin": "BTC",
+    "trust": 3,
+    "stars": 3,
+    "url": "https://cryptonovapay.com",
+    "active": true
+  },
+  {
+    "id": 4,
+    "name": "mix-crypto.com | Claim 15 satoshi",
+    "coin": "BTC",
+    "trust": 3,
+    "stars": 3,
+    "url": "https://mix-crypto.com",
+    "active": true
+  },
+  {
+    "id": 5,
+    "name": "Bitcoinisok",
+    "coin": "BTC",
+    "trust": 2,
+    "stars": 3,
+    "url": "https://bitcoinisok.com",
+    "active": true
+  },
+  {
+    "id": 6,
+    "name": "LITECOIN FAUCET",
+    "coin": "LTC",
+    "trust": 3,
+    "stars": 2,
+    "url": "https://litecoinfaucet.com",
+    "active": true
+  },
+  {
+    "id": 7,
+    "name": "Shortlinks Faucet",
+    "coin": "LTC",
+    "trust": 2,
+    "stars": 2,
+    "url": "https://shortlinksfaucet.com",
+    "active": true
+  },
+  {
+    "id": 8,
+    "name": "mix-crypto.com | Claim 4122 LTC",
+    "coin": "LTC",
+    "trust": 3,
+    "stars": 1,
+    "url": "https://mix-crypto.com/ltc",
+    "active": true
+  },
+  {
+    "id": 9,
+    "name": "Get Free Coin - LTC",
+    "coin": "LTC",
+    "trust": 3,
+    "stars": 1,
+    "url": "https://getfreecoin.com/ltc",
+    "active": true
+  },
+  {
+    "id": 10,
+    "name": "Coin Diversity.",
+    "coin": "LTC",
+    "trust": 3,
+    "stars": 1,
+    "url": "https://coindiversity.com",
+    "active": true
+  },
+  {
+    "id": 11,
+    "name": "HIGH PAYING FAUCETS CORP.",
+    "coin": "TRX",
+    "trust": 2,
+    "stars": 2,
+    "url": "https://highpayingfaucets.com/trx",
+    "active": true
+  },
+  {
+    "id": 12,
+    "name": "TRX Faucet Pro",
+    "coin": "TRX",
+    "trust": 3,
+    "stars": 2,
+    "url": "https://trxfaucetpro.com",
+    "active": true
+  },
+  {
+    "id": 13,
+    "name": "TRX Daily Claim",
+    "coin": "TRX",
+    "trust": 2,
+    "stars": 1,
+    "url": "https://trxdaily.com",
+    "active": true
+  },
+  {
+    "id": 14,
+    "name": "DOGE Coin Faucet",
+    "coin": "DOGE",
+    "trust": 3,
+    "stars": 2,
+    "url": "https://dogefaucet.com",
+    "active": true
+  },
+  {
+    "id": 15,
+    "name": "Free DOGE Daily",
+    "coin": "DOGE",
+    "trust": 2,
+    "stars": 2,
+    "url": "https://freedoge.com",
+    "active": true
+  },
+  {
+    "id": 16,
+    "name": "USDT Claim Hub",
+    "coin": "USDT",
+    "trust": 3,
+    "stars": 3,
+    "url": "https://usdthub.com",
+    "active": true
+  },
+  {
+    "id": 17,
+    "name": "BCH Rewards",
+    "coin": "BCH",
+    "trust": 2,
+    "stars": 2,
+    "url": "https://bchrewards.com",
+    "active": true
+  },
+  {
+    "id": 18,
+    "name": "SOL Faucet",
+    "coin": "SOL",
+    "trust": 3,
+    "stars": 2,
+    "url": "https://solfaucet.com",
+    "active": true
+  },
+  {
+    "id": 19,
+    "name": "ZEC Daily",
+    "coin": "ZEC",
+    "trust": 2,
+    "stars": 1,
+    "url": "https://zecdaily.com",
+    "active": true
+  },
+  {
+    "id": 20,
+    "name": "FC Network - Easy",
+    "coin": "TON",
+    "trust": 2,
+    "stars": 1,
+    "url": "https://fcnetwork.com/ton",
+    "active": true
+  }
+]
