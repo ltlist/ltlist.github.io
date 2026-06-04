@@ -1,4 +1,4 @@
-// Data langsung dimasukkan di sini (tanpa enkripsi dulu)
+// Data lengkap
 const DATA_FAUCET = {
   "site_info": {
     "title": "LTList • Koleksi Faucet Terbaik",
@@ -12,7 +12,7 @@ const DATA_FAUCET = {
       "tingkat_kepercayaan": "⭐⭐⭐⭐⭐ SANGAT AMAN",
       "estimasi_hadiah": "0.000001 - 0.001 BTC",
       "jadwal_klaim": "Setiap 5 Menit",
-      "tautan_rujukan": "https://faucetcrypto.com/ref/GANTI_KODE_KAMU"
+      "tautan_rujukan": "https://faucetcrypto.com/ref/GANTI_KODE_RUJUKAN"
     },
     {
       "id": 2,
@@ -21,7 +21,7 @@ const DATA_FAUCET = {
       "tingkat_kepercayaan": "⭐⭐⭐⭐⭐ TERPERCAYA",
       "estimasi_hadiah": "Bervariasi hingga 50.000 koin/hari",
       "jadwal_klaim": "Setiap Jam",
-      "tautan_rujukan": "https://cointiply.com/r/GANTI_KODE_KAMU"
+      "tautan_rujukan": "https://cointiply.com/r/GANTI_KODE_RUJUKAN"
     },
     {
       "id": 3,
@@ -30,7 +30,7 @@ const DATA_FAUCET = {
       "tingkat_kepercayaan": "⭐⭐⭐⭐ AMAN",
       "estimasi_hadiah": "Hingga $200 + Bunga 4.08%",
       "jadwal_klaim": "Setiap Jam",
-      "tautan_rujukan": "https://freebitco.in/?r=GANTI_KODE_KAMU"
+      "tautan_rujukan": "https://freebitco.in/?r=GANTI_KODE_RUJUKAN"
     },
     {
       "id": 4,
@@ -39,14 +39,12 @@ const DATA_FAUCET = {
       "tingkat_kepercayaan": "⭐⭐⭐⭐ SANGAT BAGUS",
       "estimasi_hadiah": "Bonus harian + tugas tambahan",
       "jadwal_klaim": "Setiap 30 Menit",
-      "tautan_rujukan": "https://firefaucet.win/?ref=GANTI_KODE_KAMU"
+      "tautan_rujukan": "https://firefaucet.win/?ref=GANTI_KODE_RUJUKAN"
     }
   ]
 };
 
-window.onload = function() {
-  tampilkanData();
-};
+window.onload = tampilkanData;
 
 function tampilkanData() {
   const tabel = document.getElementById("isiTabel");
