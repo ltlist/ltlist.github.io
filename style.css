@@ -1,123 +1,44 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Roboto, sans-serif;
+body{
+background:#0f1419;
+color:#e2e8f0;
+font-family:sans-serif;
+padding:20px;
 }
 
-body {
-    background-color: #0f1419;
-    color: #e2e8f0;
-    padding: 20px;
+.container{
+max-width:1100px;
+margin:auto;
+background:#161b22;
+padding:20px;
+border-radius:10px;
 }
 
-.container {
-    max-width: 1100px;
-    margin: auto;
-    background: #161b22;
-    padding: 25px;
-    border-radius: 12px;
-    border: 1px solid #21262d;
+.control-panel{
+display:flex;
+gap:10px;
+margin:10px 0;
+flex-wrap:wrap;
 }
 
-.header {
-    text-align: center;
-    margin-bottom: 20px;
+input,select,button{
+padding:10px;
+border-radius:6px;
+border:1px solid #333;
+background:#0d1117;
+color:white;
 }
 
-.header h1 {
-    color: #00ccff;
+table{
+width:100%;
+margin-top:10px;
+border-collapse:collapse;
 }
 
-.pesan {
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    text-align: center;
+td,th{
+padding:10px;
+border-bottom:1px solid #222;
 }
 
-.pesan-info {
-    background: rgba(0,150,255,0.1);
-    color: #58a6ff;
-}
-
-.tabel-pembungkus {
-    overflow-x: auto;
-}
-
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #0d1117;
-}
-
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid #222;
-}
-
-th {
-    color: #00ccff;
-    text-align: left;
-}
-
-tr:hover td {
-    background: #1a202c;
-}
-
-.lencana-koin {
-    padding: 4px 10px;
-    border-radius: 20px;
-    background: #0e4b69;
-    color: #79c0ff;
-    font-size: 12px;
-}
-
-.kepercayaan {
-    color: gold;
-}
-
-.tombol-klaim {
-    background: #00a3cc;
-    color: white;
-    padding: 6px 12px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 13px;
-}
-
-.tombol-klaim:hover {
-    background: #00b8e6;
-}
-
-.footer {
-    text-align: center;
-    margin-top: 20px;
-    color: #777;
-}
-
-/* CONTROL PANEL */
-.control-panel {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
-.control-panel input,
-.control-panel select {
-    padding: 8px;
-    border-radius: 6px;
-    border: 1px solid #333;
-    background: #0d1117;
-    color: white;
-}
-
-.control-panel button {
-    padding: 8px 12px;
-    border: none;
-    background: #00a3cc;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
+a{
+color:#00ccff;
 }
