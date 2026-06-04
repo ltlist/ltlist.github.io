@@ -83,7 +83,6 @@ function render() {
             <td>${i + 1}</td>
             <td>${item.nama}</td>
             <td><span class="lencana-koin">${item.koin}</span></td>
-            <td class="kepercayaan">${item.trust}</td>
             <td>${item.reward}</td>
             <td>
                 ${
