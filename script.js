@@ -66,7 +66,6 @@ tbody.innerHTML+=`
 <td>${i+1}</td>
 <td>${x.nama}</td>
 <td>${x.koin}</td>
-<td>${x.trust}</td>
 <td>${x.reward}</td>
 <td>
 ${ready?
