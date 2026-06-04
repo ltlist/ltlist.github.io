@@ -1,43 +1,42 @@
 // Konfigurasi
 const SEMUA_KOIN = ["all", "LTC", "BTC", "TRX", "DOGE", "USDT", "BCH", "SOL", "ZEC", "TON", "DASH"];
-const DATA_URL = "https://raw.githubusercontent.com/ltlist/muda-core/main/faucets.json";
+// Ambil dari folder sendiri, aman tanpa masalah CORS
+const DATA_URL = "./data/faucets.json";
 
 let faucets = [];
 
-// Ambil data dari repo muda-core
+// Ambil data
 async function loadFaucetData() {
   try {
     const response = await fetch(DATA_URL);
-    if (!response.ok) throw new Error("File data tidak ditemukan");
+    if (!response.ok) throw new Error("File tidak ditemukan");
     
     faucets = await response.json();
     buatFilterKoin();
     tampilkanFaucet();
   } catch (error) {
-    console.error("Gagal memuat data:", error);
+    console.error("Gagal:", error);
     document.getElementById("faucetList").innerHTML = `
       <tr><td colspan="5" style="text-align:center; padding:2rem; color:#ff6b6b;">
-        Gagal memuat data. Cek koneksi atau URL data.
+        ❌ Gagal memuat data
       </td></tr>
     `;
   }
 }
 
-// Hitung jumlah faucet aktif per koin
+// Hitung jumlah
 function hitungJumlahFaucet() {
   const jumlah = {};
   const aktif = faucets.filter(f => f.active);
-  
   jumlah["all"] = aktif.length;
   
   SEMUA_KOIN.slice(1).forEach(koin => {
     jumlah[koin] = aktif.filter(f => f.coin === koin).length;
   });
-
   return jumlah;
 }
 
-// Buat daftar pilihan koin dengan jumlah otomatis
+// Buat filter
 function buatFilterKoin() {
   const wadah = document.getElementById("filterContainer");
   const jumlah = hitungJumlahFaucet();
@@ -46,14 +45,12 @@ function buatFilterKoin() {
   SEMUA_KOIN.forEach((koin, indeks) => {
     const elemen = document.createElement("label");
     elemen.className = "radio-item";
-    
     const teks = jumlah[koin] > 0 ? `${koin} (${jumlah[koin]})` : koin;
     
     elemen.innerHTML = `
       <input type="radio" name="filterKoin" value="${koin}" ${indeks === 0 ? "checked" : ""}>
       ${teks}
     `;
-
     wadah.appendChild(elemen);
   });
 
@@ -62,19 +59,16 @@ function buatFilterKoin() {
   });
 }
 
-// Tampilkan daftar faucet
+// Tampilkan tabel
 function tampilkanFaucet(filter = "all") {
   const wadahTabel = document.getElementById("faucetList");
   wadahTabel.innerHTML = "";
 
   let data = faucets.filter(f => f.active);
-
-  if (filter !== "all") {
-    data = data.filter(f => f.coin === filter);
-  }
+  if (filter !== "all") data = data.filter(f => f.coin === filter);
 
   if (data.length === 0) {
-    wadahTabel.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem;">Belum ada faucet untuk koin ini</td></tr>`;
+    wadahTabel.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem;">Belum ada data</td></tr>`;
     return;
   }
 
@@ -91,5 +85,4 @@ function tampilkanFaucet(filter = "all") {
   });
 }
 
-// Jalankan saat halaman dimuat
 window.addEventListener("load", loadFaucetData);
