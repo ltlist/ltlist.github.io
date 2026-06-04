@@ -1,6 +1,6 @@
 // Konfigurasi
 const SEMUA_KOIN = ["all", "LTC", "BTC", "TRX", "DOGE", "USDT", "BCH", "SOL", "ZEC", "TON", "DASH"];
-const DATA_URL = "https://raw.githubusercontent.com/ltlist/muda-core/main/data/faucets.json";
+const DATA_URL = "https://raw.githubusercontent.com/ltlist/muda-core/main/faucets.json";
 
 let faucets = [];
 
