@@ -122,4 +122,44 @@ flex-direction:column;
 input,select,button{
 width:100%;
 }
+.ad-banner{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:5px;
+    margin:15px 0;
+}
+
+.ad-label{
+    font-size:11px;
+    color:#777;
+}
+
+.ad-box{
+    width:468px;
+    height:60px;
+    max-width:100%;
+    border:1px solid #222;
+    border-radius:6px;
+    overflow:hidden;
+    background:#0d1117;
+}
+
+/* iframe full box */
+.ad-box iframe{
+    width:100%;
+    height:100%;
+    border:none;
+}
+
+/* RESPONSIVE HP */
+@media(max-width:500px){
+    .ad-box{
+        width:100%;
+        height:auto;
+    }
+
+    .ad-box iframe{
+        height:60px;
+    }
 }
