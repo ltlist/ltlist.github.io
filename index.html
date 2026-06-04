@@ -1,31 +1,50 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id-ID">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Faucet List</title>
+  <title>Daftar Faucet Kripto Terpercaya | Faucet List</title>
+  <meta name="description" content="Kumpulan faucet kripto aktif dan terpercaya: Bitcoin, Litecoin, TRX, DOGE, USDT, dan lainnya. Update otomatis, mudah diklaim.">
+  <meta name="keywords" content="faucet kripto, faucet bitcoin, faucet litecoin, faucet trx, faucet doge, faucet usdt, daftar faucet terpercaya">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://ltlist.github.io/">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <!-- Filter Koin -->
-    <div class="filter-box">
-      <div id="filterContainer" class="radio-list"></div>
-    </div>
+    <header class="page-header">
+      <h1>Daftar Faucet Kripto Aktif</h1>
+      <p class="subtitle">Pilih koin untuk melihat daftar faucet yang tersedia</p>
+    </header>
+
+    <!-- Filter Pilihan Koin -->
+    <section class="filter-section" aria-label="Filter berdasarkan jenis koin">
+      <div class="filter-box">
+        <div id="filterContainer" class="radio-list"></div>
+      </div>
+    </section>
 
     <!-- Tabel Daftar Faucet -->
-    <table id="faucetTable">
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Faucet Name</th>
-          <th>Coin</th>
-          <th>Trust</th>
-          <th>Claim Value</th>
-        </tr>
-      </thead>
-      <tbody id="faucetList"></tbody>
-    </table>
+    <section class="table-section" aria-label="Daftar faucet kripto">
+      <div class="table-wrapper">
+        <table id="faucetTable">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama Faucet</th>
+              <th>Koin</th>
+              <th>Kepercayaan</th>
+              <th>Nilai Klaim</th>
+            </tr>
+          </thead>
+          <tbody id="faucetList"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="page-footer">
+      <p>&copy; 2026 Faucet List | Semua daftar diperbarui secara berkala</p>
+    </footer>
   </div>
 
   <script src="script.js"></script>
