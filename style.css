@@ -72,13 +72,37 @@ color:#00ccff;
 text-decoration:none;
 }
 
+.btn{
+padding:6px 10px;
+border-radius:6px;
+background:#00ccff;
+color:black;
+border:none;
+cursor:pointer;
+text-decoration:none;
+display:inline-block;
+}
+
+.btn.disabled{
+background:#333;
+color:#888;
+cursor:not-allowed;
+}
+
+.coin{
+padding:3px 8px;
+background:#0d2b3a;
+border-radius:10px;
+color:#00ccff;
+font-size:12px;
+}
+
 .footer{
 text-align:center;
 margin-top:20px;
 color:#777;
 }
 
-/* RESPONSIVE ADMIN */
 .form-grid{
 display:grid;
 grid-template-columns:repeat(2,1fr);
