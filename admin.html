@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LTList Admin Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🔥 ADMIN PANEL LTList</h1>
+
+<div class="form-box">
+
+<input id="nama" placeholder="Nama Faucet">
+<input id="koin" placeholder="Koin (BTC/ETH/Multi)">
+<input id="trust" placeholder="Trust (⭐⭐⭐⭐⭐)">
+<input id="reward" placeholder="Reward">
+<input id="link" placeholder="Link Faucet">
+<input id="cooldown" placeholder="Cooldown (menit)">
+
+<button onclick="addFaucet()">➕ Tambah</button>
+<button onclick="exportJSON()">💾 Export JSON</button>
+
+</div>
+
+<h3>Data Saat Ini</h3>
+<table>
+<thead>
+<tr>
+<th>Nama</th>
+<th>Koin</th>
+<th>Aksi</th>
+</tr>
+</thead>
+
+<tbody id="list"></tbody>
+
+</table>
+
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
