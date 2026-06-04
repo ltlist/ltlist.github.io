@@ -1,0 +1,29 @@
+[
+  {
+    "id": "fb",
+    "nama": "FreeBitcoin",
+    "koin": "BTC",
+    "trust": "⭐⭐⭐⭐⭐",
+    "reward": "0.000003 BTC",
+    "link": "https://freebitco.in",
+    "cooldown": 60
+  },
+  {
+    "id": "ff",
+    "nama": "FireFaucet",
+    "koin": "Multi",
+    "trust": "⭐⭐⭐⭐",
+    "reward": "Variatif",
+    "link": "https://firefaucet.win",
+    "cooldown": 30
+  },
+  {
+    "id": "ct",
+    "nama": "Cointiply",
+    "koin": "BTC",
+    "trust": "⭐⭐⭐⭐⭐",
+    "reward": "0.000001 BTC+",
+    "link": "https://cointiply.com",
+    "cooldown": 45
+  }
+]
