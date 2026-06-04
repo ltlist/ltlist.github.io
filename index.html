@@ -13,7 +13,7 @@
 
 <header class="header">
 <h1>LTList</h1>
-<p>Faucet list auto update</p>
+<p>Daftar faucet otomatis dari GitHub</p>
 </header>
 
 <div class="control-panel">
@@ -27,14 +27,14 @@
 <button id="sortBtn">Sort</button>
 </div>
 
-<div id="kotakPesan" class="pesan">Loading...</div>
+<div id="kotakPesan" class="pesan pesan-info">Loading...</div>
 
 <div class="tabel-pembungkus">
 <table>
 <thead>
 <tr>
 <th>No</th>
-<th>Nama Faucet</th>
+<th>Nama</th>
 <th>Koin</th>
 <th>Reward</th>
 <th>Aksi</th>
@@ -46,12 +46,16 @@
 </div>
 
 <footer class="footer">
-© LTList
+© <span id="tahun"></span> LTList
 </footer>
 
 </div>
 
 <script src="script.js"></script>
+
+<script>
+document.getElementById("tahun").textContent = new Date().getFullYear();
+</script>
 
 </body>
 </html>
