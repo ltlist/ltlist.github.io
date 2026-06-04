@@ -1,6 +1,6 @@
 // Konfigurasi
 const SEMUA_KOIN = ["all", "LTC", "BTC", "TRX", "DOGE", "USDT", "BCH", "SOL", "ZEC", "TON", "DASH"];
-const PRIVATE_JSON_URL = "https://raw.githubusercontent.com/ltlist/jabrig-core/main/data/faucets.json";
+const PRIVATE_JSON_URL = "https://raw.githubusercontent.com/ltlist/muda-core/main/data/faucets.json";
 const GITHUB_TOKEN = "TEMPEL_TOKEN_KAMU_DISINI"; // Ganti dengan token yang sudah dibuat
 
 let faucets = [];
