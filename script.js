@@ -1,7 +1,7 @@
 // Konfigurasi
 const SEMUA_KOIN = ["all", "LTC", "BTC", "TRX", "DOGE", "USDT", "BCH", "SOL", "ZEC", "TON", "DASH"];
 // Ganti [USERNAME] dengan nama akun GitHub kamu
-const PRIVATE_JSON_URL = "https://raw.githubusercontent.com/[ltlist]/jabrig-core/main/faucets.json";
+const PRIVATE_JSON_URL = "https://raw.githubusercontent.com/ltlist/jabrig-core/main/faucets.json";
 // Token akses pribadi (buat di GitHub Settings > Developer settings > Personal access tokens)
 const GITHUB_TOKEN = "MASUKKAN_TOKEN_AKSES_DISINI";
 
