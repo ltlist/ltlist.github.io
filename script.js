@@ -1,110 +1,91 @@
 const tbody = document.getElementById("isiTabel");
+
 const search = document.getElementById("search");
 const filterKoin = document.getElementById("filterKoin");
 const sortBtn = document.getElementById("sortBtn");
 
-let dataFaucet = [];
+let data = [];
 let sortAsc = true;
 
-// 🔥 GITHUB RAW JSON
 const DATA_URL = "https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/faucet.json";
 
-// TIMER STORAGE
-function getLast(id) {
-    return localStorage.getItem("claim_" + id);
+// TIMER
+function getLast(id){
+return localStorage.getItem("c_"+id);
 }
 
-function setLast(id) {
-    localStorage.setItem("claim_" + id, Date.now());
+function setLast(id){
+localStorage.setItem("c_"+id,Date.now());
 }
 
-function canClaim(item) {
-    const last = getLast(item.id);
-    if (!last) return true;
-
-    const diff = (Date.now() - last) / 60000;
-    return diff >= item.cooldown;
+function canClaim(item){
+const last=getLast(item.id);
+if(!last)return true;
+return (Date.now()-last)/60000 >= item.cooldown;
 }
 
-function remaining(item) {
-    const last = getLast(item.id);
-    if (!last) return 0;
-
-    const diff = (Date.now() - last) / 60000;
-    const left = item.cooldown - diff;
-    return left > 0 ? Math.ceil(left) : 0;
+function remain(item){
+const last=getLast(item.id);
+if(!last)return 0;
+let r=item.cooldown-((Date.now()-last)/60000);
+return r>0?Math.ceil(r):0;
 }
 
-// FETCH DATA
-async function loadDataFromGitHub() {
-    try {
-        const res = await fetch(DATA_URL);
-        dataFaucet = await res.json();
-
-        document.getElementById("kotakPesan").innerText =
-            "✅ Data berhasil dimuat dari GitHub";
-
-        render();
-    } catch (e) {
-        document.getElementById("kotakPesan").innerText =
-            "❌ Gagal load data";
-    }
+// LOAD
+async function load(){
+try{
+let res=await fetch(DATA_URL);
+data=await res.json();
+document.getElementById("kotakPesan").innerText="OK data loaded";
+render();
+}catch(e){
+document.getElementById("kotakPesan").innerText="ERROR load data";
+}
 }
 
-// RENDER TABLE
-function render() {
+// RENDER
+function render(){
+let f=[...data];
 
-    let filtered = [...dataFaucet];
+let k=search.value.toLowerCase();
+if(k)f=f.filter(x=>x.nama.toLowerCase().includes(k));
 
-    const keyword = search.value.toLowerCase();
-    if (keyword) {
-        filtered = filtered.filter(f =>
-            f.nama.toLowerCase().includes(keyword)
-        );
-    }
+if(filterKoin.value!="all")
+f=f.filter(x=>x.koin==filterKoin.value);
 
-    if (filterKoin.value !== "all") {
-        filtered = filtered.filter(f => f.koin === filterKoin.value);
-    }
+f.sort((a,b)=>sortAsc?a.nama.localeCompare(b.nama):b.nama.localeCompare(a.nama));
 
-    filtered.sort((a, b) =>
-        sortAsc ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama)
-    );
+tbody.innerHTML="";
 
-    tbody.innerHTML = "";
+f.forEach((x,i)=>{
+let ready=canClaim(x);
+let r=remain(x);
 
-    filtered.forEach((item, i) => {
-
-        const ready = canClaim(item);
-        const left = remaining(item);
-
-        tbody.innerHTML += `
-        <tr>
-            <td>${i + 1}</td>
-            <td>${item.nama}</td>
-            <td><span class="lencana-koin">${item.koin}</span></td>
-            <td>${item.reward}</td>
-            <td>
-                ${
-                    ready
-                    ? `<a class="tombol-klaim" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">Claim</a>`
-                    : `<button class="tombol-klaim" disabled>⏳ ${left}m</button>`
-                }
-            </td>
-        </tr>
-        `;
-    });
+tbody.innerHTML+=`
+<tr>
+<td>${i+1}</td>
+<td>${x.nama}</td>
+<td>${x.koin}</td>
+<td>${x.trust}</td>
+<td>${x.reward}</td>
+<td>
+${ready?
+`<a href="${x.link}" target="_blank" onclick="setLast('${x.id}')">Claim</a>`
+:`⏳ ${r}m`}
+</td>
+</tr>
+`;
+});
 }
 
 // EVENTS
-search.addEventListener("input", render);
-filterKoin.addEventListener("change", render);
+search.oninput=render;
+filterKoin.onchange=render;
 
-sortBtn.addEventListener("click", () => {
-    sortAsc = !sortAsc;
-    render();
-});
+sortBtn.onclick=()=>{
+sortAsc=!sortAsc;
+render();
+}
 
-// INIT
-loadDataFromGitHub();
-setInterval(render, 30000);
+load();
+setInterval(render,30000);
