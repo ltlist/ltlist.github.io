@@ -122,38 +122,47 @@ flex-direction:column;
 input,select,button{
 width:100%;
 }
+
 .ad-banner{
     display:flex;
     flex-direction:column;
     align-items:center;
-    gap:5px;
-    margin:15px 0;
+    justify-content:center;
+    width:100%;
+    margin:20px 0;
 }
 
 .ad-label{
     font-size:11px;
     color:#777;
+    margin-bottom:5px;
 }
 
 .ad-box{
     width:468px;
-    height:60px;
     max-width:100%;
+    height:60px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
     border:1px solid #222;
     border-radius:6px;
     overflow:hidden;
     background:#0d1117;
+    margin:0 auto;
 }
 
 .ad-box iframe{
     width:100%;
     height:100%;
     border:none;
+    display:block;
 }
 
-/* MOBILE */
+/* HP */
 @media(max-width:500px){
 .ad-box{
     width:100%;
+    height:60px;
 }
 }
