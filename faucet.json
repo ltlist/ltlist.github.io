@@ -3,12 +3,14 @@
     "id": "1",
     "nama": "Free LTC Faucet",
     "koin": "LTC",
-    "link": "https://example.com"
+    "link": "https://example.com",
+    "cooldown": 60
   },
   {
     "id": "2",
     "nama": "DOGE Faucet",
     "koin": "DOGE",
-    "link": "https://example.com"
+    "link": "https://example.com",
+    "cooldown": 30
   }
 ]
