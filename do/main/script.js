@@ -9,7 +9,7 @@ let sortAsc = true;
 
 // 🔥 DATA DARI REPO 2
 const DATA_URL =
-"https://raw.githubusercontent.com/USERNAME/ltlist-data/main/faucet.json";
+"https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/do/main/faucet.json";
 
 // ================= TIMER =================
 function getLast(id){
