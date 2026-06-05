@@ -56,11 +56,8 @@ document.getElementById("kotakPesan").innerText =
 render();
 
 }catch(e){
-
-console.error(e);
-
 document.getElementById("kotakPesan").innerText =
-"❌ Failed load data";
+"❌ " + e.message;
 }
 }
 
