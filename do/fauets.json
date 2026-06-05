@@ -1,0 +1,72 @@
+[
+  {
+    "id": "1780591474387",
+    "nama": "Vie Faucet",
+    "koin": "MULTI",
+    "link": "https://viefaucet.com?r=628a3fcce668400634e6c96d",
+    "cooldown": 4
+  },
+  {
+    "id": "1780591654253",
+    "nama": "Coin Diversity",
+    "koin": "DOGE",
+    "link": "http://coindiversity.io/free-coins?r=DPzcoFNUGajmhEfhptz3FSFsFTidRtGAy4",
+    "cooldown": 1
+  },
+  {
+    "id": "1780591867268",
+    "nama": "Tribal Faucet",
+    "koin": "USDT",
+    "link": "https://tribal.1eon-uno.top/?r=DPzcoFNUGajmhEfhptz3FSFsFTidRtGAy4",
+    "cooldown": 30
+  },
+  {
+    "id": "1780592086764",
+    "nama": "Freecoin",
+    "koin": "DOGE",
+    "link": "http://freecoin.in.ua/?r=DPzcoFNUGajmhEfhptz3FSFsFTidRtGAy4",
+    "cooldown": 1
+  },
+  {
+    "id": "1780592209405",
+    "nama": "Kedch",
+    "koin": "LTC",
+    "link": "https://kedch.com/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV",
+    "cooldown": 1
+  },
+  {
+    "id": "1780592372551",
+    "nama": "Litecoin Faucet",
+    "koin": "LTC",
+    "link": "https://litecoinfaucet.com/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV",
+    "cooldown": 1
+  },
+  {
+    "id": "1780592510060",
+    "nama": "Getfree co in",
+    "koin": "LTC",
+    "link": "https://getfree.co.in/litecoin/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV",
+    "cooldown": 5
+  },
+  {
+    "id": "1780592711571",
+    "nama": "FC Snail",
+    "koin": "LTC",
+    "link": "https://fc.snails.racing/fp/ltc/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV",
+    "cooldown": 60
+  },
+  {
+    "id": "1780593309171",
+    "nama": "Rimicoin",
+    "koin": "ZER",
+    "link": "https://rimicoins.com/?ref=78",
+    "cooldown": 10
+  },
+  {
+    "id": "1780593461559",
+    "nama": "Zerfaucet Site",
+    "koin": "ZER",
+    "link": "https://zerfaucet.site/?ref=462",
+    "cooldown": 2
+  }
+]
