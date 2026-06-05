@@ -1,5 +1,4 @@
 const tbody = document.getElementById("isiTabel");
-
 const search = document.getElementById("search");
 const filterKoin = document.getElementById("filterKoin");
 const sortBtn = document.getElementById("sortBtn");
@@ -7,126 +6,172 @@ const sortBtn = document.getElementById("sortBtn");
 let data = [];
 let sortAsc = true;
 
-// 🔥 DATA DARI REPO 2
-const DATA_URL =
-"const DATA_URL = "https://alif.unaux.com/api/faucets.php?test=1";
+const DATA_URL = "https://alif.unaux.com/api/faucets.php";
 
 // ================= TIMER =================
+
 function getLast(id){
-return localStorage.getItem("claim_" + id);
+    return localStorage.getItem("claim_" + id);
 }
 
 function setLast(id){
-localStorage.setItem("claim_" + id, Date.now());
+    localStorage.setItem("claim_" + id, Date.now());
 }
 
 function remainingSeconds(item){
-const last = getLast(item.id);
-if(!last) return 0;
 
-const diff = Math.floor((Date.now() - last) / 1000);
-const cooldown = item.cooldown * 60;
+    const last = getLast(item.id);
 
-return Math.max(0, cooldown - diff);
+    if(!last) return 0;
+
+    const diff = Math.floor((Date.now() - Number(last)) / 1000);
+
+    const cooldown = Number(item.cooldown) * 60;
+
+    const left = cooldown - diff;
+
+    return left > 0 ? left : 0;
 }
 
 function formatTime(sec){
-const m = Math.floor(sec / 60);
-const s = sec % 60;
-return `${m}m ${s}s`;
+
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+
+    return `${m}m ${s}s`;
 }
 
 // ================= LOAD DATA =================
+
 async function loadData(){
-try{
 
-const res = await fetch(DATA_URL);
+    try{
 
-console.log("Status:", res.status);
+        document.getElementById("kotakPesan").innerText =
+        "Loading data...";
 
-const text = await res.text();
+        const res = await fetch(DATA_URL);
 
-console.log("Response:", text);
+        if(!res.ok){
+            throw new Error("HTTP " + res.status);
+        }
 
-data = JSON.parse(text);
+        data = await res.json();
 
-document.getElementById("kotakPesan").innerText =
-"✅ Data loaded";
+        document.getElementById("kotakPesan").innerText =
+        `✅ ${data.length} faucets loaded`;
 
-render();
+        render();
 
-}catch(e){
-document.getElementById("kotakPesan").innerText =
-"❌ " + e.message;
-}
+    }catch(e){
+
+        console.error(e);
+
+        document.getElementById("kotakPesan").innerText =
+        "❌ " + e.message;
+    }
 }
 
 // ================= RENDER =================
+
 function render(){
 
-console.log("DATA =", data);
+    if(!tbody) return;
 
-tbody.innerHTML = "";
+    let list = [...data];
 
-data.forEach((item,i)=>{
+    // Search
 
-tbody.innerHTML += `
-<tr>
-<td>${i+1}</td>
-<td>${item.nama}</td>
-<td>${item.koin}</td>
-<td>${item.link}</td>
-</tr>
-`;
+    const keyword = search.value.toLowerCase();
 
-});
+    if(keyword){
 
-document.getElementById("kotakPesan").innerText =
-"✅ Total: " + data.length;
+        list = list.filter(item =>
+            item.nama.toLowerCase().includes(keyword)
+        );
+    }
 
-}
+    // Filter Coin
 
-if(filterKoin.value !== "all"){
-list = list.filter(x => x.koin === filterKoin.value);
-}
+    if(filterKoin.value !== "all"){
 
-list.sort((a,b)=>
-sortAsc ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama)
-);
+        list = list.filter(item =>
+            item.koin === filterKoin.value
+        );
+    }
 
-tbody.innerHTML = "";
+    // Sort
 
-list.forEach((item,i)=>{
+    list.sort((a,b)=>
 
-const left = remainingSeconds(item);
-const ready = left === 0;
+        sortAsc
+        ? a.nama.localeCompare(b.nama)
+        : b.nama.localeCompare(a.nama)
+    );
 
-tbody.innerHTML += `
-<tr>
-<td>${i+1}</td>
-<td>${item.nama}</td>
-<td>${item.koin}</td>
-<td>
-${
-ready
-? `<a class="btn" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">Claim</a>`
-: `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
-}
-</td>
-</tr>
-`;
-});
+    tbody.innerHTML = "";
+
+    list.forEach((item,index)=>{
+
+        const left = remainingSeconds(item);
+
+        let tombol = "";
+
+        if(left === 0){
+
+            tombol = `
+            <a
+            class="btn"
+            href="${item.link}"
+            target="_blank"
+            onclick="setLast('${item.id}')">
+            Claim
+            </a>`;
+        }else{
+
+            tombol = `
+            <button class="btn disabled">
+            ⏳ ${formatTime(left)}
+            </button>`;
+        }
+
+        tbody.innerHTML += `
+        <tr>
+            <td>${index + 1}</td>
+            <td>${item.nama}</td>
+            <td><span class="coin">${item.koin}</span></td>
+            <td>${tombol}</td>
+        </tr>
+        `;
+    });
+
+    if(list.length === 0){
+
+        tbody.innerHTML = `
+        <tr>
+            <td colspan="4">
+                No faucet found
+            </td>
+        </tr>
+        `;
+    }
 }
 
 // ================= EVENTS =================
+
 search.addEventListener("input", render);
+
 filterKoin.addEventListener("change", render);
 
-sortBtn.addEventListener("click", ()=>{
-sortAsc = !sortAsc;
-render();
+sortBtn.addEventListener("click", () => {
+
+    sortAsc = !sortAsc;
+
+    render();
 });
 
 // ================= INIT =================
+
 loadData();
+
 setInterval(render, 1000);
