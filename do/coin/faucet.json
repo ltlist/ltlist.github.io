@@ -1,4 +1,3 @@
-
 [
   {
     "id": "1780591474387",
@@ -11,7 +10,7 @@
     "id": "1780591654253",
     "nama": "Coin Diversity",
     "koin": "DOGE",
-    "link": "http://coindiversity.io/free-coins?r=DPzcoFNUGajmhEfhptz3FSFsFTidRtGAy4",
+    "link": "DPzcoFNUGajmhEfhptz3FSFsFTidRtGAy4",
     "cooldown": 1
   },
   {
@@ -69,5 +68,12 @@
     "koin": "ZER",
     "link": "https://zerfaucet.site/?ref=462",
     "cooldown": 2
+  },
+  {
+    "id": "1780624416839",
+    "nama": "Trew faucet",
+    "koin": "USDT",
+    "link": "https://treaw.com/?r=TTYWDd77WQ55zD13huepeBxSJKkdvSYhUm",
+    "cooldown": 1
   }
 ]
