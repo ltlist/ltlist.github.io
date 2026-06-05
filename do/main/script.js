@@ -8,7 +8,8 @@ let data = [];
 let sortAsc = true;
 
 const DATA_URL =
-"https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/do/coin/faucet.json";
+"const DATA_URL =
+"https://alif.unaux.com/api/faucets.php";";
 
 // ================= TIMER =================
 function getLast(id){
