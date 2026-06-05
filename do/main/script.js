@@ -8,7 +8,7 @@ let data = [];
 let sortAsc = true;
 
 const DATA_URL =
-"https://raw.githubusercontent.com/ltlist/ltlist-data/coin/faucet.json";
+"https://raw.githubusercontent.com/ltlist/ltlist.github.io/coin/do/main/faucet.json";
 
 // ================= TIMER =================
 function getLast(id){
