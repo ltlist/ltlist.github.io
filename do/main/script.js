@@ -64,13 +64,26 @@ document.getElementById("kotakPesan").innerText =
 // ================= RENDER =================
 function render(){
 
-let list = [...data];
+console.log("DATA =", data);
 
-const keyword = search.value.toLowerCase();
-if(keyword){
-list = list.filter(x =>
-x.nama.toLowerCase().includes(keyword)
-);
+tbody.innerHTML = "";
+
+data.forEach((item,i)=>{
+
+tbody.innerHTML += `
+<tr>
+<td>${i+1}</td>
+<td>${item.nama}</td>
+<td>${item.koin}</td>
+<td>${item.link}</td>
+</tr>
+`;
+
+});
+
+document.getElementById("kotakPesan").innerText =
+"✅ Total: " + data.length;
+
 }
 
 if(filterKoin.value !== "all"){
