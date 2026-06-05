@@ -39,17 +39,28 @@ return `${m}m ${s}s`;
 // ================= LOAD DATA =================
 async function loadData(){
 try{
+
 const res = await fetch(DATA_URL);
-data = await res.json();
+
+console.log("Status:", res.status);
+
+const text = await res.text();
+
+console.log("Response:", text);
+
+data = JSON.parse(text);
 
 document.getElementById("kotakPesan").innerText =
-"Data loaded ✔";
+"✅ Data loaded";
 
 render();
 
 }catch(e){
+
+console.error(e);
+
 document.getElementById("kotakPesan").innerText =
-"Failed load data ❌";
+"❌ Failed load data";
 }
 }
 
