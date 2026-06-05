@@ -8,8 +8,7 @@ let data = [];
 let sortAsc = true;
 
 const DATA_URL =
-"const DATA_URL =
-"https://alif.unaux.com/api/faucets.php";";
+"https://alif.unaux.com/api/faucets.php";
 
 // ================= TIMER =================
 function getLast(id){
