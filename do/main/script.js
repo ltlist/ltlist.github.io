@@ -1,115 +1,111 @@
 const tbody = document.getElementById("isiTabel");
+
 const search = document.getElementById("search");
 const filterKoin = document.getElementById("filterKoin");
 const sortBtn = document.getElementById("sortBtn");
 
-let dataFaucet = [];
+let data = [];
 let sortAsc = true;
 
-// 🔥 LINK RAW GITHUB JSON
-const DATA_URL = "https://alif.unaux.com/api/faucets.php";
+// 🔥 DATA DARI REPO 2
+const DATA_URL =
+"https://raw.githubusercontent.com/USERNAME/ltlist-data/main/faucet.json";
 
-// ===== FETCH DATA =====
-async function fetchData() {
-    try {
-        const res = await fetch(DATA_URL);
-        dataFaucet = await res.json();
-
-        document.getElementById("kotakPesan").innerText =
-            "✅ Data berhasil dimuat dari GitHub";
-
-        loadData();
-    } catch (err) {
-        document.getElementById("kotakPesan").innerText =
-            "❌ Gagal memuat data faucet";
-        console.error(err);
-    }
+// ================= TIMER =================
+function getLast(id){
+return localStorage.getItem("claim_" + id);
 }
 
-// ===== TIMER =====
-function getLast(id) {
-    return localStorage.getItem("claim_" + id);
+function setLast(id){
+localStorage.setItem("claim_" + id, Date.now());
 }
 
-function setLast(id) {
-    localStorage.setItem("claim_" + id, Date.now());
+function remainingSeconds(item){
+const last = getLast(item.id);
+if(!last) return 0;
+
+const diff = Math.floor((Date.now() - last) / 1000);
+const cooldown = item.cooldown * 60;
+
+return Math.max(0, cooldown - diff);
 }
 
-function canClaim(item) {
-    const last = getLast(item.id);
-    if (!last) return true;
-
-    const diff = (Date.now() - last) / 60000;
-    return diff >= item.cooldown;
+function formatTime(sec){
+const m = Math.floor(sec / 60);
+const s = sec % 60;
+return `${m}m ${s}s`;
 }
 
-function remaining(item) {
-    const last = getLast(item.id);
-    if (!last) return 0;
+// ================= LOAD DATA =================
+async function loadData(){
+try{
+const res = await fetch(DATA_URL);
+data = await res.json();
 
-    const diff = (Date.now() - last) / 60000;
-    const left = item.cooldown - diff;
-    return left > 0 ? Math.ceil(left) : 0;
+document.getElementById("kotakPesan").innerText =
+"Data loaded ✔";
+
+render();
+
+}catch(e){
+document.getElementById("kotakPesan").innerText =
+"Failed load data ❌";
+}
 }
 
-// ===== RENDER =====
-function loadData() {
+// ================= RENDER =================
+function render(){
 
-    let filtered = [...dataFaucet];
+let list = [...data];
 
-    const keyword = search.value.toLowerCase();
-    if (keyword) {
-        filtered = filtered.filter(f =>
-            f.nama.toLowerCase().includes(keyword)
-        );
-    }
-
-    if (filterKoin.value !== "all") {
-        filtered = filtered.filter(f => f.koin === filterKoin.value);
-    }
-
-    filtered.sort((a, b) =>
-        sortAsc ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama)
-    );
-
-    tbody.innerHTML = "";
-
-    filtered.forEach((item, i) => {
-
-        const ready = canClaim(item);
-        const left = remaining(item);
-
-        tbody.innerHTML += `
-        <tr>
-            <td>${i + 1}</td>
-            <td>${item.nama}</td>
-            <td><span class="lencana-koin">${item.koin}</span></td>
-            <td class="kepercayaan">${item.trust}</td>
-            <td>${item.reward}</td>
-            <td>
-                ${
-                    ready
-                    ? `<a class="tombol-klaim" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">Claim</a>`
-                    : `<button class="tombol-klaim" disabled>⏳ ${left}m</button>`
-                }
-            </td>
-        </tr>
-        `;
-    });
+const keyword = search.value.toLowerCase();
+if(keyword){
+list = list.filter(x =>
+x.nama.toLowerCase().includes(keyword)
+);
 }
 
-// expose
-window.setLast = setLast;
+if(filterKoin.value !== "all"){
+list = list.filter(x => x.koin === filterKoin.value);
+}
 
-// ===== EVENTS =====
-search.addEventListener("input", loadData);
-filterKoin.addEventListener("change", loadData);
+list.sort((a,b)=>
+sortAsc ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama)
+);
 
-sortBtn.addEventListener("click", () => {
-    sortAsc = !sortAsc;
-    loadData();
+tbody.innerHTML = "";
+
+list.forEach((item,i)=>{
+
+const left = remainingSeconds(item);
+const ready = left === 0;
+
+tbody.innerHTML += `
+<tr>
+<td>${i+1}</td>
+<td>${item.nama}</td>
+<td>${item.koin}</td>
+<td>
+${
+ready
+? `<a class="btn" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">Claim</a>`
+: `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
+}
+</td>
+</tr>
+`;
+});
+}
+
+// ================= EVENTS =================
+search.addEventListener("input", render);
+filterKoin.addEventListener("change", render);
+
+sortBtn.addEventListener("click", ()=>{
+sortAsc = !sortAsc;
+render();
 });
 
-// ===== INIT =====
-fetchData();
-setInterval(loadData, 30000);
+// ================= INIT =================
+loadData();
+setInterval(render, 1000);
