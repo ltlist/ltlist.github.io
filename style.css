@@ -60,14 +60,13 @@ table{
   width:100%;
   border-collapse:collapse;
   background:#151b23;
-  border-radius:10px;
 }
 
 th{
   background:#1f2a36;
+  color:#00ccff;
   padding:12px;
   text-align:left;
-  color:#00ccff;
 }
 
 td{
@@ -84,15 +83,12 @@ a.btn{
   font-weight:bold;
 }
 
-button.btn{
-  padding:6px 12px;
-  border-radius:6px;
-}
-
-button.disabled{
+button.btn.disabled{
   background:#2a3442;
   color:#888;
   cursor:not-allowed;
+  padding:6px 12px;
+  border-radius:6px;
 }
 
 .footer{
@@ -101,12 +97,5 @@ button.disabled{
   color:#777;
 }
 
-small{
-  display:block;
-  font-size:11px;
-  opacity:0.7;
-}
-
 .status-live{ color:#00ff99; font-weight:bold; }
-.status-slow{ color:#ffaa00; font-weight:bold; }
 .status-dead{ color:#ff4444; font-weight:bold; }
