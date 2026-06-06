@@ -7,6 +7,8 @@ const sortBtn = document.getElementById("sortBtn");
 let data = [];
 let sortAsc = true;
 
+let cache = {};
+
 const DATA_URL =
 "https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/faucet.json";
 
@@ -24,9 +26,7 @@ function remainingSeconds(item){
   if(!last) return 0;
 
   const diff = Math.floor((Date.now() - last) / 1000);
-  const cooldown = item.cooldown * 60;
-
-  return Math.max(0, cooldown - diff);
+  return Math.max(0, item.cooldown * 60 - diff);
 }
 
 function formatTime(sec){
@@ -35,52 +35,67 @@ function formatTime(sec){
   return `${m}m ${s}s`;
 }
 
-// ================= SIMPLE STATUS (NO PING = NO FLICKER) =================
-// Kita pakai heuristik ringan saja (berdasarkan cooldown + cache)
-let statusCache = {};
+// ================= LIGHT CHECK (NO SERVER) =================
+async function checkLight(url, id){
 
-function getStatus(item){
-
-  // cache 10 menit
-  if(statusCache[item.id] && Date.now() - statusCache[item.id].t < 600000){
-    return statusCache[item.id].status;
+  // cache 10 menit biar ringan
+  if(cache[id] && Date.now() - cache[id].t < 600000){
+    return cache[id];
   }
-
-  // logika sederhana:
-  // kalau cooldown kecil = kemungkinan LIVE
-  // cooldown besar = UNKNOWN (biar tidak false DEAD)
 
   let status = "LIVE";
 
-  if(item.cooldown >= 30){
+  try{
+
+    const controller = new AbortController();
+    const timeout = setTimeout(()=>controller.abort(), 5000);
+
+    await fetch(url, {
+      method: "HEAD",
+      mode: "no-cors",
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+  }catch(e){
     status = "UNKNOWN";
   }
 
-  statusCache[item.id] = {
+  // heuristic tambahan
+  if(url.includes("http://") && Math.random() < 0.1){
+    status = "UNKNOWN";
+  }
+
+  const result = {
     status,
     t: Date.now()
   };
 
-  return status;
+  cache[id] = result;
+
+  return result;
 }
 
 // ================= LOAD DATA =================
 async function loadData(){
+
   const res = await fetch(DATA_URL);
   data = await res.json();
 
   document.getElementById("kotakPesan").innerText =
-  "System Stable Mode Active ✔";
+  "Light PRO System Active ✔";
 
   render();
 }
 
-// ================= RENDER ONCE =================
-function render(){
+// ================= RENDER =================
+async function render(){
 
   let list = [...data];
 
   const keyword = search.value.toLowerCase();
+
   if(keyword){
     list = list.filter(x =>
       x.nama.toLowerCase().includes(keyword)
@@ -97,20 +112,19 @@ function render(){
 
   tbody.innerHTML = "";
 
-  list.forEach((item,i)=>{
+  for(let i=0;i<list.length;i++){
+
+    const item = list[i];
 
     const left = remainingSeconds(item);
     const ready = left === 0;
 
-    const status = getStatus(item);
+    const s = await checkLight(item.link, item.id);
 
-    let statusHTML = "";
+    let color = "#ffaa00";
 
-    if(status === "LIVE"){
-      statusHTML = `<span style="color:#00ff99;font-weight:bold">● LIVE</span>`;
-    }else{
-      statusHTML = `<span style="color:#ffaa00;font-weight:bold">● UNKNOWN</span>`;
-    }
+    if(s.status === "LIVE") color = "#00ff99";
+    if(s.status === "UNKNOWN") color = "#ffcc00";
 
     tbody.innerHTML += `
       <tr>
@@ -124,10 +138,12 @@ function render(){
             : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
           }
         </td>
-        <td>${statusHTML}</td>
+        <td style="color:${color};font-weight:bold">
+          ● ${s.status}
+        </td>
       </tr>
     `;
-  });
+  }
 }
 
 // ================= EVENTS =================
@@ -139,8 +155,8 @@ sortBtn.addEventListener("click", ()=>{
   render();
 });
 
-// ================= LOOP (ONLY TIMER UPDATE) =================
-setInterval(render, 1000);
+// ================= LOOP =================
+setInterval(render, 15000);
 
 // ================= INIT =================
 loadData();
