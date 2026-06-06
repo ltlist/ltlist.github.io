@@ -8,7 +8,12 @@ let data = [];
 let sortAsc = true;
 
 let cache = {};
+
+// hidden sementara
 let hidden = JSON.parse(localStorage.getItem("hidden_faucet") || "[]");
+
+// waktu recovery (30 menit)
+const RECOVERY_TIME = 30 * 60 * 1000;
 
 const DATA_URL =
 "https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/faucet.json";
@@ -36,7 +41,7 @@ function formatTime(sec){
   return `${m}m ${s}s`;
 }
 
-// ================= CHECK =================
+// ================= CHECK LIGHT =================
 async function checkLight(url, id){
 
   if(cache[id] && Date.now() - cache[id].t < 600000){
@@ -71,28 +76,40 @@ async function checkLight(url, id){
   return result;
 }
 
-// ================= HIDE DEAD =================
-function hideDead(id){
-  if(!hidden.includes(id)){
-    hidden.push(id);
-    localStorage.setItem("hidden_faucet", JSON.stringify(hidden));
-  }
+// ================= HIDE WITH RECOVERY TIME =================
+function hideWithTime(id, status){
+
+  const now = Date.now();
+
+  let list = JSON.parse(localStorage.getItem("hidden_faucet_data") || "{}");
+
+  list[id] = {
+    status,
+    time: now
+  };
+
+  localStorage.setItem("hidden_faucet_data", JSON.stringify(list));
 }
 
-// ================= RESET =================
-function resetHidden(){
-  localStorage.removeItem("hidden_faucet");
-  hidden = [];
-  render();
+// ================= RECOVERY CHECK =================
+function canRecover(id){
+
+  const list = JSON.parse(localStorage.getItem("hidden_faucet_data") || "{}");
+
+  if(!list[id]) return true;
+
+  const diff = Date.now() - list[id].time;
+
+  return diff > RECOVERY_TIME;
 }
 
-// ================= LOAD DATA =================
+// ================= LOAD =================
 async function loadData(){
   const res = await fetch(DATA_URL);
   data = await res.json();
 
   document.getElementById("kotakPesan").innerText =
-  "Auto Remove DEAD System Active ✔";
+  "AUTO RECOVERY SYSTEM ACTIVE ✔";
 
   render();
 }
@@ -102,8 +119,13 @@ async function render(){
 
   let list = [...data];
 
-  // remove hidden
-  list = list.filter(x => !hidden.includes(x.id));
+  const hiddenData = JSON.parse(localStorage.getItem("hidden_faucet_data") || "{}");
+
+  // filter recovery system
+  list = list.filter(item=>{
+    if(!hiddenData[item.id]) return true;
+    return canRecover(item.id);
+  });
 
   const keyword = search.value.toLowerCase();
 
@@ -132,10 +154,18 @@ async function render(){
 
     const s = await checkLight(item.link, item.id);
 
-    // AUTO REMOVE DEAD
+    // AUTO REMOVE + STORE TIME
     if(s.status === "DEAD"){
-      hideDead(item.id);
+      hideWithTime(item.id, "DEAD");
       continue;
+    }
+
+    // kalau hidup lagi → hapus dari hidden
+    let hiddenData = JSON.parse(localStorage.getItem("hidden_faucet_data") || "{}");
+
+    if(hiddenData[item.id]){
+      delete hiddenData[item.id];
+      localStorage.setItem("hidden_faucet_data", JSON.stringify(hiddenData));
     }
 
     tbody.innerHTML += `
@@ -150,7 +180,7 @@ async function render(){
             : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
           }
         </td>
-        <td><span class="status-live">● LIVE</span></td>
+        <td><span style="color:#00ff99;font-weight:bold">● LIVE</span></td>
       </tr>
     `;
   }
