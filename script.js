@@ -10,7 +10,7 @@ let sortAsc = true;
 const DATA_URL =
 "https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/faucet.json";
 
-// cache status biar tidak spam request
+// cache status
 let statusCache = {};
 
 // ================= TIMER =================
@@ -38,17 +38,14 @@ function formatTime(sec){
   return `${m}m ${s}s`;
 }
 
-// ================= FAUCET CHECKER =================
-async function checkFaucet(url, id){
+// ================= SMART CHECKER =================
+async function ping(url){
 
-  const cache = statusCache[id];
-  if(cache && Date.now() - cache.time < 300000){
-    return cache.status;
-  }
+  const start = Date.now();
 
   try{
     const controller = new AbortController();
-    const timeout = setTimeout(()=>controller.abort(), 5000);
+    const timeout = setTimeout(()=>controller.abort(), 6000);
 
     await fetch(url, {
       method: "HEAD",
@@ -58,13 +55,83 @@ async function checkFaucet(url, id){
 
     clearTimeout(timeout);
 
-    statusCache[id] = {status:"LIVE", time:Date.now()};
-    return "LIVE";
+    const time = Date.now() - start;
+
+    return {
+      ok: true,
+      time
+    };
 
   }catch(e){
-    statusCache[id] = {status:"DEAD", time:Date.now()};
-    return "DEAD";
+    return {
+      ok: false,
+      time: null
+    };
   }
+}
+
+// retry system biar lebih akurat
+async function checkFaucetSmart(url, id){
+
+  if(statusCache[id] && Date.now() - statusCache[id].time < 300000){
+    return statusCache[id];
+  }
+
+  let result1 = await ping(url);
+  if(result1.ok){
+
+    // cek 2x untuk validasi
+    let result2 = await ping(url);
+
+    let avgTime = result2.time ? (result1.time + result2.time) / 2 : result1.time;
+
+    let status = "LIVE";
+
+    if(avgTime > 4000){
+      status = "SLOW";
+    }
+
+    const final = {
+      status,
+      time: avgTime
+    };
+
+    statusCache[id] = {
+      ...final,
+      cacheTime: Date.now()
+    };
+
+    return final;
+  }
+
+  // retry sekali lagi sebelum DEAD
+  let retry = await ping(url);
+
+  if(retry.ok){
+    const final = {
+      status: "SLOW",
+      time: retry.time
+    };
+
+    statusCache[id] = {
+      ...final,
+      cacheTime: Date.now()
+    };
+
+    return final;
+  }
+
+  const final = {
+    status: "DEAD",
+    time: null
+  };
+
+  statusCache[id] = {
+    ...final,
+    cacheTime: Date.now()
+  };
+
+  return final;
 }
 
 // ================= LOAD DATA =================
@@ -74,7 +141,7 @@ async function loadData(){
     data = await res.json();
 
     document.getElementById("kotakPesan").innerText =
-    "Data loaded ✔";
+    "Data loaded ✔ Smart Checker Active";
 
     render();
 
@@ -113,15 +180,21 @@ async function render(){
     const left = remainingSeconds(item);
     const ready = left === 0;
 
-    const status = await checkFaucet(item.link, item.id);
+    const statusData = await checkFaucetSmart(item.link, item.id);
 
     let statusHTML = "";
 
-    if(status === "LIVE"){
-      statusHTML = `<span class="status-live">● LIVE</span>`;
-    }else{
-      statusHTML = `<span class="status-dead">● DEAD</span>`;
+    if(statusData.status === "LIVE"){
+      statusHTML = `<span style="color:#00ff99;font-weight:bold">● LIVE</span>`;
     }
+    else if(statusData.status === "SLOW"){
+      statusHTML = `<span style="color:#ffaa00;font-weight:bold">● SLOW</span>`;
+    }
+    else{
+      statusHTML = `<span style="color:#ff4444;font-weight:bold">● DEAD</span>`;
+    }
+
+    let speed = statusData.time ? `${statusData.time} ms` : "-";
 
     tbody.innerHTML += `
       <tr>
@@ -135,7 +208,10 @@ async function render(){
             : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
           }
         </td>
-        <td>${statusHTML}</td>
+        <td>
+          ${statusHTML}<br>
+          <small style="color:#888">${speed}</small>
+        </td>
       </tr>
     `;
   }
@@ -154,7 +230,7 @@ sortBtn.addEventListener("click", ()=>{
 setInterval(()=>{
   statusCache = {};
   render();
-}, 300000); // 5 menit
+}, 300000);
 
 // ================= INIT =================
 loadData();
