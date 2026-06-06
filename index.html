@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>LTList Faucet</title>
+<title>LTList Faucet - Crypto Faucet List</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
@@ -13,18 +13,23 @@
 
 <div class="container">
 
+<!-- HEADER -->
 <header class="header">
 <h1>LTList Faucet</h1>
-<p>Crypto faucet list with fast updates</p>
+<p>Crypto Faucet List • Fast Updates • Auto Status Checker</p>
+
 <p>
-LTList provides a list of crypto faucets with a fast payout system to <a href="https://faucetpay.io/?r=5725">Faucetpay</a> and <a href="https://zerochain.info/wallet">ZeroChain</a> (ZER). Daily updates for active faucets.
+LTList menyediakan daftar faucet crypto dengan sistem payout cepat ke
+<a href="https://faucetpay.io/?r=5725" target="_blank">FaucetPay</a>
+dan <a href="https://zerochain.info/wallet" target="_blank">ZeroChain (ZER)</a>.
+Update otomatis + status LIVE/DEAD checker.
 </p>
 </header>
 
-<!-- CONTROL -->
+<!-- CONTROL PANEL -->
 <div class="control-panel">
 
-<input id="search" placeholder="Search faucet...">
+<input id="search" type="text" placeholder="🔎 Search faucet...">
 
 <select id="filterKoin">
 <option value="all">All Coin</option>
@@ -35,34 +40,49 @@ LTList provides a list of crypto faucets with a fast payout system to <a href="h
 <option value="MULTI">MULTI</option>
 </select>
 
-<button id="sortBtn">Sort</button>
+<button id="sortBtn">Sort A-Z 🔄</button>
 
 </div>
 
-<!-- STATUS -->
-<div id="kotakPesan">Loading...</div>
+<!-- STATUS BOX -->
+<div id="kotakPesan" class="status">
+Loading faucet data...
+</div>
 
 <!-- TABLE -->
 <div class="tabel-pembungkus">
+
 <table>
 <thead>
 <tr>
 <th>No</th>
-<th>Nama</th>
+<th>Nama Faucet</th>
 <th>Coin</th>
 <th>Aksi</th>
+<th>Status</th>
 </tr>
 </thead>
 
 <tbody id="isiTabel"></tbody>
 </table>
+
 </div>
 
+<!-- INFO BOX -->
+<div class="status" style="margin-top:15px;">
+⚡ Sistem otomatis mengecek apakah faucet masih LIVE atau DEAD setiap 5 menit.  
+⏳ Cooldown disimpan otomatis di browser kamu.
+</div>
+
+<!-- FOOTER -->
 <footer class="footer">
-All faucets on LTList support payments via FaucetPay and ZeroCoin (ZER) with a fast and reliable claim system.
+
+<p>
+All faucets listed are for informational purposes. Always DYOR before using any crypto faucet.
 </p>
 
 <p>© LTList Faucet - All rights reserved</p>
+
 </footer>
 
 </div>
