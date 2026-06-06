@@ -1,15 +1,28 @@
 body{
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background:#0f1419;
   color:#fff;
   padding:20px;
 }
 
+/* CONTAINER */
 .container{
   max-width:1000px;
   margin:auto;
 }
 
+/* HEADER */
+.header{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.header h1{
+  margin:0;
+  color:#00ccff;
+}
+
+/* CONTROL PANEL */
 .control-panel{
   display:flex;
   gap:10px;
@@ -17,28 +30,84 @@ body{
   flex-wrap:wrap;
 }
 
-input,select,button{
+/* INPUT STYLE */
+input,select{
   padding:10px;
-  border-radius:6px;
-  border:none;
+  border-radius:8px;
+  border:1px solid #2a3442;
   background:#1b222c;
   color:#fff;
+  outline:none;
 }
 
+input:focus,select:focus{
+  border-color:#00ccff;
+}
+
+/* BUTTON SORT */
+button{
+  padding:10px 14px;
+  border-radius:8px;
+  border:1px solid #2a3442;
+  background:#1b222c;
+  color:#fff;
+  cursor:pointer;
+  transition:0.2s;
+}
+
+button:hover{
+  background:#243041;
+  border-color:#00ccff;
+}
+
+/* TABLE */
 table{
   width:100%;
   border-collapse:collapse;
+  background:#151b23;
+  border-radius:10px;
+  overflow:hidden;
 }
 
-th,td{
-  padding:10px;
-  border-bottom:1px solid #222;
+th{
+  background:#1f2a36;
+  padding:12px;
+  text-align:left;
 }
 
-a{
-  color:#00ccff;
+td{
+  padding:12px;
+  border-bottom:1px solid #222c38;
 }
 
+/* LINK BUTTON (CLAIM BUTTON) */
+a.btn{
+  display:inline-block;
+  padding:8px 14px;
+  background:#00ccff;
+  color:#000;
+  border-radius:8px;
+  text-decoration:none;
+  font-weight:bold;
+  transition:0.2s;
+  box-shadow:0 0 10px rgba(0,204,255,0.3);
+}
+
+a.btn:hover{
+  background:#00b2dd;
+  transform:scale(1.05);
+}
+
+/* DISABLED BUTTON */
+button.btn.disabled{
+  padding:8px 14px;
+  border-radius:8px;
+  background:#2a3442;
+  color:#888;
+  cursor:not-allowed;
+}
+
+/* FOOTER */
 .footer{
   text-align:center;
   margin-top:20px;
