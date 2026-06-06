@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>LTList Faucet - Crypto Faucet List</title>
+<title>LTList Faucet PRO</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
@@ -13,23 +13,15 @@
 
 <div class="container">
 
-<!-- HEADER -->
 <header class="header">
-<h1>LTList Faucet</h1>
-<p>Crypto Faucet List • Fast Updates • Auto Status Checker</p>
-
-<p>
-LTList menyediakan daftar faucet crypto dengan sistem payout cepat ke
-<a href="https://faucetpay.io/?r=5725" target="_blank">FaucetPay</a>
-dan <a href="https://zerochain.info/wallet" target="_blank">ZeroChain (ZER)</a>.
-Update otomatis + status LIVE/DEAD checker.
-</p>
+<h1>LTList Faucet PRO</h1>
+<p>Smart Faucet Dashboard • LIVE / SLOW / DEAD Checker</p>
 </header>
 
-<!-- CONTROL PANEL -->
+<!-- CONTROL -->
 <div class="control-panel">
 
-<input id="search" type="text" placeholder="🔎 Search faucet...">
+<input id="search" type="text" placeholder="Search faucet...">
 
 <select id="filterKoin">
 <option value="all">All Coin</option>
@@ -40,23 +32,22 @@ Update otomatis + status LIVE/DEAD checker.
 <option value="MULTI">MULTI</option>
 </select>
 
-<button id="sortBtn">Sort A-Z 🔄</button>
+<button id="sortBtn">Sort A-Z</button>
 
 </div>
 
-<!-- STATUS BOX -->
-<div id="kotakPesan" class="status">
-Loading faucet data...
+<!-- STATUS -->
+<div id="kotakPesan" class="status-box">
+Loading data...
 </div>
 
 <!-- TABLE -->
-<div class="tabel-pembungkus">
-
+<div class="table-wrap">
 <table>
 <thead>
 <tr>
 <th>No</th>
-<th>Nama Faucet</th>
+<th>Nama</th>
 <th>Coin</th>
 <th>Aksi</th>
 <th>Status</th>
@@ -65,24 +56,10 @@ Loading faucet data...
 
 <tbody id="isiTabel"></tbody>
 </table>
-
 </div>
 
-<!-- INFO BOX -->
-<div class="status" style="margin-top:15px;">
-⚡ Sistem otomatis mengecek apakah faucet masih LIVE atau DEAD setiap 5 menit.  
-⏳ Cooldown disimpan otomatis di browser kamu.
-</div>
-
-<!-- FOOTER -->
 <footer class="footer">
-
-<p>
-All faucets listed are for informational purposes. Always DYOR before using any crypto faucet.
-</p>
-
-<p>© LTList Faucet - All rights reserved</p>
-
+© LTList Faucet PRO - Smart Monitoring System
 </footer>
 
 </div>
