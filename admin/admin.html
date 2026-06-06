@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LTList Admin Panel</title>
+
+<link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<header class="header">
+<h1>LTList Admin Panel</h1>
+<p>Kelola Data Faucet</p>
+</header>
+
+<!-- LOGIN -->
+<div id="loginBox" class="card">
+<h2>Login Admin</h2>
+
+<input type="password"
+id="adminPassword"
+placeholder="Masukkan Password">
+
+<button onclick="login()">
+Login
+</button>
+
+<div id="loginMsg"></div>
+</div>
+
+<!-- PANEL ADMIN -->
+<div id="adminPanel" style="display:none;">
+
+<!-- FORM -->
+<div class="card">
+
+<h2>Tambah / Edit Faucet</h2>
+
+<div class="form-grid">
+
+<input
+id="nama"
+placeholder="Nama Faucet">
+
+<select id="koin">
+<option value="MULTI">MULTI</option>
+<option value="LTC">LTC</option>
+<option value="DOGE">DOGE</option>
+<option value="USDT">USDT</option>
+<option value="ZER">ZER</option>
+</select>
+
+<input
+id="link"
+placeholder="Link Faucet">
+
+<input
+id="cooldown"
+type="number"
+placeholder="Cooldown (menit)">
+
+</div>
+
+<div class="actions">
+
+<button onclick="saveFaucet()">
+💾 Simpan
+</button>
+
+<button onclick="resetForm()">
+🔄 Reset
+</button>
+
+</div>
+
+</div>
+
+<!-- SEARCH -->
+<div class="card">
+
+<h2>Pencarian</h2>
+
+<input
+id="search"
+placeholder="Cari Faucet..."
+oninput="render()">
+
+</div>
+
+<!-- IMPORT EXPORT -->
+<div class="card">
+
+<h2>Import / Export</h2>
+
+<input
+type="file"
+id="importFile"
+accept=".json">
+
+<div class="actions">
+
+<button onclick="importJSON()">
+📥 Import JSON
+</button>
+
+<button onclick="exportJSON()">
+📤 Export JSON
+</button>
+
+</div>
+
+</div>
+
+<!-- TABLE -->
+<div class="card">
+
+<h2>Daftar Faucet</h2>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>No</th>
+<th>Nama</th>
+<th>Coin</th>
+<th>Cooldown</th>
+<th>Aksi</th>
+</tr>
+</thead>
+
+<tbody id="list"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="admin.js"></script>
+
+</body>
+</html>
