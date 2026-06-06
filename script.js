@@ -8,6 +8,7 @@ let data = [];
 let sortAsc = true;
 
 let cache = {};
+let hidden = JSON.parse(localStorage.getItem("hidden_faucet") || "[]");
 
 const DATA_URL =
 "https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/faucet.json";
@@ -35,10 +36,9 @@ function formatTime(sec){
   return `${m}m ${s}s`;
 }
 
-// ================= LIGHT CHECK (NO SERVER) =================
+// ================= CHECK =================
 async function checkLight(url, id){
 
-  // cache 10 menit biar ringan
   if(cache[id] && Date.now() - cache[id].t < 600000){
     return cache[id];
   }
@@ -46,7 +46,6 @@ async function checkLight(url, id){
   let status = "LIVE";
 
   try{
-
     const controller = new AbortController();
     const timeout = setTimeout(()=>controller.abort(), 5000);
 
@@ -59,12 +58,7 @@ async function checkLight(url, id){
     clearTimeout(timeout);
 
   }catch(e){
-    status = "UNKNOWN";
-  }
-
-  // heuristic tambahan
-  if(url.includes("http://") && Math.random() < 0.1){
-    status = "UNKNOWN";
+    status = "DEAD";
   }
 
   const result = {
@@ -77,14 +71,28 @@ async function checkLight(url, id){
   return result;
 }
 
+// ================= HIDE DEAD =================
+function hideDead(id){
+  if(!hidden.includes(id)){
+    hidden.push(id);
+    localStorage.setItem("hidden_faucet", JSON.stringify(hidden));
+  }
+}
+
+// ================= RESET =================
+function resetHidden(){
+  localStorage.removeItem("hidden_faucet");
+  hidden = [];
+  render();
+}
+
 // ================= LOAD DATA =================
 async function loadData(){
-
   const res = await fetch(DATA_URL);
   data = await res.json();
 
   document.getElementById("kotakPesan").innerText =
-  "Light PRO System Active ✔";
+  "Auto Remove DEAD System Active ✔";
 
   render();
 }
@@ -93,6 +101,9 @@ async function loadData(){
 async function render(){
 
   let list = [...data];
+
+  // remove hidden
+  list = list.filter(x => !hidden.includes(x.id));
 
   const keyword = search.value.toLowerCase();
 
@@ -112,23 +123,24 @@ async function render(){
 
   tbody.innerHTML = "";
 
-  for(let i=0;i<list.length;i++){
+  let no = 1;
 
-    const item = list[i];
+  for(let item of list){
 
     const left = remainingSeconds(item);
     const ready = left === 0;
 
     const s = await checkLight(item.link, item.id);
 
-    let color = "#ffaa00";
-
-    if(s.status === "LIVE") color = "#00ff99";
-    if(s.status === "UNKNOWN") color = "#ffcc00";
+    // AUTO REMOVE DEAD
+    if(s.status === "DEAD"){
+      hideDead(item.id);
+      continue;
+    }
 
     tbody.innerHTML += `
       <tr>
-        <td>${i+1}</td>
+        <td>${no++}</td>
         <td>${item.nama}</td>
         <td>${item.koin}</td>
         <td>
@@ -138,9 +150,7 @@ async function render(){
             : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
           }
         </td>
-        <td style="color:${color};font-weight:bold">
-          ● ${s.status}
-        </td>
+        <td><span class="status-live">● LIVE</span></td>
       </tr>
     `;
   }
