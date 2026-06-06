@@ -17,6 +17,24 @@ body{
   margin-bottom:20px;
 }
 
+.status-live{
+  color:#00ff99;
+  font-weight:bold;
+}
+
+.status-dead{
+  color:#ff4444;
+  font-weight:bold;
+}
+
+.status-checking{
+  color:#ffaa00;
+  font-weight:bold;
+}
+
+td span{
+  font-size:13px;
+}
 .header h1{
   margin:0;
   color:#00ccff;
