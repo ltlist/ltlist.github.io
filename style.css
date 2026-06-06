@@ -2,101 +2,72 @@ body{
   font-family: Arial, sans-serif;
   background:#0f1419;
   color:#fff;
+  margin:0;
   padding:20px;
 }
 
-/* CONTAINER */
 .container{
   max-width:1000px;
   margin:auto;
 }
 
-/* HEADER */
 .header{
   text-align:center;
   margin-bottom:20px;
 }
 
-small{
-  display:block;
-  margin-top:3px;
-  font-size:11px;
-  opacity:0.7;
-}
-.status-live{
-  color:#00ff99;
-  font-weight:bold;
-}
-
-.status-dead{
-  color:#ff4444;
-  font-weight:bold;
-}
-
-.status-checking{
-  color:#ffaa00;
-  font-weight:bold;
-}
-
-td span{
-  font-size:13px;
-}
 .header h1{
-  margin:0;
   color:#00ccff;
 }
 
-/* CONTROL PANEL */
 .control-panel{
   display:flex;
   gap:10px;
-  margin:15px 0;
   flex-wrap:wrap;
+  margin-bottom:15px;
 }
 
-/* INPUT STYLE */
-input,select{
+input,select,button{
   padding:10px;
   border-radius:8px;
   border:1px solid #2a3442;
   background:#1b222c;
   color:#fff;
-  outline:none;
 }
 
-input:focus,select:focus{
-  border-color:#00ccff;
-}
-
-/* BUTTON SORT */
 button{
-  padding:10px 14px;
-  border-radius:8px;
-  border:1px solid #2a3442;
-  background:#1b222c;
-  color:#fff;
   cursor:pointer;
-  transition:0.2s;
 }
 
 button:hover{
   background:#243041;
-  border-color:#00ccff;
 }
 
-/* TABLE */
+.status-box{
+  padding:10px;
+  background:#1b222c;
+  border-radius:8px;
+  margin-bottom:15px;
+  text-align:center;
+  border:1px solid #2a3442;
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
   background:#151b23;
   border-radius:10px;
-  overflow:hidden;
 }
 
 th{
   background:#1f2a36;
   padding:12px;
   text-align:left;
+  color:#00ccff;
 }
 
 td{
@@ -104,36 +75,38 @@ td{
   border-bottom:1px solid #222c38;
 }
 
-/* LINK BUTTON (CLAIM BUTTON) */
 a.btn{
-  display:inline-block;
-  padding:8px 14px;
   background:#00ccff;
   color:#000;
-  border-radius:8px;
+  padding:6px 12px;
+  border-radius:6px;
   text-decoration:none;
   font-weight:bold;
-  transition:0.2s;
-  box-shadow:0 0 10px rgba(0,204,255,0.3);
 }
 
-a.btn:hover{
-  background:#00b2dd;
-  transform:scale(1.05);
+button.btn{
+  padding:6px 12px;
+  border-radius:6px;
 }
 
-/* DISABLED BUTTON */
-button.btn.disabled{
-  padding:8px 14px;
-  border-radius:8px;
+button.disabled{
   background:#2a3442;
   color:#888;
   cursor:not-allowed;
 }
 
-/* FOOTER */
 .footer{
   text-align:center;
   margin-top:20px;
   color:#777;
 }
+
+small{
+  display:block;
+  font-size:11px;
+  opacity:0.7;
+}
+
+.status-live{ color:#00ff99; font-weight:bold; }
+.status-slow{ color:#ffaa00; font-weight:bold; }
+.status-dead{ color:#ff4444; font-weight:bold; }
