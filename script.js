@@ -7,11 +7,11 @@ const sortBtn = document.getElementById("sortBtn");
 let data = [];
 let sortAsc = true;
 
+let statusCache = {};
+let rowMap = {};
+
 const DATA_URL =
 "https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/faucet.json";
-
-// cache status
-let statusCache = {};
 
 // ================= TIMER =================
 function getLast(id){
@@ -38,9 +38,8 @@ function formatTime(sec){
   return `${m}m ${s}s`;
 }
 
-// ================= SMART CHECKER =================
+// ================= PING CHECK =================
 async function ping(url){
-
   const start = Date.now();
 
   try{
@@ -55,183 +54,140 @@ async function ping(url){
 
     clearTimeout(timeout);
 
-    const time = Date.now() - start;
-
-    return {
-      ok: true,
-      time
-    };
+    return { ok:true, time: Date.now() - start };
 
   }catch(e){
-    return {
-      ok: false,
-      time: null
-    };
+    return { ok:false, time:null };
   }
 }
 
-// retry system biar lebih akurat
-async function checkFaucetSmart(url, id){
+async function checkSmart(url, id){
 
-  if(statusCache[id] && Date.now() - statusCache[id].time < 300000){
+  if(statusCache[id] && Date.now() - statusCache[id].t < 300000){
     return statusCache[id];
   }
 
-  let result1 = await ping(url);
-  if(result1.ok){
+  let r1 = await ping(url);
 
-    // cek 2x untuk validasi
-    let result2 = await ping(url);
-
-    let avgTime = result2.time ? (result1.time + result2.time) / 2 : result1.time;
+  if(r1.ok){
+    let r2 = await ping(url);
+    let avg = r2.time ? (r1.time + r2.time)/2 : r1.time;
 
     let status = "LIVE";
+    if(avg > 4000) status = "SLOW";
 
-    if(avgTime > 4000){
-      status = "SLOW";
-    }
-
-    const final = {
-      status,
-      time: avgTime
-    };
-
-    statusCache[id] = {
-      ...final,
-      cacheTime: Date.now()
-    };
-
-    return final;
+    return cache(id, status, avg);
   }
 
-  // retry sekali lagi sebelum DEAD
   let retry = await ping(url);
-
   if(retry.ok){
-    const final = {
-      status: "SLOW",
-      time: retry.time
-    };
-
-    statusCache[id] = {
-      ...final,
-      cacheTime: Date.now()
-    };
-
-    return final;
+    return cache(id, "SLOW", retry.time);
   }
 
-  const final = {
-    status: "DEAD",
-    time: null
-  };
-
-  statusCache[id] = {
-    ...final,
-    cacheTime: Date.now()
-  };
-
-  return final;
+  return cache(id, "DEAD", null);
 }
 
-// ================= LOAD DATA =================
-async function loadData(){
-  try{
-    const res = await fetch(DATA_URL);
-    data = await res.json();
-
-    document.getElementById("kotakPesan").innerText =
-    "Data loaded ✔ Smart Checker Active";
-
-    render();
-
-  }catch(e){
-    document.getElementById("kotakPesan").innerText =
-    "Failed load data ❌";
-  }
+function cache(id, status, time){
+  const obj = {status, time, t:Date.now()};
+  statusCache[id] = obj;
+  return obj;
 }
 
-// ================= RENDER =================
-async function render(){
-
-  let list = [...data];
-
-  const keyword = search.value.toLowerCase();
-  if(keyword){
-    list = list.filter(x =>
-      x.nama.toLowerCase().includes(keyword)
-    );
-  }
-
-  if(filterKoin.value !== "all"){
-    list = list.filter(x => x.koin === filterKoin.value);
-  }
-
-  list.sort((a,b)=>
-    sortAsc ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama)
-  );
+// ================= BUILD TABLE ONCE =================
+async function buildTable(){
 
   tbody.innerHTML = "";
+  rowMap = {};
+
+  for(let i=0;i<data.length;i++){
+
+    const item = data[i];
+
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${i+1}</td>
+      <td>${item.nama}</td>
+      <td>${item.koin}</td>
+      <td class="action"></td>
+      <td class="status"></td>
+    `;
+
+    tbody.appendChild(tr);
+
+    rowMap[item.id] = {
+      item,
+      action: tr.querySelector(".action"),
+      status: tr.querySelector(".status")
+    };
+  }
+
+  updateAll();
+}
+
+// ================= UPDATE ONLY =================
+async function updateAll(){
+
+  const list = Object.values(rowMap);
 
   for(let i=0;i<list.length;i++){
 
-    const item = list[i];
+    const {item, action, status} = list[i];
 
     const left = remainingSeconds(item);
     const ready = left === 0;
 
-    const statusData = await checkFaucetSmart(item.link, item.id);
+    const s = await checkSmart(item.link, item.id);
 
-    let statusHTML = "";
+    action.innerHTML = ready
+      ? `<a class="btn" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">Claim</a>`
+      : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`;
 
-    if(statusData.status === "LIVE"){
-      statusHTML = `<span style="color:#00ff99;font-weight:bold">● LIVE</span>`;
+    let html = "";
+
+    if(s.status === "LIVE"){
+      html = `<span class="status-live">● LIVE</span>`;
+    }else if(s.status === "SLOW"){
+      html = `<span class="status-slow">● SLOW</span>`;
+    }else{
+      html = `<span class="status-dead">● DEAD</span>`;
     }
-    else if(statusData.status === "SLOW"){
-      statusHTML = `<span style="color:#ffaa00;font-weight:bold">● SLOW</span>`;
-    }
-    else{
-      statusHTML = `<span style="color:#ff4444;font-weight:bold">● DEAD</span>`;
-    }
 
-    let speed = statusData.time ? `${statusData.time} ms` : "-";
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${i+1}</td>
-        <td>${item.nama}</td>
-        <td>${item.koin}</td>
-        <td>
-          ${
-            ready
-            ? `<a class="btn" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">Claim</a>`
-            : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
-          }
-        </td>
-        <td>
-          ${statusHTML}<br>
-          <small style="color:#888">${speed}</small>
-        </td>
-      </tr>
-    `;
+    status.innerHTML = html;
   }
 }
 
+// ================= LOAD DATA =================
+async function loadData(){
+  const res = await fetch(DATA_URL);
+  data = await res.json();
+
+  document.getElementById("kotakPesan").innerText =
+  "Smart PRO System Active ✔";
+
+  buildTable();
+}
+
 // ================= EVENTS =================
-search.addEventListener("input", render);
-filterKoin.addEventListener("change", render);
+search.addEventListener("input", ()=>{
+  location.reload(); // simple filter reset biar stabil
+});
+
+filterKoin.addEventListener("change", ()=>{
+  location.reload();
+});
 
 sortBtn.addEventListener("click", ()=>{
   sortAsc = !sortAsc;
-  render();
+  data.sort((a,b)=>
+    sortAsc ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama)
+  );
+  buildTable();
 });
 
-// ================= AUTO REFRESH =================
-setInterval(()=>{
-  statusCache = {};
-  render();
-}, 300000);
+// ================= LOOP =================
+setInterval(updateAll, 15000);
+setInterval(()=> statusCache = {}, 300000);
 
 // ================= INIT =================
 loadData();
-setInterval(render, 1000);
