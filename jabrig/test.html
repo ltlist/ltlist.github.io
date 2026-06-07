@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Apps Script Test</title>
+</head>
+<body>
+
+<h2>Test Apps Script CRUD</h2>
+
+<button onclick="testAdd()">TEST ADD</button>
+
+<pre id="hasil">Menunggu...</pre>
+
+<script>
+
+const API =
+"https://script.google.com/macros/s/AKfycbyi-AhsKNTbctSLL-gAok78XZEN7M1t2OS3X0-ufNUpzmyyOi2CyABvRFdEnEf4oSck/exec";
+
+async function testAdd(){
+
+  document.getElementById("hasil").textContent =
+  "Mengirim data...";
+
+  try{
+
+    const res = await fetch(API,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        password:"ltlis123",
+        action:"add",
+        id:999,
+        name:"TEST",
+        coin:"MULTI",
+        link:"https://example.com",
+        cooldown:1
+      })
+    });
+
+    const text = await res.text();
+
+    document.getElementById("hasil").textContent =
+    text;
+
+  }catch(err){
+
+    document.getElementById("hasil").textContent =
+    "ERROR:\n" + err;
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
