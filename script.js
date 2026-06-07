@@ -8,7 +8,24 @@ const sortBtn = document.getElementById("sortBtn");
 let data = [];
 let sortAsc = true;
 
-// CSV PARSER (AMAN)
+// 🔥 NORMALIZER (INI KUNCI FIX SEMUA ERROR)
+function normalize(obj){
+  let fixed = {};
+
+  for(let key in obj){
+    let k = key.toLowerCase().trim();
+
+    if(k === "id") fixed.id = obj[key];
+    if(k === "name") fixed.name = obj[key];
+    if(k === "coin") fixed.coin = obj[key];
+    if(k === "link") fixed.link = obj[key];
+    if(k === "cooldown") fixed.cooldown = obj[key];
+  }
+
+  return fixed;
+}
+
+// CSV PARSER
 function csvToJSON(csv){
   const lines = csv.trim().split("\n");
   const headers = lines[0].split(",");
@@ -21,7 +38,7 @@ function csvToJSON(csv){
       obj[h.trim()] = values[i] ? values[i].trim() : "";
     });
 
-    return obj;
+    return normalize(obj);
   });
 }
 
@@ -34,13 +51,13 @@ async function loadData(){
     data = csvToJSON(csv);
 
     document.getElementById("kotakPesan").innerText =
-    "Data loaded ✔ Google Sheets Connected";
+    "Data loaded ✔";
 
     render();
 
   }catch(e){
     document.getElementById("kotakPesan").innerText =
-    "Failed load data ❌";
+    "Failed load ❌";
   }
 }
 
@@ -53,18 +70,18 @@ function render(){
 
   if(keyword){
     list = list.filter(x =>
-      (x.Name || "").toLowerCase().includes(keyword)
+      (x.name || "").toLowerCase().includes(keyword)
     );
   }
 
   if(filterKoin.value !== "all"){
-    list = list.filter(x => x.Coin === filterKoin.value);
+    list = list.filter(x => x.coin === filterKoin.value);
   }
 
   list.sort((a,b)=>
     sortAsc
-    ? (a.Name||"").localeCompare(b.Name||"")
-    : (b.Name||"").localeCompare(a.Name||"")
+    ? (a.name||"").localeCompare(b.name||"")
+    : (b.name||"").localeCompare(a.name||"")
   );
 
   tbody.innerHTML = "";
@@ -74,9 +91,10 @@ function render(){
     tbody.innerHTML += `
     <tr>
       <td>${i+1}</td>
-      <td>${item.Name || "-"}</td>
-      <td>${item.Coin || "-"}</td>
-      <td><a class="btn" href="${item.Link}" target="_blank">Claim</a></td>
+      <td>${item.name || "-"}</td>
+      <td>${item.coin || "-"}</td>
+      <td>${item.cooldown || "-"} min</td>
+      <td><a class="btn" href="${item.link}" target="_blank">Claim</a></td>
     </tr>`;
   });
 }
