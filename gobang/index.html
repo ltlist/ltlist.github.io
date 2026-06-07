@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>List Faucet Claim Gratis</title>
+  <title>Admin Panel - Kelola Faucet</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
   <script>
@@ -31,53 +31,24 @@
 </head>
 <body class="bg-gray-50 font-sans text-dark min-h-screen">
 
-  <!-- HEADER -->
-  <header class="bg-primary text-white shadow-md">
+  <!-- HEADER KHUSUS ADMIN -->
+  <header class="bg-red-600 text-white shadow-md">
     <div class="container mx-auto px-4 py-6">
       <h1 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-center">
-        <i class="fa fa-coins mr-2"></i> List Faucet Claim Gratis
+        <i class="fa fa-cog mr-2"></i> ADMIN PANEL
       </h1>
-      <p class="text-center text-white/80 mt-1">Kumpulan situs claim kripto terbaru & terpercaya</p>
+      <p class="text-center text-white/80 mt-1">Kelola Data - <a href="https://ltlist.github.io/" target="_blank" class="underline">Lihat Tampilan Situs</a></p>
     </div>
   </header>
-
-  <!-- KONTEN UTAMA -->
-  <main class="container mx-auto px-4 py-8">
-
-    <!-- STATUS INFO -->
-    <div class="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-8 text-center">
-      <p class="text-blue-700 text-sm">
-        <i class="fa fa-info-circle mr-1"></i> 
-        Total <span id="jumlahData">0</span> Faucet tersedia • Claim ulang sesuai waktu cooldown
-      </p>
-    </div>
-
-    <!-- DAFTAR FAUCET -->
-    <div id="listFaucet" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      <!-- Data dimuat dari JS -->
-    </div>
-
-  </main>
-
-  <!-- FOOTER + LINK ADMIN TERSEMBUNYI -->
-  <footer class="bg-gray-100 border-t py-6 mt-12">
-    <div class="container mx-auto px-4 text-center text-gray-500 text-xs">
-      <p>© 2026 List Faucet Gratis | Data diupdate secara berkala</p>
-      <!-- Link Masuk Admin (Kecil & di pojok) -->
-      <a href="#admin" onclick="bukaLoginAdmin()" class="text-gray-400 hover:text-primary mt-2 inline-block">
-        <i class="fa fa-cog"></i>
-      </a>
-    </div>
-  </footer>
 
   <!-- ==================================================
        MODAL LOGIN ADMIN
        ================================================== -->
-  <div id="modalLogin" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+  <div id="modalLogin" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 transform transition-all">
       <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">🔐 Admin Panel</h2>
-        <p class="text-gray-500 text-sm">Hanya untuk pengelola situs</p>
+        <h2 class="text-2xl font-bold text-gray-800">🔐 Masuk Admin</h2>
+        <p class="text-gray-500 text-sm">Hanya untuk pengelola</p>
       </div>
       <div class="mb-4">
         <label class="block text-gray-700 text-sm mb-1">Username</label>
@@ -88,10 +59,7 @@
         <input type="password" id="passAdmin" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary" value="123456">
       </div>
       <button onclick="loginAdmin()" class="w-full bg-primary text-white py-2.5 rounded-lg hover:bg-primary/90 transition font-medium">
-        Masuk ke Panel
-      </button>
-      <button onclick="tutupModal('modalLogin')" class="w-full mt-2 text-gray-500 hover:text-gray-800 text-sm">
-        Tutup
+        Masuk
       </button>
     </div>
   </div>
@@ -99,34 +67,33 @@
   <!-- ==================================================
        PANEL KELOLA DATA
        ================================================== -->
-  <div id="panelKelola" class="hidden fixed inset-0 bg-gray-900/80 z-50 overflow-y-auto p-4">
-    <div class="container mx-auto max-w-4xl bg-white rounded-xl shadow-2xl my-8">
-      <div class="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10 rounded-t-xl">
-        <h3 class="text-xl font-bold text-gray-800">⚙️ Kelola Data Faucet</h3>
+  <div id="panelKelola" class="hidden container mx-auto px-4 py-8">
+    <div class="bg-white rounded-xl shadow p-6 mb-6">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-xl font-bold text-gray-800">⚙️ Daftar Data Faucet</h3>
         <div>
           <button onclick="bukaModalTambah()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition text-sm mr-2">
-            <i class="fa fa-plus"></i> Tambah
+            <i class="fa fa-plus"></i> Tambah Baru
           </button>
           <button onclick="keluarAdmin()" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition text-sm">
             <i class="fa fa-sign-out"></i> Keluar
           </button>
         </div>
       </div>
-      <div class="p-6">
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead class="bg-gray-100">
-              <tr>
-                <th class="p-2 text-left">ID</th>
-                <th class="p-2 text-left">Nama</th>
-                <th class="p-2 text-left">Koin</th>
-                <th class="p-2 text-left">Cooldown</th>
-                <th class="p-2 text-center">Aksi</th>
-              </tr>
-            </thead>
-            <tbody id="tabelKelola"></tbody>
-          </table>
-        </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="p-2 text-left">ID</th>
+              <th class="p-2 text-left">Nama</th>
+              <th class="p-2 text-left">Koin</th>
+              <th class="p-2 text-left">Cooldown</th>
+              <th class="p-2 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="tabelKelola"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -165,20 +132,13 @@
 
   <script>
     // ==================================================
-    // 🔐 PENGATURAN LOGIN & DATA LOKAL
+    // 🔐 PENGATURAN LOGIN
     // ==================================================
     const ADMIN_USER = "admin";
     const ADMIN_PASS = "123456";
+    let daftarFaucet = [];
 
-    // 📂 DATA AWAL (UBAH / TAMBAH DI SINI)
-    let daftarFaucet = [
-      // CONTOH DATA: [id, nama, koin, link, cooldown]
-      ["F001", "FreeBitcoin", "BTC", "https://freebitco.in", 60],
-      ["F002", "MoonDogecoin", "DOGE", "https://moondoge.com", 5],
-      ["F003", "LitecoinFaucet", "LTC", "https://litecoinfaucet.com", 15],
-    ];
-
-    // Simpan data ke Penyimpanan Browser biar tidak hilang
+    // Simpan data ke Penyimpanan Browser (Bisa dibaca oleh halaman utama)
     function simpanKeStorage() {
       localStorage.setItem("dataFaucet", JSON.stringify(daftarFaucet));
     }
@@ -188,62 +148,31 @@
       const simpanan = localStorage.getItem("dataFaucet");
       if (simpanan) daftarFaucet = JSON.parse(simpanan);
       
-      muatDataPublik();
       if (localStorage.getItem("adminLogin") === "ok") {
-        muatDataKelola();
+        document.getElementById('modalLogin').classList.add('hidden');
         document.getElementById('panelKelola').classList.remove('hidden');
+        muatDataKelola();
       }
     };
 
-    // 📌 TAMPILAN PUBLIK
-    function muatDataPublik() {
-      document.getElementById('jumlahData').innerText = daftarFaucet.length;
-      const wadah = document.getElementById('listFaucet');
-      wadah.innerHTML = "";
-
-      if (daftarFaucet.length === 0) {
-        wadah.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">Belum ada data faucet.</div>`;
-        return;
-      }
-
-      daftarFaucet.forEach(item => {
-        const kartu = document.createElement('div');
-        kartu.className = "bg-white rounded-lg shadow hover:shadow-md transition p-4 border border-gray-100 flex flex-col justify-between";
-        kartu.innerHTML = `
-          <div>
-            <h3 class="font-bold text-lg text-gray-800 mb-1">${item[1]}</h3>
-            <p class="text-sm text-gray-500 mb-2">Koin: <span class="font-medium text-primary">${item[2]}</span></p>
-            <p class="text-xs text-gray-400 mb-4">Cooldown: ${item[4]} menit</p>
-          </div>
-          <a href="${item[3]}" target="_blank" rel="noopener noreferrer" 
-             class="block w-full text-center bg-green-600 hover:bg-green-700 text-white font-medium py-2 rounded transition">
-            <i class="fa fa-external-link mr-1"></i> CLAIM NOW
-          </a>
-        `;
-        wadah.appendChild(kartu);
-      });
-    }
-
     // ==================================================
-    // BAGIAN ADMIN
+    // BAGIAN LOGIN
     // ==================================================
-    function bukaLoginAdmin() { document.getElementById('modalLogin').classList.remove('hidden'); }
-    function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-    // Login langsung cek di kode, tidak ke mana-mana
     function loginAdmin() {
       const user = document.getElementById('userAdmin').value;
       const pass = document.getElementById('passAdmin').value;
       
       if (user === ADMIN_USER && pass === ADMIN_PASS) {
-        tutupModal('modalLogin');
         localStorage.setItem("adminLogin", "ok");
-        muatDataKelola();
+        document.getElementById('modalLogin').classList.add('hidden');
         document.getElementById('panelKelola').classList.remove('hidden');
+        muatDataKelola();
       } else {
         alert("Login gagal! Cek username/password.");
       }
     }
+
+    function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
 
     // Tampilkan data di panel admin
     function muatDataKelola() {
@@ -303,17 +232,16 @@
       }
 
       simpanKeStorage(); // Simpan perubahan
-      tutupModal('modalForm'); 
-      muatDataKelola(); 
-      muatDataPublik();
+      tutupModal('dataModal'); 
+      muatDataKelola();
+      alert("Data disimpan! Cek di halaman utama.");
     }
 
     function hapusData(i) {
       if(confirm("Yakin ingin menghapus data ini?")) {
         daftarFaucet.splice(i, 1); // Hapus array
         simpanKeStorage();
-        muatDataKelola(); 
-        muatDataPublik();
+        muatDataKelola();
       }
     }
 
@@ -327,7 +255,7 @@
 
     function keluarAdmin() {
       localStorage.removeItem("adminLogin");
-      document.getElementById('panelKelola').classList.add('hidden');
+      location.reload(); // Muat ulang ke layar login
     }
   </script>
 </body>
