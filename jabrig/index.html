@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LTList Admin Panel</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+<h2>🔥 LTList Admin Panel</h2>
+
+<div class="form-box">
+
+<input id="id" placeholder="ID">
+<input id="name" placeholder="Name">
+<input id="coin" placeholder="Coin">
+<input id="link" placeholder="Link">
+<input id="cooldown" placeholder="Cooldown (menit)">
+
+<button onclick="addData()">Tambah</button>
+<button onclick="updateData()">Edit</button>
+<button onclick="deleteData()">Hapus</button>
+
+</div>
+
+<hr>
+
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Coin</th>
+<th>Link</th>
+<th>Cooldown</th>
+</tr>
+</thead>
+<tbody id="table"></tbody>
+</table>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
