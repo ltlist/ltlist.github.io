@@ -1,9 +1,7 @@
-const API =
-"https://script.google.com/macros/s/AKfycbyi-AhsKNTbctSLL-gAok78XZEN7M1t2OS3X0-ufNUpzmyyOi2CyABvRFdEnEf4oSck/exec";
-
+const API = "https://script.google.com/macros/s/AKfycbyi-AhsKNTbctSLL-gAok78XZEN7M1t2OS3X0-ufNUpzmyyOi2CyABvRFdEnEf4oSck/exec";
 const PASSWORD = "ltlis123";
 
-// ================= LOAD DATA =================
+// ================= LOAD =================
 async function load(){
 
 const res = await fetch(API + "?action=list");
@@ -17,7 +15,7 @@ html += `
 <td>${d.id}</td>
 <td>${d.name}</td>
 <td>${d.coin}</td>
-<td><a href="${d.link}" target="_blank">link</a></td>
+<td><a href="${d.link}" target="_blank">open</a></td>
 <td>${d.cooldown}</td>
 </tr>
 `;
@@ -31,19 +29,16 @@ load();
 // ================= ADD =================
 function addData(){
 
-const id = document.getElementById("id").value;
-const name = document.getElementById("name").value;
-const coin = document.getElementById("coin").value;
-const link = document.getElementById("link").value;
-const cooldown = document.getElementById("cooldown").value;
+const id = idVal();
+const name = val("name");
+const coin = val("coin");
+const link = val("link");
+const cooldown = val("cooldown");
 
-const url =
-`${API}?action=add&password=${PASSWORD}&id=${id}&name=${name}&coin=${coin}&link=${link}&cooldown=${cooldown}`;
-
-fetch(url)
+fetch(`${API}?action=add&password=${PASSWORD}&id=${id}&name=${encodeURIComponent(name)}&coin=${coin}&link=${encodeURIComponent(link)}&cooldown=${cooldown}`)
 .then(r => r.json())
-.then(() => {
-alert("Data ditambah");
+.then(res => {
+alert(res.message);
 load();
 });
 }
@@ -51,19 +46,16 @@ load();
 // ================= EDIT =================
 function updateData(){
 
-const id = document.getElementById("id").value;
-const name = document.getElementById("name").value;
-const coin = document.getElementById("coin").value;
-const link = document.getElementById("link").value;
-const cooldown = document.getElementById("cooldown").value;
+const id = val("id");
+const name = val("name");
+const coin = val("coin");
+const link = val("link");
+const cooldown = val("cooldown");
 
-const url =
-`${API}?action=edit&password=${PASSWORD}&id=${id}&name=${name}&coin=${coin}&link=${link}&cooldown=${cooldown}`;
-
-fetch(url)
+fetch(`${API}?action=edit&password=${PASSWORD}&id=${id}&name=${encodeURIComponent(name)}&coin=${coin}&link=${encodeURIComponent(link)}&cooldown=${cooldown}`)
 .then(r => r.json())
-.then(() => {
-alert("Data diupdate");
+.then(res => {
+alert(res.message);
 load();
 });
 }
@@ -71,15 +63,21 @@ load();
 // ================= DELETE =================
 function deleteData(){
 
-const id = document.getElementById("id").value;
+const id = val("id");
 
-const url =
-`${API}?action=delete&password=${PASSWORD}&id=${id}`;
-
-fetch(url)
+fetch(`${API}?action=delete&password=${PASSWORD}&id=${id}`)
 .then(r => r.json())
-.then(() => {
-alert("Data dihapus");
+.then(res => {
+alert(res.message);
 load();
 });
+}
+
+// ================= TOOLS =================
+function val(id){
+return document.getElementById(id).value;
+}
+
+function idVal(){
+return Date.now(); // auto ID biar tidak bentrok
 }
