@@ -121,7 +121,7 @@ async function loadData(){
   data = csvToJSON(csv);
 
   document.getElementById("kotakPesan").innerText =
-  "GOOGLE SHEETS SAAS ACTIVE ✔";
+  "LIST ACTIVE ✔";
 
   render();
 }
