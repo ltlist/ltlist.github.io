@@ -8,10 +8,28 @@ let data = [];
 let sortAsc = true;
 let cache = {};
 
+/* ================= GOOGLE SHEETS CSV ================= */
 const DATA_URL =
-"https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/faucet.json";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-Aa_jwdcx4h86y_uW8Al0OKQZg6p3j5dVJHlEyr_mM2ykqXbGN09TgiDaMNXDruk5cPCQrLQWEW8-/pub?output=csv";
 
-/* ================= LOCAL ANALYTICS ================= */
+/* ================= CSV PARSER ================= */
+function csvToJSON(csv){
+  const lines = csv.trim().split("\n");
+  const headers = lines[0].split(",");
+
+  return lines.slice(1).map(line => {
+    const values = line.split(",");
+    let obj = {};
+
+    headers.forEach((h, i) => {
+      obj[h.trim().toLowerCase()] = values[i] ? values[i].trim() : "";
+    });
+
+    return obj;
+  });
+}
+
+/* ================= ANALYTICS ================= */
 function getStats(id){
   return JSON.parse(localStorage.getItem("stats_" + id) || "{}");
 }
@@ -20,14 +38,13 @@ function saveStats(id, stats){
   localStorage.setItem("stats_" + id, JSON.stringify(stats));
 }
 
-/* ================= CLICK TRACK ================= */
 function trackClick(id){
   let s = getStats(id);
   s.clicks = (s.clicks || 0) + 1;
   saveStats(id, s);
 }
 
-/* ================= TIMER ================= */
+/* ================= COOLDOWN ================= */
 function getLast(id){
   return localStorage.getItem("claim_" + id);
 }
@@ -52,7 +69,7 @@ function formatTime(sec){
   return `${m}m ${s}s`;
 }
 
-/* ================= SMART CHECK (SAFE MODE) ================= */
+/* ================= LIGHT STATUS CHECK (SAFE) ================= */
 async function checkLight(url, id){
 
   if(cache[id] && Date.now() - cache[id].t < 300000){
@@ -62,21 +79,15 @@ async function checkLight(url, id){
   let status = "LIVE";
 
   try{
-    // safer check (GET lightweight instead of HEAD no-cors)
-    const res = await fetch(url, { method: "GET", mode: "cors" });
-
-    if(!res.ok) status = "DEAD";
-
+    const res = await fetch(url, { method: "HEAD", mode: "no-cors" });
+    // no-cors = kita anggap LIVE kalau tidak error jaringan
   }catch(e){
     status = "DEAD";
   }
 
-  const result = {
-    status,
-    t: Date.now()
-  };
-
+  const result = { status, t: Date.now() };
   cache[id] = result;
+
   return result;
 }
 
@@ -94,7 +105,7 @@ function calcScore(id, status){
 
   const total = s.fail + s.success;
 
-  let score = total === 0 ? 70 : Math.round((s.success / total) * 100);
+  let score = total === 0 ? 75 : Math.round((s.success / total) * 100);
 
   s.score = score;
   saveStats(id, s);
@@ -105,10 +116,12 @@ function calcScore(id, status){
 /* ================= LOAD DATA ================= */
 async function loadData(){
   const res = await fetch(DATA_URL);
-  data = await res.json();
+  const csv = await res.text();
+
+  data = csvToJSON(csv);
 
   document.getElementById("kotakPesan").innerText =
-  "SAAS SYSTEM ACTIVE ✔";
+  "GOOGLE SHEETS SAAS ACTIVE ✔";
 
   render();
 }
@@ -122,18 +135,18 @@ async function render(){
 
   if(keyword){
     list = list.filter(x =>
-      (x.nama || "").toLowerCase().includes(keyword)
+      (x.name || "").toLowerCase().includes(keyword)
     );
   }
 
   if(filterKoin.value !== "all"){
-    list = list.filter(x => x.koin === filterKoin.value);
+    list = list.filter(x => x.coin === filterKoin.value);
   }
 
   list.sort((a,b)=>
     sortAsc
-    ? (a.nama||"").localeCompare(b.nama||"")
-    : (b.nama||"").localeCompare(a.nama||"")
+    ? (a.name||"").localeCompare(b.name||"")
+    : (b.name||"").localeCompare(a.name||"")
   );
 
   tbody.innerHTML = "";
@@ -145,8 +158,8 @@ async function render(){
     const left = remainingSeconds(item);
     const ready = left === 0;
 
-    let status = cache[item.id]?.status || "LIVE";
-    const score = calcScore(item.id, status);
+    const statusObj = cache[item.id] || {status:"LIVE"};
+    const score = calcScore(item.id, statusObj.status);
 
     let color = "#ffcc00";
     if(score >= 80) color = "#00ff99";
@@ -158,10 +171,10 @@ async function render(){
         <td>${no++}</td>
 
         <td onclick="trackClick('${item.id}')">
-          ${item.nama}
+          ${item.name || "-"}
         </td>
 
-        <td>${item.koin}</td>
+        <td>${item.coin || "-"}</td>
 
         <td>
           ${
@@ -172,7 +185,7 @@ async function render(){
         </td>
 
         <td style="color:${color};font-weight:bold">
-          ${score}% ${status}
+          ${score}% ${statusObj.status}
         </td>
       </tr>
     `;
