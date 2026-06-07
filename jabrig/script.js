@@ -1,5 +1,4 @@
-const API = "https://script.google.com/macros/s/AKfycbyi-AhsKNTbctSLL-gAok78XZEN7M1t2OS3X0-ufNUpzmyyOi2CyABvRFdEnEf4oSck/exec";
-const PASSWORD = "ltlis123";
+
 
 // LOAD
 async function load(){
