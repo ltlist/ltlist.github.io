@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LTList Admin Panel</title>
+
+<title>LTList Admin PRO</title>
 
 <link rel="stylesheet" href="admin.css">
 </head>
@@ -13,117 +14,69 @@
 <div class="container">
 
 <header class="header">
-<h1>LTList Admin Panel</h1>
-<p>Kelola Data Faucet</p>
+<h1>LTList Admin PRO</h1>
+<p>Faucet CMS • SaaS Ready Panel</p>
 </header>
 
 <!-- LOGIN -->
 <div id="loginBox" class="card">
-<h2>Login Admin</h2>
 
-<input type="password"
-id="adminPassword"
-placeholder="Masukkan Password">
+<h2>Admin Login</h2>
 
-<button onclick="login()">
-Login
-</button>
+<input type="password" id="pass" placeholder="Password">
 
-<div id="loginMsg"></div>
+<button onclick="login()">Login</button>
+
+<p id="msg"></p>
+
 </div>
 
-<!-- PANEL ADMIN -->
-<div id="adminPanel" style="display:none;">
+<!-- PANEL -->
+<div id="panel" style="display:none;">
 
-<!-- FORM -->
 <div class="card">
 
-<h2>Tambah / Edit Faucet</h2>
+<h2>Faucet Editor</h2>
 
-<div class="form-grid">
-
-<input
-id="nama"
-placeholder="Nama Faucet">
+<input id="nama" placeholder="Nama faucet">
 
 <select id="koin">
-<option value="MULTI">MULTI</option>
-<option value="LTC">LTC</option>
-<option value="DOGE">DOGE</option>
-<option value="USDT">USDT</option>
-<option value="ZER">ZER</option>
+<option>MULTI</option>
+<option>LTC</option>
+<option>DOGE</option>
+<option>USDT</option>
+<option>ZER</option>
 </select>
 
-<input
-id="link"
-placeholder="Link Faucet">
+<input id="link" placeholder="Link faucet">
 
-<input
-id="cooldown"
-type="number"
-placeholder="Cooldown (menit)">
-
-</div>
+<input id="cooldown" type="number" placeholder="Cooldown (menit)">
 
 <div class="actions">
 
-<button onclick="saveFaucet()">
-💾 Simpan
-</button>
-
-<button onclick="resetForm()">
-🔄 Reset
-</button>
+<button onclick="save()">Save</button>
+<button onclick="resetForm()">Reset</button>
+<button onclick="exportJSON()">Export JSON</button>
 
 </div>
 
 </div>
 
-<!-- SEARCH -->
 <div class="card">
 
-<h2>Pencarian</h2>
+<h2>Search</h2>
 
-<input
-id="search"
-placeholder="Cari Faucet..."
-oninput="render()">
+<input id="search" oninput="render()" placeholder="Cari faucet">
 
 </div>
 
-<!-- IMPORT EXPORT -->
 <div class="card">
 
-<h2>Import / Export</h2>
-
-<input
-type="file"
-id="importFile"
-accept=".json">
-
-<div class="actions">
-
-<button onclick="importJSON()">
-📥 Import JSON
-</button>
-
-<button onclick="exportJSON()">
-📤 Export JSON
-</button>
-
-</div>
-
-</div>
-
-<!-- TABLE -->
-<div class="card">
-
-<h2>Daftar Faucet</h2>
+<h2>Faucet List</h2>
 
 <div class="table-wrap">
 
 <table>
-
 <thead>
 <tr>
 <th>No</th>
@@ -135,7 +88,6 @@ accept=".json">
 </thead>
 
 <tbody id="list"></tbody>
-
 </table>
 
 </div>
