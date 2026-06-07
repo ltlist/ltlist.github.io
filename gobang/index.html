@@ -54,11 +54,7 @@
 
     <!-- DAFTAR FAUCET -->
     <div id="listFaucet" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      <!-- Data akan dimuat di sini pakai Javascript -->
-      <div class="col-span-full text-center py-10 text-gray-500">
-        <i class="fa fa-spinner fa-spin text-3xl mb-3"></i>
-        <p>Memuat daftar faucet...</p>
-      </div>
+      <!-- Data dimuat dari JS -->
     </div>
 
   </main>
@@ -75,7 +71,7 @@
   </footer>
 
   <!-- ==================================================
-       MODAL LOGIN ADMIN (TERSEMBUNYI DARI PUBLIK)
+       MODAL LOGIN ADMIN
        ================================================== -->
   <div id="modalLogin" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
     <div class="bg-white rounded-lg shadow-2xl w-full max-w-md p-6 transform transition-all">
@@ -85,11 +81,11 @@
       </div>
       <div class="mb-4">
         <label class="block text-gray-700 text-sm mb-1">Username</label>
-        <input type="text" id="userAdmin" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary">
+        <input type="text" id="userAdmin" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary" value="admin">
       </div>
       <div class="mb-6">
         <label class="block text-gray-700 text-sm mb-1">Password</label>
-        <input type="password" id="passAdmin" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary">
+        <input type="password" id="passAdmin" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary" value="123456">
       </div>
       <button onclick="loginAdmin()" class="w-full bg-primary text-white py-2.5 rounded-lg hover:bg-primary/90 transition font-medium">
         Masuk ke Panel
@@ -101,7 +97,7 @@
   </div>
 
   <!-- ==================================================
-       PANEL KELOLA DATA (SETELAH LOGIN BERHASIL)
+       PANEL KELOLA DATA
        ================================================== -->
   <div id="panelKelola" class="hidden fixed inset-0 bg-gray-900/80 z-50 overflow-y-auto p-4">
     <div class="container mx-auto max-w-4xl bg-white rounded-xl shadow-2xl my-8">
@@ -169,42 +165,48 @@
 
   <script>
     // ==================================================
-    // ✅ URL SUDAH DIISI SESUAI PUNYA KAMU
+    // 🔐 PENGATURAN LOGIN & DATA LOKAL
     // ==================================================
-    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwubewfSw1UBbJzXro4At7RZ1CBDHCsXWTwVqisrUERMyJuAiK-tYwoc7XghFCbWTYB/exec";
+    const ADMIN_USER = "admin";
+    const ADMIN_PASS = "123456";
 
+    // 📂 DATA AWAL (UBAH / TAMBAH DI SINI)
+    let daftarFaucet = [
+      // CONTOH DATA: [id, nama, koin, link, cooldown]
+      ["F001", "FreeBitcoin", "BTC", "https://freebitco.in", 60],
+      ["F002", "MoonDogecoin", "DOGE", "https://moondoge.com", 5],
+      ["F003", "LitecoinFaucet", "LTC", "https://litecoinfaucet.com", 15],
+    ];
 
-    // ==================================================
-    // FUNGSI UTAMA - DIMUAT SAAT HALAMAN DIBUKA
-    // ==================================================
+    // Simpan data ke Penyimpanan Browser biar tidak hilang
+    function simpanKeStorage() {
+      localStorage.setItem("dataFaucet", JSON.stringify(daftarFaucet));
+    }
+
+    // Ambil data saat halaman dibuka
     window.onload = () => {
+      const simpanan = localStorage.getItem("dataFaucet");
+      if (simpanan) daftarFaucet = JSON.parse(simpanan);
+      
       muatDataPublik();
-      // Cek kalau admin sudah login sebelumnya
       if (localStorage.getItem("adminLogin") === "ok") {
         muatDataKelola();
         document.getElementById('panelKelola').classList.remove('hidden');
       }
     };
 
-    // 📌 MUAT DATA UNTUK PENGUNJUNG / PUBLIK
-    async function muatDataPublik() {
-      const res = await fetch(URL_APPS_SCRIPT, {
-        method: "POST",
-        body: JSON.stringify({aksi:"ambil", data:{}})
-      });
-      const data = await res.json();
-      
-      document.getElementById('jumlahData').innerText = data.length;
+    // 📌 TAMPILAN PUBLIK
+    function muatDataPublik() {
+      document.getElementById('jumlahData').innerText = daftarFaucet.length;
       const wadah = document.getElementById('listFaucet');
       wadah.innerHTML = "";
 
-      if (data.length === 0) {
+      if (daftarFaucet.length === 0) {
         wadah.innerHTML = `<div class="col-span-full text-center py-10 text-gray-500">Belum ada data faucet.</div>`;
         return;
       }
 
-      // Looping tampilkan kartu faucet
-      data.forEach(item => {
+      daftarFaucet.forEach(item => {
         const kartu = document.createElement('div');
         kartu.className = "bg-white rounded-lg shadow hover:shadow-md transition p-4 border border-gray-100 flex flex-col justify-between";
         kartu.innerHTML = `
@@ -223,26 +225,17 @@
     }
 
     // ==================================================
-    // BAGIAN ADMIN (TERSEMBUNYI)
+    // BAGIAN ADMIN
     // ==================================================
-    function bukaLoginAdmin() {
-      document.getElementById('modalLogin').classList.remove('hidden');
-    }
-    function tutupModal(id) {
-      document.getElementById(id).classList.add('hidden');
-    }
+    function bukaLoginAdmin() { document.getElementById('modalLogin').classList.remove('hidden'); }
+    function tutupModal(id) { document.getElementById(id).classList.add('hidden'); }
 
-    // Login Admin
-    async function loginAdmin() {
+    // Login langsung cek di kode, tidak ke mana-mana
+    function loginAdmin() {
       const user = document.getElementById('userAdmin').value;
       const pass = document.getElementById('passAdmin').value;
-      const res = await fetch(URL_APPS_SCRIPT, {
-        method: "POST",
-        body: JSON.stringify({aksi:"login", data:{username:user, password:pass}})
-      });
-      const hasil = await res.json();
       
-      if (hasil.status === "sukses") {
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
         tutupModal('modalLogin');
         localStorage.setItem("adminLogin", "ok");
         muatDataKelola();
@@ -252,14 +245,12 @@
       }
     }
 
-    // Muat data ke tabel kelolaan admin
-    async function muatDataKelola() {
-      const res = await fetch(URL_APPS_SCRIPT, {method:"POST", body:JSON.stringify({aksi:"ambil", data:{}})});
-      const data = await res.json();
+    // Tampilkan data di panel admin
+    function muatDataKelola() {
       const tbody = document.getElementById('tabelKelola');
       tbody.innerHTML = "";
 
-      data.forEach((item, i) => {
+      daftarFaucet.forEach((item, i) => {
         const tr = document.createElement('tr');
         tr.className = "border-b hover:bg-gray-50";
         tr.innerHTML = `
@@ -268,7 +259,7 @@
           <td class="p-2">${item[2]}</td>
           <td class="p-2">${item[4]} mnt</td>
           <td class="p-2 text-center">
-            <button onclick="bukaEdit(${i}, ${JSON.stringify(item)})" class="text-yellow-600 mr-2" title="Edit"><i class="fa fa-pencil"></i></button>
+            <button onclick="bukaEdit(${i})" class="text-yellow-600 mr-2" title="Edit"><i class="fa fa-pencil"></i></button>
             <button onclick="hapusData(${i})" class="text-red-600" title="Hapus"><i class="fa fa-trash"></i></button>
           </td>
         `;
@@ -283,9 +274,10 @@
       bersihkanForm();
       document.getElementById('modalForm').classList.remove('hidden');
     }
-    function bukaEdit(i, item) {
+    function bukaEdit(i) {
       document.getElementById('judulForm').innerText = "Ubah Data Faucet";
       document.getElementById('indexBaris').value = i;
+      const item = daftarFaucet[i];
       document.getElementById('f_id').value = item[0];
       document.getElementById('f_name').value = item[1];
       document.getElementById('f_coin').value = item[2];
@@ -294,27 +286,32 @@
       document.getElementById('modalForm').classList.remove('hidden');
     }
 
-    async function simpanData() {
+    function simpanData() {
       const baris = document.getElementById('indexBaris').value;
-      const data = {
-        id: document.getElementById('f_id').value,
-        name: document.getElementById('f_name').value,
-        coin: document.getElementById('f_coin').value,
-        link: document.getElementById('f_link').value,
-        cooldown: document.getElementById('f_cooldown').value
-      };
-      const aksi = baris === "" ? "tambah" : "edit";
-      const kirim = aksi === "edit" ? {baris:parseInt(baris), ...data} : data;
+      const dataBaru = [
+        document.getElementById('f_id').value,
+        document.getElementById('f_name').value,
+        document.getElementById('f_coin').value,
+        document.getElementById('f_link').value,
+        parseInt(document.getElementById('f_cooldown').value)
+      ];
 
-      await fetch(URL_APPS_SCRIPT, {method:"POST", body:JSON.stringify({aksi, data:kirim})});
+      if (baris === "") {
+        daftarFaucet.push(dataBaru); // Tambah baru
+      } else {
+        daftarFaucet[parseInt(baris)] = dataBaru; // Ubah yang ada
+      }
+
+      simpanKeStorage(); // Simpan perubahan
       tutupModal('modalForm'); 
       muatDataKelola(); 
-      muatDataPublik(); // Perbarui tampilan depan
+      muatDataPublik();
     }
 
-    async function hapusData(i) {
+    function hapusData(i) {
       if(confirm("Yakin ingin menghapus data ini?")) {
-        await fetch(URL_APPS_SCRIPT, {method:"POST", body:JSON.stringify({aksi:"hapus", data:{baris:i}})});
+        daftarFaucet.splice(i, 1); // Hapus array
+        simpanKeStorage();
         muatDataKelola(); 
         muatDataPublik();
       }
