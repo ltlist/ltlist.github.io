@@ -1,19 +1,23 @@
+const API =
+"hthttps://script.google.com/macros/s/AKfycbwvfrygurrGVo27FLv8CMjr02363Lnegr5hpO8EUfCOG-BE16Aq-kxjVQYkL85E6f0apA/exec";
 
+const PASSWORD = "ltlis123";
 
-// LOAD
+// ================= LOAD DATA =================
 async function load(){
+
 const res = await fetch(API + "?action=list");
 const data = await res.json();
 
 let html = "";
 
-data.forEach(d=>{
+data.forEach(d => {
 html += `
 <tr>
 <td>${d.id}</td>
 <td>${d.name}</td>
 <td>${d.coin}</td>
-<td>${d.link}</td>
+<td><a href="${d.link}" target="_blank">link</a></td>
 <td>${d.cooldown}</td>
 </tr>
 `;
@@ -21,48 +25,61 @@ html += `
 
 document.getElementById("table").innerHTML = html;
 }
+
 load();
 
-// ADD
+// ================= ADD =================
 function addData(){
+
 const id = document.getElementById("id").value;
 const name = document.getElementById("name").value;
 const coin = document.getElementById("coin").value;
 const link = document.getElementById("link").value;
 const cooldown = document.getElementById("cooldown").value;
 
-fetch(`${API}?action=add&id=${id}&name=${encodeURIComponent(name)}&coin=${coin}&link=${encodeURIComponent(link)}&cooldown=${cooldown}&password=${PASSWORD}`)
-.then(r=>r.json())
-.then(r=>{
-alert(r.message);
+const url =
+`${API}?action=add&password=${PASSWORD}&id=${id}&name=${name}&coin=${coin}&link=${link}&cooldown=${cooldown}`;
+
+fetch(url)
+.then(r => r.json())
+.then(() => {
+alert("Data ditambah");
 load();
 });
 }
 
-// EDIT
+// ================= EDIT =================
 function updateData(){
+
 const id = document.getElementById("id").value;
 const name = document.getElementById("name").value;
 const coin = document.getElementById("coin").value;
 const link = document.getElementById("link").value;
 const cooldown = document.getElementById("cooldown").value;
 
-fetch(`${API}?action=edit&id=${id}&name=${encodeURIComponent(name)}&coin=${coin}&link=${encodeURIComponent(link)}&cooldown=${cooldown}&password=${PASSWORD}`)
-.then(r=>r.json())
-.then(r=>{
-alert(r.message);
+const url =
+`${API}?action=edit&password=${PASSWORD}&id=${id}&name=${name}&coin=${coin}&link=${link}&cooldown=${cooldown}`;
+
+fetch(url)
+.then(r => r.json())
+.then(() => {
+alert("Data diupdate");
 load();
 });
 }
 
-// DELETE
+// ================= DELETE =================
 function deleteData(){
+
 const id = document.getElementById("id").value;
 
-fetch(`${API}?action=delete&id=${id}&password=${PASSWORD}`)
-.then(r=>r.json())
-.then(r=>{
-alert(r.message);
+const url =
+`${API}?action=delete&password=${PASSWORD}&id=${id}`;
+
+fetch(url)
+.then(r => r.json())
+.then(() => {
+alert("Data dihapus");
 load();
 });
 }
