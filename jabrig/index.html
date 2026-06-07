@@ -1,48 +1,79 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LTList Admin Panel</title>
-<link rel="stylesheet" href="style.css">
+  <title>Jabrig Admin Panel</title>
+  <style>
+    body { font-family: Arial; background:#111; color:#fff; padding:20px; }
+    input,button { padding:10px; margin:5px; }
+    table { width:100%; margin-top:20px; border-collapse:collapse; }
+    td,th { border:1px solid #444; padding:8px; }
+  </style>
 </head>
 <body>
 
-<div class="container">
-
-<h2>🔥 LTList Admin Panel</h2>
-
-<div class="form-box">
+<h2>Admin Faucet</h2>
 
 <input id="id" placeholder="ID">
 <input id="name" placeholder="Name">
 <input id="coin" placeholder="Coin">
 <input id="link" placeholder="Link">
-<input id="cooldown" placeholder="Cooldown (menit)">
+<input id="cooldown" placeholder="Cooldown">
 
 <button onclick="addData()">Tambah</button>
-<button onclick="updateData()">Edit</button>
-<button onclick="deleteData()">Hapus</button>
 
-</div>
+<table id="table"></table>
 
-<hr>
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxAH3KI54-U-qrFUjsm5EesO4fjj3ZvKw7K86jgrg_snqpP7YSSMUzNPRusYYb7TQLx/exec";
 
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th>Name</th>
-<th>Coin</th>
-<th>Link</th>
-<th>Cooldown</th>
-</tr>
-</thead>
-<tbody id="table"></tbody>
-</table>
+async function load(){
+  let res = await fetch(API);
+  let data = await res.json();
 
-</div>
+  let html = "<tr><th>ID</th><th>Name</th><th>Coin</th><th>Link</th><th>Cooldown</th><th>Action</th></tr>";
 
-<script src="script.js"></script>
+  data.forEach(d=>{
+    html += `
+      <tr>
+        <td>${d.id}</td>
+        <td>${d.name}</td>
+        <td>${d.coin}</td>
+        <td>${d.link}</td>
+        <td>${d.cooldown}</td>
+        <td><button onclick="hapus(${d.row})">Delete</button></td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("table").innerHTML = html;
+}
+
+async function addData(){
+  await fetch(API, {
+    method:"POST",
+    body: JSON.stringify({
+      id:id.value,
+      name:name.value,
+      coin:coin.value,
+      link:link.value,
+      cooldown:cooldown.value
+    })
+  });
+
+  load();
+}
+
+async function hapus(row){
+  await fetch(API, {
+    method:"DELETE",
+    body: JSON.stringify({row})
+  });
+
+  load();
+}
+
+load();
+</script>
+
 </body>
 </html>
