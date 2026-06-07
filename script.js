@@ -10,7 +10,7 @@ let cache = {};
 
 /* ================= GOOGLE SHEETS CSV ================= */
 const DATA_URL =
-"https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-Aa_jwdcx4h86y_uW8Al0OKQZg6p3j5dVJHlEyr_mM2ykqXbGN09TgiDaMNXDruk5cPCQrLQWEW8-/pub?output=csv";
+"https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/main/hot.json";
 
 /* ================= CSV PARSER ================= */
 function csvToJSON(csv){
