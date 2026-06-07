@@ -3,15 +3,37 @@
 <head>
   <title>Jabrig Admin Panel</title>
   <style>
-    body { font-family: Arial; background:#111; color:#fff; padding:20px; }
-    input,button { padding:10px; margin:5px; }
-    table { width:100%; margin-top:20px; border-collapse:collapse; }
-    td,th { border:1px solid #444; padding:8px; }
+    body{
+      font-family:Arial;
+      background:#111;
+      color:#fff;
+      padding:20px;
+    }
+
+    input,button{
+      padding:10px;
+      margin:5px;
+    }
+
+    table{
+      width:100%;
+      margin-top:20px;
+      border-collapse:collapse;
+    }
+
+    td,th{
+      border:1px solid #444;
+      padding:8px;
+    }
+
+    button{
+      cursor:pointer;
+    }
   </style>
 </head>
 <body>
 
-<h2>Admin Faucet</h2>
+<h2>🔥 Faucet Admin Panel</h2>
 
 <input id="id" placeholder="ID">
 <input id="name" placeholder="Name">
@@ -19,39 +41,51 @@
 <input id="link" placeholder="Link">
 <input id="cooldown" placeholder="Cooldown">
 
-<button onclick="addData()">Tambah</button>
+<button onclick="addData()">➕ Add</button>
 
 <table id="table"></table>
 
 <script>
 const API = "https://script.google.com/macros/s/AKfycbxAH3KI54-U-qrFUjsm5EesO4fjj3ZvKw7K86jgrg_snqpP7YSSMUzNPRusYYb7TQLx/exec";
 
+/* LOAD DATA */
 async function load(){
   let res = await fetch(API);
   let data = await res.json();
 
-  let html = "<tr><th>ID</th><th>Name</th><th>Coin</th><th>Link</th><th>Cooldown</th><th>Action</th></tr>";
+  let html = `
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Coin</th>
+    <th>Link</th>
+    <th>Cooldown</th>
+    <th>Action</th>
+  </tr>`;
 
   data.forEach(d=>{
     html += `
-      <tr>
-        <td>${d.id}</td>
-        <td>${d.name}</td>
-        <td>${d.coin}</td>
-        <td>${d.link}</td>
-        <td>${d.cooldown}</td>
-        <td><button onclick="hapus(${d.row})">Delete</button></td>
-      </tr>
-    `;
+    <tr>
+      <td>${d.id || ""}</td>
+      <td>${d.name || ""}</td>
+      <td>${d.coin || ""}</td>
+      <td>${d.link || ""}</td>
+      <td>${d.cooldown || ""}</td>
+      <td>
+        <button onclick="hapus(${d.row})">Delete</button>
+      </td>
+    </tr>`;
   });
 
   document.getElementById("table").innerHTML = html;
 }
 
+/* ADD DATA */
 async function addData(){
-  await fetch(API, {
+  await fetch(API,{
     method:"POST",
-    body: JSON.stringify({
+    body:JSON.stringify({
+      action:"add",
       id:id.value,
       name:name.value,
       coin:coin.value,
@@ -63,10 +97,14 @@ async function addData(){
   load();
 }
 
+/* DELETE */
 async function hapus(row){
-  await fetch(API, {
-    method:"DELETE",
-    body: JSON.stringify({row})
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"delete",
+      row:row
+    })
   });
 
   load();
