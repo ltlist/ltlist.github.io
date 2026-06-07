@@ -10,10 +10,28 @@ let sortAsc = true;
 let cache = {};
 let hidden = JSON.parse(localStorage.getItem("hidden_faucet") || "[]");
 
+/* ================= GOOGLE SHEETS CSV ================= */
 const DATA_URL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ-Aa_jwdcx4h86y_uW8Al0OKQZg6p3j5dVJHlEyr_mM2ykqXbGN09TgiDaMNXDruk5cPCQrLQWEW8-/pub?output=csv";
 
-// ================= TIMER =================
+/* ================= CSV PARSER ================= */
+function csvToJSON(csv){
+  const lines = csv.trim().split("\n");
+  const headers = lines[0].split(",");
+
+  return lines.slice(1).map(line => {
+    const values = line.split(",");
+    let obj = {};
+
+    headers.forEach((h, i) => {
+      obj[h.trim().toLowerCase()] = values[i] ? values[i].trim() : "";
+    });
+
+    return obj;
+  });
+}
+
+/* ================= TIMER ================= */
 function getLast(id){
   return localStorage.getItem("claim_" + id);
 }
@@ -27,7 +45,9 @@ function remainingSeconds(item){
   if(!last) return 0;
 
   const diff = Math.floor((Date.now() - last) / 1000);
-  return Math.max(0, item.cooldown * 60 - diff);
+  const cooldown = (Number(item.cooldown) || 0) * 60;
+
+  return Math.max(0, cooldown - diff);
 }
 
 function formatTime(sec){
@@ -36,7 +56,7 @@ function formatTime(sec){
   return `${m}m ${s}s`;
 }
 
-// ================= CHECK =================
+/* ================= CHECK DEAD ================= */
 async function checkLight(url, id){
 
   if(cache[id] && Date.now() - cache[id].t < 600000){
@@ -46,32 +66,23 @@ async function checkLight(url, id){
   let status = "LIVE";
 
   try{
-    const controller = new AbortController();
-    const timeout = setTimeout(()=>controller.abort(), 5000);
-
     await fetch(url, {
       method: "HEAD",
-      mode: "no-cors",
-      signal: controller.signal
+      mode: "no-cors"
     });
-
-    clearTimeout(timeout);
-
   }catch(e){
     status = "DEAD";
   }
 
-  const result = {
+  cache[id] = {
     status,
     t: Date.now()
   };
 
-  cache[id] = result;
-
-  return result;
+  return cache[id];
 }
 
-// ================= HIDE DEAD =================
+/* ================= HIDE SYSTEM ================= */
 function hideDead(id){
   if(!hidden.includes(id)){
     hidden.push(id);
@@ -79,25 +90,32 @@ function hideDead(id){
   }
 }
 
-// ================= RESET =================
 function resetHidden(){
   localStorage.removeItem("hidden_faucet");
   hidden = [];
   render();
 }
 
-// ================= LOAD DATA =================
+/* ================= LOAD DATA ================= */
 async function loadData(){
-  const res = await fetch(DATA_URL);
-  data = await res.json();
+  try{
+    const res = await fetch(DATA_URL);
+    const csv = await res.text();
 
-  document.getElementById("kotakPesan").innerText =
-  "Auto Remove DEAD System Active ✔";
+    data = csvToJSON(csv);
 
-  render();
+    document.getElementById("kotakPesan").innerText =
+    "Auto Remove DEAD System Active ✔";
+
+    render();
+
+  }catch(e){
+    document.getElementById("kotakPesan").innerText =
+    "Failed load data ❌";
+  }
 }
 
-// ================= RENDER =================
+/* ================= RENDER ================= */
 async function render(){
 
   let list = [...data];
@@ -109,16 +127,18 @@ async function render(){
 
   if(keyword){
     list = list.filter(x =>
-      x.nama.toLowerCase().includes(keyword)
+      (x.name || "").toLowerCase().includes(keyword)
     );
   }
 
   if(filterKoin.value !== "all"){
-    list = list.filter(x => x.koin === filterKoin.value);
+    list = list.filter(x => x.coin === filterKoin.value);
   }
 
   list.sort((a,b)=>
-    sortAsc ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama)
+    sortAsc
+    ? (a.name||"").localeCompare(b.name||"")
+    : (b.name||"").localeCompare(a.name||"")
   );
 
   tbody.innerHTML = "";
@@ -134,39 +154,4 @@ async function render(){
 
     // AUTO REMOVE DEAD
     if(s.status === "DEAD"){
-      hideDead(item.id);
-      continue;
-    }
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${no++}</td>
-        <td>${item.nama}</td>
-        <td>${item.koin}</td>
-        <td>
-          ${
-            ready
-            ? `<a class="btn" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">Claim</a>`
-            : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
-          }
-        </td>
-        <td><span class="status-live">● LIVE</span></td>
-      </tr>
-    `;
-  }
-}
-
-// ================= EVENTS =================
-search.addEventListener("input", render);
-filterKoin.addEventListener("change", render);
-
-sortBtn.addEventListener("click", ()=>{
-  sortAsc = !sortAsc;
-  render();
-});
-
-// ================= LOOP =================
-setInterval(render, 15000);
-
-// ================= INIT =================
-loadData();
+      hide
