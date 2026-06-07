@@ -2,6 +2,7 @@ body{
   font-family: Arial;
   background:#0f1419;
   color:#fff;
+  margin:0;
   padding:20px;
 }
 
@@ -12,15 +13,16 @@ body{
 
 .header{
   text-align:center;
-  margin-bottom:20px;
+}
+
+.header h1{
   color:#00ccff;
 }
 
 .control-panel{
   display:flex;
   gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:15px;
+  margin:15px 0;
 }
 
 input,select,button{
@@ -33,26 +35,19 @@ input,select,button{
 
 button{
   cursor:pointer;
-  background:#00ccff;
-  color:#000;
-  font-weight:bold;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
-  background:#151b23;
+  margin-top:10px;
 }
 
 th,td{
-  padding:12px;
-  border-bottom:1px solid #222c38;
+  padding:10px;
+  border-bottom:1px solid #222;
 }
 
-a.btn{
-  padding:6px 10px;
-  background:#00ccff;
-  color:#000;
-  border-radius:6px;
-  text-decoration:none;
+th{
+  color:#00ccff;
 }
