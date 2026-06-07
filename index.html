@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>LTList Faucet PRO MAX</title>
+<title>LTList Faucet</title>
 
 <link rel="stylesheet" href="style.css">
 </head>
@@ -14,13 +14,14 @@
 <div class="container">
 
 <header class="header">
-<h1>LTList Faucet PRO MAX</h1>
-<p>Smart Faucet List • Auto Remove DEAD • Clean Dashboard</p>
+<h1>LTList Faucet</h1>
+<p>Crypto faucet list auto sync Google Sheets</p>
 </header>
 
+<!-- CONTROL -->
 <div class="control-panel">
 
-<input id="search" type="text" placeholder="Search faucet...">
+<input id="search" placeholder="Search faucet...">
 
 <select id="filterKoin">
 <option value="all">All Coin</option>
@@ -31,17 +32,12 @@
 <option value="MULTI">MULTI</option>
 </select>
 
-<button id="sortBtn">Sort A-Z</button>
-
-<button onclick="resetHidden()">Reset Hidden</button>
+<button id="sortBtn">Sort</button>
 
 </div>
 
-<div id="kotakPesan" class="status-box">
-Loading system...
-</div>
+<div id="kotakPesan">Loading...</div>
 
-<div class="table-wrap">
 <table>
 <thead>
 <tr>
@@ -49,17 +45,11 @@ Loading system...
 <th>Nama</th>
 <th>Coin</th>
 <th>Aksi</th>
-<th>Status</th>
 </tr>
 </thead>
 
 <tbody id="isiTabel"></tbody>
 </table>
-</div>
-
-<footer class="footer">
-© LTList Faucet PRO MAX
-</footer>
 
 </div>
 
