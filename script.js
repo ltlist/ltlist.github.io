@@ -179,7 +179,7 @@ async function render(){
         <td>
           ${
             ready
-            ? `<a class="btn" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">🟢 Claim</a>`
+            ? `<a class="btn" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">Claim</a>`
             : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
           }
         </td>
