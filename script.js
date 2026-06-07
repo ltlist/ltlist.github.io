@@ -6,9 +6,7 @@ const sortBtn = document.getElementById("sortBtn");
 
 let data = [];
 let sortAsc = true;
-
 let cache = {};
-let hidden = JSON.parse(localStorage.getItem("hidden_faucet") || "[]");
 
 /* ================= GOOGLE SHEETS CSV ================= */
 const DATA_URL =
@@ -31,7 +29,22 @@ function csvToJSON(csv){
   });
 }
 
-/* ================= TIMER ================= */
+/* ================= ANALYTICS ================= */
+function getStats(id){
+  return JSON.parse(localStorage.getItem("stats_" + id) || "{}");
+}
+
+function saveStats(id, stats){
+  localStorage.setItem("stats_" + id, JSON.stringify(stats));
+}
+
+function trackClick(id){
+  let s = getStats(id);
+  s.clicks = (s.clicks || 0) + 1;
+  saveStats(id, s);
+}
+
+/* ================= COOLDOWN ================= */
 function getLast(id){
   return localStorage.getItem("claim_" + id);
 }
@@ -56,72 +69,67 @@ function formatTime(sec){
   return `${m}m ${s}s`;
 }
 
-/* ================= CHECK DEAD ================= */
+/* ================= LIGHT STATUS CHECK (SAFE) ================= */
 async function checkLight(url, id){
 
-  if(cache[id] && Date.now() - cache[id].t < 600000){
+  if(cache[id] && Date.now() - cache[id].t < 300000){
     return cache[id];
   }
 
   let status = "LIVE";
 
   try{
-    await fetch(url, {
-      method: "HEAD",
-      mode: "no-cors"
-    });
+    const res = await fetch(url, { method: "HEAD", mode: "no-cors" });
+    // no-cors = kita anggap LIVE kalau tidak error jaringan
   }catch(e){
     status = "DEAD";
   }
 
-  cache[id] = {
-    status,
-    t: Date.now()
-  };
+  const result = { status, t: Date.now() };
+  cache[id] = result;
 
-  return cache[id];
+  return result;
 }
 
-/* ================= HIDE SYSTEM ================= */
-function hideDead(id){
-  if(!hidden.includes(id)){
-    hidden.push(id);
-    localStorage.setItem("hidden_faucet", JSON.stringify(hidden));
-  }
-}
+/* ================= SCORE ================= */
+function calcScore(id, status){
 
-function resetHidden(){
-  localStorage.removeItem("hidden_faucet");
-  hidden = [];
-  render();
+  let s = getStats(id);
+
+  if(!s.clicks) s.clicks = 0;
+  if(!s.fail) s.fail = 0;
+  if(!s.success) s.success = 0;
+
+  if(status === "DEAD") s.fail++;
+  else s.success++;
+
+  const total = s.fail + s.success;
+
+  let score = total === 0 ? 75 : Math.round((s.success / total) * 100);
+
+  s.score = score;
+  saveStats(id, s);
+
+  return score;
 }
 
 /* ================= LOAD DATA ================= */
 async function loadData(){
-  try{
-    const res = await fetch(DATA_URL);
-    const csv = await res.text();
+  const res = await fetch(DATA_URL);
+  const csv = await res.text();
 
-    data = csvToJSON(csv);
+  data = csvToJSON(csv);
 
-    document.getElementById("kotakPesan").innerText =
-    "Auto Remove DEAD System Active ✔";
+  document.getElementById("kotakPesan").innerText =
+  "GOOGLE SHEETS SAAS ACTIVE ✔";
 
-    render();
-
-  }catch(e){
-    document.getElementById("kotakPesan").innerText =
-    "Failed load data ❌";
-  }
+  render();
 }
 
 /* ================= RENDER ================= */
 async function render(){
 
   let list = [...data];
-
-  // remove hidden
-  list = list.filter(x => !hidden.includes(x.id));
 
   const keyword = search.value.toLowerCase();
 
@@ -150,8 +158,51 @@ async function render(){
     const left = remainingSeconds(item);
     const ready = left === 0;
 
-    const s = await checkLight(item.link, item.id);
+    const statusObj = cache[item.id] || {status:"LIVE"};
+    const score = calcScore(item.id, statusObj.status);
 
-    // AUTO REMOVE DEAD
-    if(s.status === "DEAD"){
-      hide
+    let color = "#ffcc00";
+    if(score >= 80) color = "#00ff99";
+    else if(score >= 50) color = "#ffcc00";
+    else color = "#ff4444";
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${no++}</td>
+
+        <td onclick="trackClick('${item.id}')">
+          ${item.name || "-"}
+        </td>
+
+        <td>${item.coin || "-"}</td>
+
+        <td>
+          ${
+            ready
+            ? `<a class="btn" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">Claim</a>`
+            : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
+          }
+        </td>
+
+        <td style="color:${color};font-weight:bold">
+          ${score}% ${statusObj.status}
+        </td>
+      </tr>
+    `;
+  }
+}
+
+/* ================= EVENTS ================= */
+search.addEventListener("input", render);
+filterKoin.addEventListener("change", render);
+
+sortBtn.addEventListener("click", ()=>{
+  sortAsc = !sortAsc;
+  render();
+});
+
+/* ================= LOOP ================= */
+setInterval(render, 10000);
+
+/* ================= INIT ================= */
+loadData();
