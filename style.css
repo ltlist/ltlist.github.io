@@ -1,5 +1,5 @@
 body{
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background:#0f1419;
   color:#fff;
   margin:0;
@@ -13,6 +13,7 @@ body{
 
 .header{
   text-align:center;
+  margin-bottom:20px;
 }
 
 .header h1{
@@ -22,7 +23,8 @@ body{
 .control-panel{
   display:flex;
   gap:10px;
-  margin:15px 0;
+  flex-wrap:wrap;
+  margin-bottom:15px;
 }
 
 input,select,button{
@@ -37,17 +39,63 @@ button{
   cursor:pointer;
 }
 
+button:hover{
+  background:#243041;
+}
+
+.status-box{
+  padding:10px;
+  background:#1b222c;
+  border-radius:8px;
+  margin-bottom:15px;
+  text-align:center;
+  border:1px solid #2a3442;
+}
+
+.table-wrap{
+  overflow-x:auto;
+}
+
 table{
   width:100%;
   border-collapse:collapse;
-  margin-top:10px;
-}
-
-th,td{
-  padding:10px;
-  border-bottom:1px solid #222;
+  background:#151b23;
 }
 
 th{
+  background:#1f2a36;
   color:#00ccff;
+  padding:12px;
+  text-align:left;
 }
+
+td{
+  padding:12px;
+  border-bottom:1px solid #222c38;
+}
+
+a.btn{
+  background:#00ccff;
+  color:#000;
+  padding:6px 12px;
+  border-radius:6px;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+button.btn.disabled{
+  background:#2a3442;
+  color:#888;
+  cursor:not-allowed;
+  padding:6px 12px;
+  border-radius:6px;
+}
+
+.footer{
+  text-align:center;
+  margin-top:20px;
+  color:#777;
+}
+
+.status-live{ color:#00ff99; font-weight:bold; }
+.status-dead{ color:#ff4444; font-weight:bold; }
