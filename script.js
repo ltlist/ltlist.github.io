@@ -9,14 +9,26 @@ let sortAsc = true;
 
 let cache = {};
 
-// hidden sementara
-let hidden = JSON.parse(localStorage.getItem("hidden_faucet") || "[]");
-
-// waktu recovery (30 menit)
-const RECOVERY_TIME = 30 * 60 * 1000;
-
 const DATA_URL =
 "https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/faucet.json";
+
+// ================= LOCAL ANALYTICS =================
+function getStats(id){
+  return JSON.parse(localStorage.getItem("stats_" + id) || "{}");
+}
+
+function saveStats(id, stats){
+  localStorage.setItem("stats_" + id, JSON.stringify(stats));
+}
+
+// ================= CLICK TRACKING =================
+function trackClick(id){
+  let s = getStats(id);
+
+  s.clicks = (s.clicks || 0) + 1;
+
+  saveStats(id, s);
+}
 
 // ================= TIMER =================
 function getLast(id){
@@ -41,7 +53,7 @@ function formatTime(sec){
   return `${m}m ${s}s`;
 }
 
-// ================= CHECK LIGHT =================
+// ================= LIGHT CHECK =================
 async function checkLight(url, id){
 
   if(cache[id] && Date.now() - cache[id].t < 600000){
@@ -76,31 +88,30 @@ async function checkLight(url, id){
   return result;
 }
 
-// ================= HIDE WITH RECOVERY TIME =================
-function hideWithTime(id, status){
+// ================= STABILITY SCORE =================
+function calcScore(id, status){
 
-  const now = Date.now();
+  let s = getStats(id);
 
-  let list = JSON.parse(localStorage.getItem("hidden_faucet_data") || "{}");
+  if(!s.clicks) s.clicks = 0;
+  if(!s.fail) s.fail = 0;
+  if(!s.success) s.success = 0;
 
-  list[id] = {
-    status,
-    time: now
-  };
+  if(status === "DEAD"){
+    s.fail++;
+  }else{
+    s.success++;
+  }
 
-  localStorage.setItem("hidden_faucet_data", JSON.stringify(list));
-}
+  const total = s.success + s.fail;
 
-// ================= RECOVERY CHECK =================
-function canRecover(id){
+  let score = total === 0 ? 50 : Math.round((s.success / total) * 100);
 
-  const list = JSON.parse(localStorage.getItem("hidden_faucet_data") || "{}");
+  s.score = score;
 
-  if(!list[id]) return true;
+  saveStats(id, s);
 
-  const diff = Date.now() - list[id].time;
-
-  return diff > RECOVERY_TIME;
+  return score;
 }
 
 // ================= LOAD =================
@@ -109,7 +120,7 @@ async function loadData(){
   data = await res.json();
 
   document.getElementById("kotakPesan").innerText =
-  "AUTO RECOVERY SYSTEM ACTIVE ✔";
+  "SAAS ANALYTICS SYSTEM ACTIVE ✔";
 
   render();
 }
@@ -118,14 +129,6 @@ async function loadData(){
 async function render(){
 
   let list = [...data];
-
-  const hiddenData = JSON.parse(localStorage.getItem("hidden_faucet_data") || "{}");
-
-  // filter recovery system
-  list = list.filter(item=>{
-    if(!hiddenData[item.id]) return true;
-    return canRecover(item.id);
-  });
 
   const keyword = search.value.toLowerCase();
 
@@ -154,24 +157,18 @@ async function render(){
 
     const s = await checkLight(item.link, item.id);
 
-    // AUTO REMOVE + STORE TIME
-    if(s.status === "DEAD"){
-      hideWithTime(item.id, "DEAD");
-      continue;
-    }
+    const score = calcScore(item.id, s.status);
 
-    // kalau hidup lagi → hapus dari hidden
-    let hiddenData = JSON.parse(localStorage.getItem("hidden_faucet_data") || "{}");
+    let color = "#ffaa00";
 
-    if(hiddenData[item.id]){
-      delete hiddenData[item.id];
-      localStorage.setItem("hidden_faucet_data", JSON.stringify(hiddenData));
-    }
+    if(score >= 80) color = "#00ff99";
+    else if(score >= 50) color = "#ffcc00";
+    else color = "#ff4444";
 
     tbody.innerHTML += `
       <tr>
         <td>${no++}</td>
-        <td>${item.nama}</td>
+        <td onclick="trackClick('${item.id}')">${item.nama}</td>
         <td>${item.koin}</td>
         <td>
           ${
@@ -180,7 +177,9 @@ async function render(){
             : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
           }
         </td>
-        <td><span style="color:#00ff99;font-weight:bold">● LIVE</span></td>
+        <td style="color:${color};font-weight:bold">
+          ${score}% STABLE
+        </td>
       </tr>
     `;
   }
