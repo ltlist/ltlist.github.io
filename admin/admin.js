@@ -1,23 +1,7 @@
-const PASS = "ltlist123";
+const SUPABASE_URL = "https://YOUR_PROJECT.supabase.co";
+const SUPABASE_KEY = "YOUR_ANON_KEY";
 
-let data = JSON.parse(localStorage.getItem("ltlist_admin") || "[]");
-let editIndex = -1;
-
-// ================= LOGIN =================
-function login(){
-  const p = document.getElementById("pass").value;
-
-  if(p === PASS){
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("panel").style.display = "block";
-    render();
-  }else{
-    document.getElementById("msg").innerText = "Password salah";
-  }
-}
-
-// ================= SAVE =================
-function save(){
+async function save(){
 
   const item = {
     id: Date.now().toString(),
@@ -32,80 +16,50 @@ function save(){
     return;
   }
 
-  if(editIndex === -1){
-    data.push(item);
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/faucets`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`
+    },
+    body: JSON.stringify(item)
+  });
+
+  if(res.ok){
+    alert("Saved ✔ (Auto Sync Active)");
+    render();
+    resetForm();
   }else{
-    data[editIndex] = item;
+    alert("Error saving data");
   }
+}
 
-  localStorage.setItem("ltlist_admin", JSON.stringify(data));
+// ================= LOAD DATA =================
+async function load(){
 
-  resetForm();
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/faucets`, {
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`
+    }
+  });
+
+  window.data = await res.json();
+
   render();
-}
-
-// ================= RESET =================
-function resetForm(){
-  nama.value = "";
-  link.value = "";
-  cooldown.value = "";
-  editIndex = -1;
-}
-
-// ================= EDIT =================
-function edit(i){
-  editIndex = i;
-
-  nama.value = data[i].nama;
-  koin.value = data[i].koin;
-  link.value = data[i].link;
-  cooldown.value = data[i].cooldown;
 }
 
 // ================= DELETE =================
-function del(i){
-  data.splice(i,1);
-  localStorage.setItem("ltlist_admin", JSON.stringify(data));
-  render();
-}
+async function del(id){
 
-// ================= EXPORT JSON (SAAS CORE) =================
-function exportJSON(){
-
-  const blob = new Blob(
-    [JSON.stringify(data, null, 2)],
-    {type:"application/json"}
-  );
-
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "faucet.json";
-  a.click();
-}
-
-// ================= RENDER =================
-function render(){
-
-  const tbody = document.getElementById("list");
-  const key = document.getElementById("search").value.toLowerCase();
-
-  tbody.innerHTML = "";
-
-  data
-  .filter(x => x.nama.toLowerCase().includes(key))
-  .forEach((x,i)=>{
-
-    tbody.innerHTML += `
-      <tr>
-        <td>${i+1}</td>
-        <td>${x.nama}</td>
-        <td>${x.koin}</td>
-        <td>${x.cooldown}</td>
-        <td>
-          <button onclick="edit(${i})">Edit</button>
-          <button onclick="del(${i})">Del</button>
-        </td>
-      </tr>
-    `;
+  await fetch(`${SUPABASE_URL}/rest/v1/faucets?id=eq.${id}`, {
+    method: "DELETE",
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`
+    }
   });
+
+  load();
 }
