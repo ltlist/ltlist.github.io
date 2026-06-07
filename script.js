@@ -8,7 +8,7 @@ const sortBtn = document.getElementById("sortBtn");
 let data = [];
 let sortAsc = true;
 
-// CSV PARSER
+// CSV PARSER (AMAN)
 function csvToJSON(csv){
   const lines = csv.trim().split("\n");
   const headers = lines[0].split(",");
@@ -34,7 +34,7 @@ async function loadData(){
     data = csvToJSON(csv);
 
     document.getElementById("kotakPesan").innerText =
-    "Data loaded ✔ Google Sheets";
+    "Data loaded ✔ Google Sheets Connected";
 
     render();
 
@@ -44,7 +44,7 @@ async function loadData(){
   }
 }
 
-// TIMER SIMPLE (COOLDOWN LOCAL)
+// RENDER
 function render(){
 
   let list = [...data];
@@ -53,17 +53,18 @@ function render(){
 
   if(keyword){
     list = list.filter(x =>
-      x.nama.toLowerCase().includes(keyword)
+      (x.Name || "").toLowerCase().includes(keyword)
     );
   }
 
   if(filterKoin.value !== "all"){
-    list = list.filter(x => x.koin === filterKoin.value);
+    list = list.filter(x => x.Coin === filterKoin.value);
   }
 
   list.sort((a,b)=>
-    sortAsc ? a.nama.localeCompare(b.nama)
-            : b.nama.localeCompare(a.nama)
+    sortAsc
+    ? (a.Name||"").localeCompare(b.Name||"")
+    : (b.Name||"").localeCompare(a.Name||"")
   );
 
   tbody.innerHTML = "";
@@ -73,9 +74,9 @@ function render(){
     tbody.innerHTML += `
     <tr>
       <td>${i+1}</td>
-      <td>${item.nama}</td>
-      <td>${item.koin}</td>
-      <td><a class="btn" href="${item.link}" target="_blank">Claim</a></td>
+      <td>${item.Name || "-"}</td>
+      <td>${item.Coin || "-"}</td>
+      <td><a class="btn" href="${item.Link}" target="_blank">Claim</a></td>
     </tr>`;
   });
 }
