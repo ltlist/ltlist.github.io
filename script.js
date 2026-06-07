@@ -8,7 +8,9 @@ const sortBtn = document.getElementById("sortBtn");
 let data = [];
 let sortAsc = true;
 
-// 🔥 NORMALIZER (INI KUNCI FIX SEMUA ERROR)
+/* =========================
+   NORMALIZER (ANTI ERROR)
+========================= */
 function normalize(obj){
   let fixed = {};
 
@@ -25,7 +27,9 @@ function normalize(obj){
   return fixed;
 }
 
-// CSV PARSER
+/* =========================
+   CSV PARSER
+========================= */
 function csvToJSON(csv){
   const lines = csv.trim().split("\n");
   const headers = lines[0].split(",");
@@ -42,7 +46,36 @@ function csvToJSON(csv){
   });
 }
 
-// LOAD DATA
+/* =========================
+   TIMER SYSTEM
+========================= */
+function getLast(id){
+  return localStorage.getItem("claim_" + id);
+}
+
+function setLast(id){
+  localStorage.setItem("claim_" + id, Date.now());
+}
+
+function remaining(item){
+  const last = getLast(item.id);
+  if(!last) return 0;
+
+  const diff = Math.floor((Date.now() - last) / 1000);
+  const cooldown = (Number(item.cooldown) || 0) * 60;
+
+  return Math.max(0, cooldown - diff);
+}
+
+function format(sec){
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}m ${s}s`;
+}
+
+/* =========================
+   LOAD DATA
+========================= */
 async function loadData(){
   try{
     const res = await fetch(DATA_URL);
@@ -51,17 +84,19 @@ async function loadData(){
     data = csvToJSON(csv);
 
     document.getElementById("kotakPesan").innerText =
-    "Data loaded ✔";
+    "Data loaded ✔ Google Sheets Connected";
 
     render();
 
   }catch(e){
     document.getElementById("kotakPesan").innerText =
-    "Failed load ❌";
+    "Failed load data ❌";
   }
 }
 
-// RENDER
+/* =========================
+   RENDER TABLE
+========================= */
 function render(){
 
   let list = [...data];
@@ -88,18 +123,28 @@ function render(){
 
   list.forEach((item,i)=>{
 
+    const left = remaining(item);
+    const ready = left === 0;
+
     tbody.innerHTML += `
     <tr>
       <td>${i+1}</td>
       <td>${item.name || "-"}</td>
       <td>${item.coin || "-"}</td>
-      <td>${item.cooldown || "-"} min</td>
-      <td><a class="btn" href="${item.link}" target="_blank">Claim</a></td>
+      <td>
+        ${
+          ready
+          ? `<a class="btn" href="${item.link}" target="_blank" onclick="setLast('${item.id}')">🟢 Claim</a>`
+          : `<button class="btn" disabled>⏳ ${format(left)}</button>`
+        }
+      </td>
     </tr>`;
   });
 }
 
-// EVENTS
+/* =========================
+   EVENTS
+========================= */
 search.addEventListener("input", render);
 filterKoin.addEventListener("change", render);
 
@@ -108,5 +153,12 @@ sortBtn.addEventListener("click", ()=>{
   render();
 });
 
-// INIT
+/* =========================
+   AUTO REFRESH TIMER
+========================= */
+setInterval(render, 1000);
+
+/* =========================
+   INIT
+========================= */
 loadData();
