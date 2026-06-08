@@ -2,446 +2,92 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Jabrig Admin Panel</title>
+<title>Jabrig Admin</title>
 
-
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 </head>
-
 <body>
 
-<!-- LOGIN -->
 <div id="loginBox">
-  <h2>🔐 Admin Login</h2>
-  <input type="email" id="email" placeholder="Email">
+
+<h2>Login Admin</h2>
+
+<input type="email" id="email" placeholder="Email">
+<br><br>
+
 <input type="password" id="pass" placeholder="Password">
-  <button class="btn" onclick="login()">Login</button>
-  <p id="msg"></p>
+<br><br>
+
+<button onclick="login()">Login</button>
+
+<p id="msg"></p>
+
 </div>
 
-<!-- DASHBOARD -->
-<div id="dashboard">
+<div id="dashboard" style="display:none;">
 
-<h2>🔥 Jabrig Admin Panel</h2>
+<h2>Jabrig Admin Panel</h2>
 
-<div class="form-box">
-  <input id="name" placeholder="Name">
+<p id="userInfo"></p>
 
-  <select id="coin">
-    <option value="LTC">LTC</option>
-    <option value="ZER">ZER</option>
-    <option value="DOGE">DOGE</option>
-    <option value="USDT">USDT</option>
-    <option value="MULTI">MULTI</option>
-  </select>
+<button onclick="logout()">Logout</button>
 
-  <input id="link" placeholder="Link">
-  <input id="cooldown" placeholder="Cooldown">
+<hr>
 
-  <button class="btn" onclick="addData()">➕ Add</button>
-  <button onclick="logout()">Logout</button>
-</div>
+<input id="name" placeholder="Name">
+<br><br>
 
-<!-- EDIT -->
-<div id="editBox">
-  <h3>Edit Data</h3>
+<select id="coin">
+<option>LTC</option>
+<option>DOGE</option>
+<option>ZER</option>
+<option>USDT</option>
+<option>MULTI</option>
+</select>
 
-  <input id="eid" placeholder="ID">
-  <input id="ename" placeholder="Name">
+<br><br>
 
-  <select id="ecoin">
-    <option value="LTC">LTC</option>
-    <option value="ZER">ZER</option>
-    <option value="DOGE">DOGE</option>
-    <option value="USDT">USDT</option>
-    <option value="MULTI">MULTI</option>
-  </select>
+<input id="link" placeholder="Link">
+<br><br>
 
-  <input id="elink" placeholder="Link">
-  <input id="ecooldown" placeholder="Cooldown">
+<input id="cooldown" type="number" placeholder="Cooldown">
+<br><br>
 
-  <button class="btn" onclick="updateData()">💾 Save</button>
-</div>
-
-<div class="table-container">
-  <table id="table"></table>
-</div>
+<button onclick="addData()">Tambah Data</button>
 
 </div>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGid0BjxTrhrgkw7C7R2QHIkF6DgoVkOxo42Hv4kGQ8/exec";
-
-/* ================= CHECK SESSION ================= */
-function checkSession(){
-
-  let session = localStorage.getItem(SESSION_KEY);
-
-  if(!session){
-    return false;
-  }
-
-  try{
-    session = JSON.parse(session);
-  }catch(e){
-    return false;
-  }
-
-  if(!session.token || !session.time){
-    return false;
-  }
-
-  if(Date.now() - session.time > EXPIRE_TIME){
-    localStorage.removeItem(SESSION_KEY);
-    return false;
-  }
-
-  return true;
-}
-
-/* ================= SHOW DASHBOARD ================= */
-function showDashboard(){
-
-  if(!checkSession()){
-    return;
-  }
-
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("dashboard").style.display = "block";
-
-  load();
-  startGuard();
-}
-
-/* ================= SAFE GUARD (FIX LOOP) ================= */
-function startGuard(){
-
-  if(guardStarted) return;
-  guardStarted = true;
-
-  setInterval(()=>{
-
-    // kalau masih di login page, jangan ganggu
-    if(document.getElementById("dashboard").style.display !== "block"){
-      return;
-    }
-
-    let session = localStorage.getItem(SESSION_KEY);
-
-    if(!session) return;
-
-    try{
-      session = JSON.parse(session);
-
-      if(Date.now() - session.time > EXPIRE_TIME){
-        logout();
-      }
-
-    }catch(e){
-      logout();
-    }
-
-  }, 5000);
-}
-
-/* ================= LOGOUT ================= */
-function logout(){
-  localStorage.removeItem(SESSION_KEY);
-  location.reload();
-}
-
-/* ================= LOAD DATA ================= */
-async function load(){
-
-  if(!auth.currentUser) return;
-
-  let res = await fetch(API);
-  let text = await res.text();
-  let data = JSON.parse(text);
-
-  let html = `
-  <tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Coin</th>
-    <th>Link</th>
-    <th>Cooldown</th>
-    <th>Action</th>
-  </tr>`;
-
-  data.forEach(d=>{
-    html += `
-    <tr>
-      <td>${d.id}</td>
-      <td>${d.name}</td>
-      <td>${d.coin}</td>
-      <td>${d.link}</td>
-      <td>${d.cooldown}</td>
-      <td>
-        <button class="btn-edit" onclick='edit(${JSON.stringify(d)})'>Edit</button>
-        <button class="btn-del" onclick="hapus(${d.row})">Delete</button>
-      </td>
-    </tr>`;
-  });
-
-  document.getElementById("table").innerHTML = html;
-}
-
-/* ================= ADD ================= */
-async function addData(){
-
-  if(!checkSession()) return logout();
-
-  let form = new FormData();
-  form.append("action","add");
-
-  form.append("name",document.getElementById("name").value);
-  form.append("coin",document.getElementById("coin").value);
-  form.append("link",document.getElementById("link").value);
-  form.append("cooldown",document.getElementById("cooldown").value);
-
-  await fetch(API,{method:"POST",body:form});
-
-  document.getElementById("name").value="";
-  document.getElementById("link").value="";
-  document.getElementById("cooldown").value="";
-
-  load();
-}
-
-/* ================= DELETE ================= */
-async function hapus(row){
-
-  if(!checkSession()) return logout();
-
-  let form = new FormData();
-  form.append("action","delete");
-  form.append("row",row);
-
-  await fetch(API,{method:"POST",body:form});
-  load();
-}
-
-/* ================= EDIT ================= */
-function edit(d){
-
-  if(!checkSession()) return logout();
-
-  editRow = d.row;
-
-  document.getElementById("editBox").style.display = "block";
-
-  document.getElementById("eid").value = d.id;
-  document.getElementById("ename").value = d.name;
-  document.getElementById("ecoin").value = d.coin;
-  document.getElementById("elink").value = d.link;
-  document.getElementById("ecooldown").value = d.cooldown;
-}
-
-/* ================= UPDATE ================= */
-if(!auth.currentUser){
-  return;
-  }
-
-  let form = new FormData();
-  form.append("action","update");
-
-  form.append("row",editRow);
-  form.append("id",document.getElementById("eid").value);
-  form.append("name",document.getElementById("ename").value);
-  form.append("coin",document.getElementById("ecoin").value);
-  form.append("link",document.getElementById("elink").value);
-  form.append("cooldown",document.getElementById("ecooldown").value);
-
-  await fetch(API,{method:"POST",body:form});
-
-  document.getElementById("editBox").style.display = "none";
-  load();
-}
-
-<script type="module">
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-
+// FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
-  authDomain: "ltlist-f.firebaseapp.com",
-  projectId: "ltlist-f",
-  storageBucket: "YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId: "ltlist-f.firebasestorage.app",
-  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
+  apiKey: "API_KEY_KAMU",
+  authDomain: "PROJECT.firebaseapp.com",
+  projectId: "PROJECT_ID",
+  storageBucket: "PROJECT.appspot.com",
+  messagingSenderId: "XXXXXXXX",
+  appId: "APP_ID"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+firebase.initializeApp(firebaseConfig);
 
-const API = "PASTE_APPS_SCRIPT_URL_HERE";
+const auth = firebase.auth();
 
-let editRow = null;
+const API = "URL_APPS_SCRIPT_KAMU";
 
-window.login = async function(){
-
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("pass").value;
-
-  try{
-
-    await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-  }catch(error){
-
-    document.getElementById("msg").innerText =
-      "❌ Email atau Password salah";
-
-  }
-
-};
-
-window.logout = async function(){
-
-  await signOut(auth);
-
-};
-
-async function load(){
-
-  if(!auth.currentUser) return;
-
-  const res = await fetch(API);
-  const data = await res.json();
-
-  let html = `
-  <tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Coin</th>
-    <th>Link</th>
-    <th>Cooldown</th>
-    <th>Action</th>
-  </tr>`;
-
-  data.forEach(d=>{
-
-    html += `
-    <tr>
-      <td>${d.id}</td>
-      <td>${d.name}</td>
-      <td>${d.coin}</td>
-      <td>${d.link}</td>
-      <td>${d.cooldown}</td>
-      <td>
-        <button class="btn-edit" onclick='editData(${JSON.stringify(d)})'>
-          Edit
-        </button>
-
-        <button class="btn-del" onclick="hapus(${d.row})">
-          Delete
-        </button>
-      </td>
-    </tr>`;
-
-  });
-
-  document.getElementById("table").innerHTML = html;
-}
-
-window.addData = async function(){
-
-  if(!auth.currentUser) return;
-
-  const form = new FormData();
-
-  form.append("action","add");
-  form.append("name",document.getElementById("name").value);
-  form.append("coin",document.getElementById("coin").value);
-  form.append("link",document.getElementById("link").value);
-  form.append("cooldown",document.getElementById("cooldown").value);
-
-  await fetch(API,{
-    method:"POST",
-    body:form
-  });
-
-  load();
-};
-
-window.hapus = async function(row){
-
-  if(!auth.currentUser) return;
-
-  const form = new FormData();
-
-  form.append("action","delete");
-  form.append("row",row);
-
-  await fetch(API,{
-    method:"POST",
-    body:form
-  });
-
-  load();
-};
-
-window.editData = function(d){
-
-  if(!auth.currentUser) return;
-
-  editRow = d.row;
-
-  document.getElementById("editBox").style.display = "block";
-
-  document.getElementById("eid").value = d.id;
-  document.getElementById("ename").value = d.name;
-  document.getElementById("ecoin").value = d.coin;
-  document.getElementById("elink").value = d.link;
-  document.getElementById("ecooldown").value = d.cooldown;
-};
-
-window.updateData = async function(){
-
-  if(!auth.currentUser) return;
-
-  const form = new FormData();
-
-  form.append("action","update");
-  form.append("row",editRow);
-  form.append("id",document.getElementById("eid").value);
-  form.append("name",document.getElementById("ename").value);
-  form.append("coin",document.getElementById("ecoin").value);
-  form.append("link",document.getElementById("elink").value);
-  form.append("cooldown",document.getElementById("ecooldown").value);
-
-  await fetch(API,{
-    method:"POST",
-    body:form
-  });
-
-  document.getElementById("editBox").style.display = "none";
-
-  load();
-};
-
-onAuthStateChanged(auth,(user)=>{
+// AUTO LOGIN
+auth.onAuthStateChanged(user => {
 
   if(user){
 
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
 
-    load();
+    document.getElementById("userInfo").innerText =
+      "Login sebagai: " + user.email;
 
   }else{
 
@@ -452,6 +98,81 @@ onAuthStateChanged(auth,(user)=>{
 
 });
 
+// LOGIN
+async function login(){
+
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("pass").value;
+
+  try{
+
+    await auth.signInWithEmailAndPassword(email, pass);
+
+    document.getElementById("msg").innerText =
+      "Login berhasil";
+
+  }catch(err){
+
+    document.getElementById("msg").innerText =
+      err.message;
+
+  }
+
+}
+
+// LOGOUT
+async function logout(){
+
+  await auth.signOut();
+
+}
+
+// CEK LOGIN
+function checkLogin(){
+
+  if(!auth.currentUser){
+
+    alert("Silakan login");
+
+    return false;
+
+  }
+
+  return true;
+
+}
+
+// ADD DATA
+async function addData(){
+
+  if(!checkLogin()) return;
+
+  const form = new FormData();
+
+  form.append("action","add");
+  form.append("name",document.getElementById("name").value);
+  form.append("coin",document.getElementById("coin").value);
+  form.append("link",document.getElementById("link").value);
+  form.append("cooldown",document.getElementById("cooldown").value);
+
+  try{
+
+    await fetch(API,{
+      method:"POST",
+      body:form
+    });
+
+    alert("Data berhasil ditambah");
+
+  }catch(err){
+
+    alert(err.message);
+
+  }
+
+}
+
 </script>
+
 </body>
 </html>
