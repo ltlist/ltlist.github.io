@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Jabrig Admin Panel</title>
+
   <style>
     body{
       font-family:Arial;
@@ -10,9 +12,21 @@
       padding:20px;
     }
 
+    h2{ margin-bottom:10px; }
+
     input,button{
       padding:10px;
       margin:5px;
+      border:none;
+      border-radius:5px;
+    }
+
+    input{
+      width:180px;
+    }
+
+    button{
+      cursor:pointer;
     }
 
     table{
@@ -21,53 +35,83 @@
       border-collapse:collapse;
     }
 
-    td,th{
+    th,td{
       border:1px solid #444;
       padding:8px;
+      text-align:left;
     }
 
-    button{
-      cursor:pointer;
+    .box{
+      background:#1c1c1c;
+      padding:10px;
+      border-radius:8px;
     }
 
-    .editBox{
+    #editBox{
+      display:none;
+      margin-top:20px;
       background:#222;
       padding:10px;
-      margin-top:10px;
-      display:none;
+      border-radius:8px;
+    }
+
+    .btn-del{
+      background:red;
+      color:#fff;
+    }
+
+    .btn-edit{
+      background:orange;
+      color:#000;
+    }
+
+    .btn-add{
+      background:green;
+      color:#fff;
     }
   </style>
 </head>
+
 <body>
 
-<h2>🔥 Faucet Admin Panel</h2>
+<h2>🔥 Jabrig Admin Panel</h2>
 
-<input id="id" placeholder="ID">
-<input id="name" placeholder="Name">
-<input id="coin" placeholder="Coin">
-<input id="link" placeholder="Link">
-<input id="cooldown" placeholder="Cooldown">
+<div class="box">
 
-<button onclick="addData()">➕ Add</button>
+  <input id="id" placeholder="ID">
+  <input id="name" placeholder="Name">
+  <input id="coin" placeholder="Coin">
+  <input id="link" placeholder="Link">
+  <input id="cooldown" placeholder="Cooldown">
 
-<div class="editBox" id="editBox">
+  <button class="btn-add" onclick="addData()">➕ Add</button>
+
+</div>
+
+<!-- EDIT BOX -->
+<div id="editBox">
   <h3>Edit Data</h3>
+
   <input id="eid" placeholder="ID">
   <input id="ename" placeholder="Name">
   <input id="ecoin" placeholder="Coin">
   <input id="elink" placeholder="Link">
   <input id="ecooldown" placeholder="Cooldown">
-  <button onclick="updateData()">💾 Save</button>
+
+  <button class="btn-add" onclick="updateData()">💾 Save</button>
 </div>
 
 <table id="table"></table>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbxQOzM_matCFNz53nPwtnecMYZjcGqppQql6FpF8qCKoEZOftspovFx0v2BItj4t-Q/exec";
+
+const API = "https://script.google.com/macros/s/AKfycbxAH3KI54-U-qrFUjsm5EesO4fjj3ZvKw7K86jgrg_snqpP7YSSMUzNPRusYYb7TQLx/exec";
 
 let editRow = null;
 
-/* LOAD */
+/* ======================
+   LOAD DATA
+====================== */
 async function load(){
   let res = await fetch(API);
   let data = await res.json();
@@ -91,8 +135,8 @@ async function load(){
       <td>${d.link || ""}</td>
       <td>${d.cooldown || ""}</td>
       <td>
-        <button onclick='edit(${JSON.stringify(d)})'>Edit</button>
-        <button onclick="hapus(${d.row})">Delete</button>
+        <button class="btn-edit" onclick='edit(${JSON.stringify(d)})'>Edit</button>
+        <button class="btn-del" onclick="hapus(${d.row})">Delete</button>
       </td>
     </tr>`;
   });
@@ -100,7 +144,9 @@ async function load(){
   document.getElementById("table").innerHTML = html;
 }
 
-/* ADD */
+/* ======================
+   ADD DATA
+====================== */
 async function addData(){
   let form = new FormData();
 
@@ -116,12 +162,16 @@ async function addData(){
     body:form
   });
 
+  clearInput();
   load();
 }
 
-/* DELETE */
+/* ======================
+   DELETE
+====================== */
 async function hapus(row){
   let form = new FormData();
+
   form.append("action","delete");
   form.append("row",row);
 
@@ -133,20 +183,24 @@ async function hapus(row){
   load();
 }
 
-/* EDIT */
+/* ======================
+   EDIT (OPEN FORM)
+====================== */
 function edit(d){
   editRow = d.row;
 
   document.getElementById("editBox").style.display = "block";
 
-  eid.value = d.id;
-  ename.value = d.name;
-  ecoiin.value = d.coin;
-  elink.value = d.link;
-  ecooldown.value = d.cooldown;
+  document.getElementById("eid").value = d.id || "";
+  document.getElementById("ename").value = d.name || "";
+  document.getElementById("ecoin").value = d.coin || "";
+  document.getElementById("elink").value = d.link || "";
+  document.getElementById("ecooldown").value = d.cooldown || "";
 }
 
-/* UPDATE */
+/* ======================
+   UPDATE DATA
+====================== */
 async function updateData(){
   let form = new FormData();
 
@@ -167,7 +221,19 @@ async function updateData(){
   load();
 }
 
+/* ======================
+   CLEAR INPUT
+====================== */
+function clearInput(){
+  id.value="";
+  name.value="";
+  coin.value="";
+  link.value="";
+  cooldown.value="";
+}
+
 load();
+
 </script>
 
 </body>
