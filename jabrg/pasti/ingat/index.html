@@ -154,11 +154,11 @@ const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGi
 const PASSWORD = "Suminta";
 
 const SESSION_KEY = "jabrig_session";
-const EXPIRE_TIME = 15 * 60 * 1000; // 15 menit
+const EXPIRE_TIME = 10 * 60 * 1000; // 🔥 dipersempit jadi 10 menit
 
 let editRow = null;
 
-/* ================= CHECK SESSION ================= */
+/* ================= TOKEN CHECK LEBIH KETAT ================= */
 function checkSession(){
   let session = localStorage.getItem(SESSION_KEY);
 
@@ -166,12 +166,17 @@ function checkSession(){
     return false;
   }
 
-  session = JSON.parse(session);
+  try{
+    session = JSON.parse(session);
+  }catch(e){
+    return false;
+  }
 
   if(!session.token || !session.time){
     return false;
   }
 
+  // expired check
   if(Date.now() - session.time > EXPIRE_TIME){
     localStorage.removeItem(SESSION_KEY);
     return false;
@@ -180,22 +185,25 @@ function checkSession(){
   return true;
 }
 
-/* ================= AUTO LOGIN ================= */
+/* ================= HARD BLOCK (ANTI BUKA DASHBOARD LANGSUNG) ================= */
 window.onload = function(){
 
   if(checkSession()){
     showDashboard();
+  }else{
+    document.getElementById("dashboard").style.display="none";
   }
 }
 
-/* ================= LOGIN ================= */
+/* ================= LOGIN (TOKEN LEBIH KUAT) ================= */
 function login(){
+
   let p = document.getElementById("pass").value;
 
   if(p === PASSWORD){
 
     let session = {
-      token: Math.random().toString(36).substring(2),
+      token: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2),
       time: Date.now()
     };
 
@@ -221,12 +229,12 @@ function showDashboard(){
   load();
 }
 
-/* ================= AUTO SESSION GUARD ================= */
+/* ================= AUTO KILL SESSION ================= */
 setInterval(()=>{
   if(!checkSession()){
     logout();
   }
-}, 5000);
+}, 3000);
 
 /* ================= LOGOUT ================= */
 function logout(){
