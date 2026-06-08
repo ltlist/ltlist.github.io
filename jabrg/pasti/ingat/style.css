@@ -130,6 +130,13 @@ button:hover{
   background: #ef5350;
 }
 
+.btn-link{
+  background:#2196f3;
+  color:#fff;
+}
+.btn-link:hover{
+  background:#42a5f5;
+}
 /* ================= TABLE ================= */
 .table-container{
   width: 100%;
