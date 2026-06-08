@@ -1,0 +1,97 @@
+body{
+  font-family:Arial,sans-serif;
+  background:#111;
+  color:#fff;
+  padding:10px;
+  margin:0;
+}
+
+/* LOGIN */
+#loginBox{
+  max-width:320px;
+  margin:100px auto;
+  background:#1c1c1c;
+  padding:20px;
+  border-radius:10px;
+  text-align:center;
+}
+
+input,
+select,
+button{
+  width:100%;
+  box-sizing:border-box;
+  padding:10px;
+  margin:5px 0;
+  border-radius:6px;
+  border:none;
+  font-size:14px;
+}
+
+button{
+  cursor:pointer;
+}
+
+.btn{
+  background:green;
+  color:#fff;
+}
+
+/* DASHBOARD */
+#dashboard{
+  display:none;
+}
+
+h2{
+  text-align:center;
+}
+
+/* FORM */
+.form-box{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:8px;
+  margin-bottom:15px;
+}
+
+/* TABLE */
+.table-container{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  min-width:600px;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+th{
+  background:#222;
+}
+
+th,
+td{
+  border:1px solid #444;
+  padding:8px;
+  font-size:13px;
+  text-align:left;
+}
+
+#editBox{
+  display:none;
+  background:#222;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+}
+
+.btn-del{
+  background:red;
+  color:#fff;
+}
+
+.btn-edit{
+  background:orange;
+  color:#fff;
+}
