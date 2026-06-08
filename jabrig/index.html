@@ -4,23 +4,50 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Jabrig Admin Panel</title>
+<title>Admin Login - Jabrig</title>
 
 <style>
 body{
   font-family:Arial;
   background:#111;
   color:#fff;
-  padding:10px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
 }
 
-/* HEADER */
-h2{
+/* LOGIN BOX */
+#loginBox{
+  background:#1c1c1c;
+  padding:20px;
+  border-radius:10px;
+  width:300px;
   text-align:center;
-  font-size:20px;
 }
 
-/* INPUT GRID RESPONSIVE */
+input,button{
+  padding:10px;
+  width:100%;
+  margin-top:10px;
+  border:none;
+  border-radius:6px;
+}
+
+button{
+  cursor:pointer;
+  background:green;
+  color:#fff;
+}
+
+/* DASHBOARD */
+#dashboard{
+  display:none;
+  width:100%;
+  padding:15px;
+}
+
 .form-box{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
@@ -28,28 +55,6 @@ h2{
   margin-bottom:10px;
 }
 
-input,select,button{
-  padding:10px;
-  border-radius:6px;
-  border:none;
-  font-size:14px;
-}
-
-button{
-  cursor:pointer;
-}
-
-.btn-add{
-  background:green;
-  color:#fff;
-}
-
-/* TABLE WRAPPER */
-.table-container{
-  overflow-x:auto;
-}
-
-/* TABLE */
 table{
   width:100%;
   border-collapse:collapse;
@@ -59,11 +64,17 @@ table{
 th,td{
   border:1px solid #444;
   padding:8px;
-  text-align:left;
   font-size:13px;
 }
 
-/* EDIT BOX */
+.table-container{
+  overflow-x:auto;
+}
+
+.btn-del{background:red;color:#fff;}
+.btn-edit{background:orange;}
+.btn-add{background:green;color:#fff;}
+
 #editBox{
   display:none;
   background:#222;
@@ -71,22 +82,24 @@ th,td{
   margin-top:10px;
   border-radius:8px;
 }
-
-/* BUTTONS */
-.btn-edit{background:orange;}
-.btn-del{background:red;color:#fff;}
-
-@media(max-width:600px){
-  th,td{font-size:12px;}
-}
 </style>
 </head>
 
 <body>
 
+<!-- LOGIN -->
+<div id="loginBox">
+  <h2>🔐 Admin Login</h2>
+  <input type="password" id="pass" placeholder="Enter Password">
+  <button onclick="login()">Login</button>
+  <p id="msg"></p>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+
 <h2>🔥 Jabrig Admin Panel</h2>
 
-<!-- INPUT -->
 <div class="form-box">
   <input id="name" placeholder="Name">
 
@@ -104,7 +117,6 @@ th,td{
   <button class="btn-add" onclick="addData()">➕ Add</button>
 </div>
 
-<!-- EDIT -->
 <div id="editBox">
   <h3>Edit Data</h3>
 
@@ -125,18 +137,35 @@ th,td{
   <button class="btn-add" onclick="updateData()">💾 Save</button>
 </div>
 
-<!-- TABLE -->
 <div class="table-container">
   <table id="table"></table>
 </div>
 
+</div>
+
 <script>
 
+/* ================= PASSWORD ================= */
+const PASSWORD = "admin123"; // <-- ganti ini bebas
+
+function login(){
+  let p = document.getElementById("pass").value;
+
+  if(p === PASSWORD){
+    document.getElementById("loginBox").style.display="none";
+    document.getElementById("dashboard").style.display="block";
+    load();
+  }else{
+    document.getElementById("msg").innerText="❌ Password salah";
+  }
+}
+
+/* ================= API ================= */
 const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGid0BjxTrhrgkw7C7R2QHIkF6DgoVkOxo42Hv4kGQ8/exec";
 
 let editRow = null;
 
-/* LOAD */
+/* ================= LOAD ================= */
 async function load(){
   let res = await fetch(API);
   let text = await res.text();
@@ -170,7 +199,7 @@ async function load(){
   document.getElementById("table").innerHTML = html;
 }
 
-/* ADD */
+/* ================= ADD ================= */
 async function addData(){
 
   let form = new FormData();
@@ -181,29 +210,26 @@ async function addData(){
   form.append("link",document.getElementById("link").value);
   form.append("cooldown",document.getElementById("cooldown").value);
 
-  await fetch(API,{ method:"POST", body:form });
-
+  await fetch(API,{method:"POST",body:form});
   load();
 }
 
-/* DELETE */
+/* ================= DELETE ================= */
 async function hapus(row){
 
   let form = new FormData();
   form.append("action","delete");
   form.append("row",row);
 
-  await fetch(API,{ method:"POST", body:form });
-
+  await fetch(API,{method:"POST",body:form});
   load();
 }
 
-/* EDIT */
+/* ================= EDIT ================= */
 function edit(d){
-
   editRow = d.row;
 
-  document.getElementById("editBox").style.display = "block";
+  document.getElementById("editBox").style.display="block";
 
   document.getElementById("eid").value = d.id;
   document.getElementById("ename").value = d.name;
@@ -212,7 +238,7 @@ function edit(d){
   document.getElementById("ecooldown").value = d.cooldown;
 }
 
-/* UPDATE */
+/* ================= UPDATE ================= */
 async function updateData(){
 
   let form = new FormData();
@@ -225,13 +251,11 @@ async function updateData(){
   form.append("link",document.getElementById("elink").value);
   form.append("cooldown",document.getElementById("ecooldown").value);
 
-  await fetch(API,{ method:"POST", body:form });
+  await fetch(API,{method:"POST",body:form});
 
-  document.getElementById("editBox").style.display = "none";
+  document.getElementById("editBox").style.display="none";
   load();
 }
-
-load();
 
 </script>
 
