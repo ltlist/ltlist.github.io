@@ -12,7 +12,7 @@ firebase.initializeApp(firebaseConfig);
 
 const auth = firebase.auth();
 
-const API = "URL_APPS_SCRIPT_KAMU";
+const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGid0BjxTrhrgkw7C7R2QHIkF6DgoVkOxo42Hv4kGQ8/exec";
 
 let editRow = null;
 
