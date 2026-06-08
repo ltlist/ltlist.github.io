@@ -1,11 +1,11 @@
 // FIREBASE CONFIG
 const firebaseConfig = {
-apiKey: "API_KEY_KAMU",
-authDomain: "PROJECT.firebaseapp.com",
-projectId: "PROJECT_ID",
-storageBucket: "PROJECT.appspot.com",
-messagingSenderId: "XXXXXXXX",
-appId: "APP_ID"
+  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
+  authDomain: "ltlist-f.firebaseapp.com",
+  projectId: "ltlist-f",
+  storageBucket: "YOUR_PROJECT.firebasestorage.app",
+  messagingSenderId: "ltlist-f.firebasestorage.app",
+  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 
 firebase.initializeApp(firebaseConfig);
