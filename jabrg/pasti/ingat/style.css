@@ -116,7 +116,14 @@ button:hover{
 .btn-del:hover{
   background: #ff5252;
 }
+.btn-cancel{
+  background:#616161;
+  color:#fff;
+}
 
+.btn-cancel:hover{
+  background:#9e9e9e;
+}
 /* ================= TABLE ================= */
 .table-container{
   overflow-x: auto;
