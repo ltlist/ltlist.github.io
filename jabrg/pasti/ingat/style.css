@@ -1,78 +1,169 @@
+/* ================= GLOBAL ================= */
 body{
-  font-family:Arial;
-  background:#111;
-  color:#fff;
-  padding:10px;
+  font-family: Arial, sans-serif;
+  background: #0f1115;
+  color: #eaeaea;
+  margin: 0;
+  padding: 20px;
 }
 
-/* LOGIN */
+/* ================= LOGIN BOX ================= */
 #loginBox{
-  max-width:320px;
-  margin:100px auto;
-  background:#1c1c1c;
-  padding:20px;
-  border-radius:10px;
-  text-align:center;
+  max-width: 350px;
+  margin: 100px auto;
+  background: #1b1f2a;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  text-align: center;
 }
 
-input,select,button{
-  padding:10px;
-  margin:5px;
-  border-radius:6px;
-  border:none;
-  font-size:14px;
+#loginBox input{
+  width: 90%;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: #111522;
+  color: #fff;
+}
+
+#loginBox button{
+  width: 95%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #00c853;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+#loginBox button:hover{
+  background: #00e676;
+}
+
+/* ================= DASHBOARD ================= */
+#dashboard{
+  max-width: 1000px;
+  margin: auto;
+}
+
+/* ================= HEADER ================= */
+h2{
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+#userInfo{
+  text-align: center;
+  color: #aaa;
+  margin-bottom: 10px;
+}
+
+/* ================= FORM ================= */
+.form-box{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+input, select{
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background: #1b1f2a;
+  color: #fff;
 }
 
 button{
-  cursor:pointer;
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
 }
 
+button:hover{
+  transform: scale(1.03);
+}
+
+/* BUTTON COLORS */
 .btn{
-  background:green;
-  color:#fff;
+  background: #00c853;
+  color: white;
 }
 
-/* DASHBOARD */
-#dashboard{
-  display:none;
+.btn:hover{
+  background: #00e676;
 }
 
-h2{
-  text-align:center;
+.btn-edit{
+  background: #ff9800;
+  color: #fff;
 }
 
-/* FORM */
-.form-box{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:8px;
+.btn-del{
+  background: #f44336;
+  color: #fff;
 }
 
-/* TABLE */
+/* ================= TABLE ================= */
 .table-container{
-  overflow-x:auto;
+  overflow-x: auto;
+  margin-top: 15px;
 }
 
 table{
-  width:100%;
-  min-width:600px;
-  border-collapse:collapse;
-  margin-top:10px;
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+  background: #1b1f2a;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
-th,td{
-  border:1px solid #444;
-  padding:8px;
-  font-size:13px;
+th{
+  background: #222838;
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
 }
 
+td{
+  padding: 10px;
+  border-bottom: 1px solid #2a2f3d;
+  font-size: 13px;
+}
+
+tr:hover{
+  background: #242a3a;
+}
+
+/* ================= EDIT BOX ================= */
 #editBox{
-  display:none;
-  background:#222;
-  padding:10px;
-  margin-top:10px;
-  border-radius:8px;
+  background: #1b1f2a;
+  padding: 15px;
+  margin-top: 15px;
+  border-radius: 10px;
+  display: none;
 }
 
-.btn-del{background:red;color:#fff;}
-.btn-edit{background:orange;}
+/* ================= MOBILE ================= */
+@media(max-width:600px){
+  body{
+    padding: 10px;
+  }
+
+  table{
+    min-width: 600px;
+  }
+
+  .form-box{
+    grid-template-columns: 1fr;
+  }
+}
