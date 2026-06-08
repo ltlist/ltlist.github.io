@@ -151,16 +151,39 @@ th,td{
 <script>
 
 const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGid0BjxTrhrgkw7C7R2QHIkF6DgoVkOxo42Hv4kGQ8/exec";
-
 const PASSWORD = "Suminta";
+
+const SESSION_KEY = "jabrig_session";
+const EXPIRE_TIME = 15 * 60 * 1000; // 15 menit
 
 let editRow = null;
 
+/* ================= CHECK SESSION ================= */
+function checkSession(){
+  let session = localStorage.getItem(SESSION_KEY);
+
+  if(!session){
+    return false;
+  }
+
+  session = JSON.parse(session);
+
+  if(!session.token || !session.time){
+    return false;
+  }
+
+  if(Date.now() - session.time > EXPIRE_TIME){
+    localStorage.removeItem(SESSION_KEY);
+    return false;
+  }
+
+  return true;
+}
+
 /* ================= AUTO LOGIN ================= */
 window.onload = function(){
-  let login = localStorage.getItem("jabrig_login");
 
-  if(login === "true"){
+  if(checkSession()){
     showDashboard();
   }
 }
@@ -170,8 +193,16 @@ function login(){
   let p = document.getElementById("pass").value;
 
   if(p === PASSWORD){
-    localStorage.setItem("jabrig_login","true");
+
+    let session = {
+      token: Math.random().toString(36).substring(2),
+      time: Date.now()
+    };
+
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+
     showDashboard();
+
   }else{
     document.getElementById("msg").innerText="❌ Password salah";
   }
@@ -179,19 +210,35 @@ function login(){
 
 /* ================= SHOW DASHBOARD ================= */
 function showDashboard(){
+
+  if(!checkSession()){
+    logout();
+    return;
+  }
+
   document.getElementById("loginBox").style.display="none";
   document.getElementById("dashboard").style.display="block";
   load();
 }
 
+/* ================= AUTO SESSION GUARD ================= */
+setInterval(()=>{
+  if(!checkSession()){
+    logout();
+  }
+}, 5000);
+
 /* ================= LOGOUT ================= */
 function logout(){
-  localStorage.removeItem("jabrig_login");
+  localStorage.removeItem(SESSION_KEY);
   location.reload();
 }
 
 /* ================= LOAD ================= */
 async function load(){
+
+  if(!checkSession()) return;
+
   let res = await fetch(API);
   let text = await res.text();
   let data = JSON.parse(text);
@@ -224,8 +271,10 @@ async function load(){
   document.getElementById("table").innerHTML = html;
 }
 
-/* ================= ADD (AUTO ID) ================= */
+/* ================= ADD ================= */
 async function addData(){
+
+  if(!checkSession()) return logout();
 
   let form = new FormData();
   form.append("action","add");
@@ -247,6 +296,8 @@ async function addData(){
 /* ================= DELETE ================= */
 async function hapus(row){
 
+  if(!checkSession()) return logout();
+
   let form = new FormData();
   form.append("action","delete");
   form.append("row",row);
@@ -257,6 +308,8 @@ async function hapus(row){
 
 /* ================= EDIT ================= */
 function edit(d){
+
+  if(!checkSession()) return logout();
 
   editRow = d.row;
 
@@ -271,6 +324,8 @@ function edit(d){
 
 /* ================= UPDATE ================= */
 async function updateData(){
+
+  if(!checkSession()) return logout();
 
   let form = new FormData();
   form.append("action","update");
