@@ -1,179 +1,100 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html><html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Jabrig Admin Panel</title><link rel="stylesheet" href="style.css">
+</head><body><!-- LOGIN --><div id="loginBox">  <h2>🔐 Admin Login</h2><input
+type="email"
+id="email"
+placeholder="Email Admin">
 
-<title>Jabrig Admin</title>
+<input
+type="password"
+id="pass"
+placeholder="Password">
 
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
+<button
+class="btn"
+onclick="login()">
+Login
+</button>
 
-<div id="loginBox">
-
-<h2>Login Admin</h2>
-
-<input type="email" id="email" placeholder="Email">
-<br><br>
-
-<input type="password" id="pass" placeholder="Password">
-<br><br>
-
-<button onclick="login()">Login</button>
-
-<p id="msg"></p>
-
-</div>
-
-<div id="dashboard" style="display:none;">
-
-<h2>Jabrig Admin Panel</h2>
-
-<p id="userInfo"></p>
-
-<button onclick="logout()">Logout</button>
-
-<hr>
-
-<input id="name" placeholder="Name">
-<br><br>
+  <p id="msg"></p></div><!-- DASHBOARD --><div id="dashboard">  <h2>🔥 Jabrig Admin Panel</h2>  <div class="form-box"><input
+  id="name"
+  placeholder="Name">
 
 <select id="coin">
-<option>LTC</option>
-<option>DOGE</option>
-<option>ZER</option>
-<option>USDT</option>
-<option>MULTI</option>
+  <option value="LTC">LTC</option>
+  <option value="ZER">ZER</option>
+  <option value="DOGE">DOGE</option>
+  <option value="USDT">USDT</option>
+  <option value="MULTI">MULTI</option>
 </select>
 
-<br><br>
+<input
+  id="link"
+  placeholder="Link Faucet">
 
-<input id="link" placeholder="Link">
-<br><br>
+<input
+  id="cooldown"
+  type="number"
+  placeholder="Cooldown">
 
-<input id="cooldown" type="number" placeholder="Cooldown">
-<br><br>
+<button
+  class="btn"
+  onclick="addData()">
+  ➕ Add
+</button>
 
-<button onclick="addData()">Tambah Data</button>
+<button
+  onclick="logout()">
+  Logout
+</button>
 
-</div>
+  </div>  <!-- EDIT BOX -->  <div id="editBox"><h3>Edit Data</h3>
 
-<script>
+<input
+  id="eid"
+  placeholder="ID">
 
-// FIREBASE CONFIG
-const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
-  authDomain: "ltlist-f.firebaseapp.com",
-  projectId: "ltlist-f",
-  storageBucket: "ltlist-f.firebasestorage.app",
-  messagingSenderId: "991011425656",
-  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
-};
+<input
+  id="ename"
+  placeholder="Name">
 
-firebase.initializeApp(firebaseConfig);
+<select id="ecoin">
+  <option value="LTC">LTC</option>
+  <option value="ZER">ZER</option>
+  <option value="DOGE">DOGE</option>
+  <option value="USDT">USDT</option>
+  <option value="MULTI">MULTI</option>
+</select>
 
-const auth = firebase.auth();
+<input
+  id="elink"
+  placeholder="Link Faucet">
 
-const API = "URL_APPS_SCRIPT_KAMU";
+<input
+  id="ecooldown"
+  type="number"
+  placeholder="Cooldown">
 
-// AUTO LOGIN
-auth.onAuthStateChanged(user => {
+<button
+  class="btn"
+  onclick="updateData()">
+  💾 Save
+</button>
 
-  if(user){
+  </div>  <!-- TABLE -->  <div class="table-container"><table id="table">
 
-    document.getElementById("loginBox").style.display = "none";
-    document.getElementById("dashboard").style.display = "block";
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Coin</th>
+    <th>Link</th>
+    <th>Cooldown</th>
+    <th>Action</th>
+  </tr>
 
-    document.getElementById("userInfo").innerText =
-      "Login sebagai: " + user.email;
+</table>
 
-  }else{
-
-    document.getElementById("loginBox").style.display = "block";
-    document.getElementById("dashboard").style.display = "none";
-
-  }
-
-});
-
-// LOGIN
-async function login(){
-
-  const email = document.getElementById("email").value;
-  const pass = document.getElementById("pass").value;
-
-  try{
-
-    await auth.signInWithEmailAndPassword(email, pass);
-
-    document.getElementById("msg").innerText =
-      "Login berhasil";
-
-  }catch(err){
-
-    document.getElementById("msg").innerText =
-      err.message;
-
-  }
-
-}
-
-// LOGOUT
-async function logout(){
-
-  await auth.signOut();
-
-}
-
-// CEK LOGIN
-function checkLogin(){
-
-  if(!auth.currentUser){
-
-    alert("Silakan login");
-
-    return false;
-
-  }
-
-  return true;
-
-}
-
-// ADD DATA
-async function addData(){
-
-  if(!checkLogin()) return;
-
-  const form = new FormData();
-
-  form.append("action","add");
-  form.append("name",document.getElementById("name").value);
-  form.append("coin",document.getElementById("coin").value);
-  form.append("link",document.getElementById("link").value);
-  form.append("cooldown",document.getElementById("cooldown").value);
-
-  try{
-
-    await fetch(API,{
-      method:"POST",
-      body:form
-    });
-
-    alert("Data berhasil ditambah");
-
-  }catch(err){
-
-    alert(err.message);
-
-  }
-
-}
-
-</script>
-
-</body>
+  </div></div><script type="module" src="script.js"></script></body>
 </html>
