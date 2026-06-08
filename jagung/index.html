@@ -1,11 +1,73 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Index</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LTList Faucet</title>
+<meta name="description" content="A trusted crypto faucet list with fast payouts to Faucetpay and ZeroChain (ZER). Claim free crypto every day safely and easily.">
+
+<meta name="keywords" content="crypto faucet, faucetpay, zerocoin, free crypto faucet, dogecoin faucet, litecoin faucet, usdt faucet, free crypto claims">
+
+<meta name="robots" content="index, follow">
+
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
+<div class="container">
+
+<header class="header">
+<h1>LTList Faucet</h1>
+<p>Smart Faucet List</p>
+<p>LTList provides a list of crypto faucets with a fast payout system to <a href="https://faucetpay.io/?r=5725">Faucetpay</a> and <a href="https://zerochain.info/wallet">ZeroChain</a> (ZER). Daily updates for active faucets.</p>
+</header>
+
+<div class="control-panel">
+
+<input id="search" type="text" placeholder="Search faucet...">
+
+<select id="filterKoin">
+<option value="all">All Coin</option>
+<option value="LTC">LTC</option>
+<option value="DOGE">DOGE</option>
+<option value="USDT">USDT</option>
+<option value="ZER">ZER</option>
+<option value="MULTI">MULTI</option>
+</select>
+
+<button id="sortBtn">Sort A-Z</button>
+
+</div>
+
+<div id="kotakPesan" class="status-box">
+Loading system...
+</div>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Coin</th>
+<th>Link</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="isiTabel"></tbody>
+</table>
+</div>
+
+<footer class="footer">
+© LTList Faucet - All rights reserved
+</footer>
+
+</div>
+
+<script src="main/apa/script.js"></script>
 
 </body>
 </html>
