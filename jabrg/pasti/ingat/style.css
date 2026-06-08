@@ -1,9 +1,8 @@
 body{
-  font-family:Arial,sans-serif;
+  font-family:Arial;
   background:#111;
   color:#fff;
   padding:10px;
-  margin:0;
 }
 
 /* LOGIN */
@@ -16,13 +15,9 @@ body{
   text-align:center;
 }
 
-input,
-select,
-button{
-  width:100%;
-  box-sizing:border-box;
+input,select,button{
   padding:10px;
-  margin:5px 0;
+  margin:5px;
   border-radius:6px;
   border:none;
   font-size:14px;
@@ -51,7 +46,6 @@ h2{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:8px;
-  margin-bottom:15px;
 }
 
 /* TABLE */
@@ -66,16 +60,10 @@ table{
   margin-top:10px;
 }
 
-th{
-  background:#222;
-}
-
-th,
-td{
+th,td{
   border:1px solid #444;
   padding:8px;
   font-size:13px;
-  text-align:left;
 }
 
 #editBox{
@@ -86,12 +74,5 @@ td{
   border-radius:8px;
 }
 
-.btn-del{
-  background:red;
-  color:#fff;
-}
-
-.btn-edit{
-  background:orange;
-  color:#fff;
-}
+.btn-del{background:red;color:#fff;}
+.btn-edit{background:orange;}
