@@ -1,4 +1,4 @@
-/* ================= GLOBAL ================= */
+/* ================= RESET ================= */
 *{
   box-sizing: border-box;
 }
@@ -9,12 +9,21 @@ body{
   color: #eaeaea;
   margin: 0;
   padding: 15px;
+
+  /* 🔥 center page */
+  display: flex;
+  justify-content: center;
+}
+
+/* ================= WRAPPER ================= */
+.container{
+  width: 100%;
+  max-width: 1000px; /* 🔥 TIDAK FULL LAYAR */
 }
 
 /* ================= LOGIN ================= */
 #loginBox{
   max-width: 360px;
-  width: 100%;
   margin: 80px auto;
   background: #1b1f2a;
   padding: 20px;
@@ -46,21 +55,22 @@ body{
 
 /* ================= DASHBOARD ================= */
 #dashboard{
-  max-width: 1100px;
-  margin: auto;
+  width: 100%;
+  background: transparent;
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
 h2{
   text-align: center;
   font-size: 20px;
+  margin-bottom: 10px;
 }
 
 #userInfo{
   text-align: center;
   color: #aaa;
-  margin-bottom: 10px;
   font-size: 13px;
+  margin-bottom: 10px;
 }
 
 /* ================= FORM ================= */
@@ -81,6 +91,7 @@ input, select{
   font-size: 13px;
 }
 
+/* ================= BUTTON ================= */
 button{
   padding: 10px;
   border-radius: 8px;
@@ -91,7 +102,11 @@ button{
   font-size: 13px;
 }
 
-/* ================= BUTTON ================= */
+button:hover{
+  transform: scale(1.03);
+  opacity: 0.95;
+}
+
 .btn{
   background: #00c853;
   color: white;
@@ -109,17 +124,10 @@ button{
 
 .btn-edit:hover{
   background: #ffca28;
-  transform: scale(1.05);
 }
 
 .btn-del:hover{
   background: #ef5350;
-  transform: scale(1.05);
-}
-
-button:hover{
-  transform: scale(1.03);
-  opacity: 0.95;
 }
 
 /* ================= TABLE ================= */
@@ -152,10 +160,6 @@ td{
   font-size: 12px;
 }
 
-tr{
-  transition: 0.2s;
-}
-
 tr:hover{
   background: #242a3a;
 }
@@ -169,14 +173,13 @@ tr:hover{
   display: none;
 }
 
-/* ================= TABLET ================= */
+/* ================= RESPONSIVE ================= */
 @media (max-width: 900px){
   table{
     min-width: 600px;
   }
 }
 
-/* ================= HP ================= */
 @media (max-width: 600px){
 
   body{
