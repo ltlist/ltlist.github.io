@@ -11,7 +11,7 @@ let cache = {};
 let hidden = JSON.parse(localStorage.getItem("hidden_faucet") || "[]");
 
 const DATA_URL =
-"https://raw.githubusercontent.com/ltlist/ltlist.github.io/main/faucet.json";
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vRW7rtoShpbVR3Aw1zikPX01GRnkzfyAbj0-2oAd9ULxlfD6Gky1Jj-LwtZS4sUkgq6kZ3uq4NQgvUN/pub?gid=0&single=true&output=csv";
 
 // ================= TIMER =================
 function getLast(id){
