@@ -154,12 +154,14 @@ const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGi
 const PASSWORD = "Suminta";
 
 const SESSION_KEY = "jabrig_session";
-const EXPIRE_TIME = 10 * 60 * 1000; // 🔥 dipersempit jadi 10 menit
+const EXPIRE_TIME = 10 * 60 * 1000;
 
 let editRow = null;
+let guardStarted = false;
 
-/* ================= TOKEN CHECK LEBIH KETAT ================= */
+/* ================= CHECK SESSION ================= */
 function checkSession(){
+
   let session = localStorage.getItem(SESSION_KEY);
 
   if(!session){
@@ -176,7 +178,6 @@ function checkSession(){
     return false;
   }
 
-  // expired check
   if(Date.now() - session.time > EXPIRE_TIME){
     localStorage.removeItem(SESSION_KEY);
     return false;
@@ -185,17 +186,7 @@ function checkSession(){
   return true;
 }
 
-/* ================= HARD BLOCK (ANTI BUKA DASHBOARD LANGSUNG) ================= */
-window.onload = function(){
-
-  if(checkSession()){
-    showDashboard();
-  }else{
-    document.getElementById("dashboard").style.display="none";
-  }
-}
-
-/* ================= LOGIN (TOKEN LEBIH KUAT) ================= */
+/* ================= LOGIN ================= */
 function login(){
 
   let p = document.getElementById("pass").value;
@@ -212,7 +203,7 @@ function login(){
     showDashboard();
 
   }else{
-    document.getElementById("msg").innerText="❌ Password salah";
+    document.getElementById("msg").innerText = "❌ Password salah";
   }
 }
 
@@ -220,21 +211,56 @@ function login(){
 function showDashboard(){
 
   if(!checkSession()){
-    logout();
     return;
   }
 
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("dashboard").style.display="block";
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("dashboard").style.display = "block";
+
   load();
+  startGuard();
 }
 
-/* ================= AUTO KILL SESSION ================= */
-setInterval(()=>{
-  if(!checkSession()){
-    logout();
+/* ================= SAFE GUARD (FIX LOOP) ================= */
+function startGuard(){
+
+  if(guardStarted) return;
+  guardStarted = true;
+
+  setInterval(()=>{
+
+    // kalau masih di login page, jangan ganggu
+    if(document.getElementById("dashboard").style.display !== "block"){
+      return;
+    }
+
+    let session = localStorage.getItem(SESSION_KEY);
+
+    if(!session) return;
+
+    try{
+      session = JSON.parse(session);
+
+      if(Date.now() - session.time > EXPIRE_TIME){
+        logout();
+      }
+
+    }catch(e){
+      logout();
+    }
+
+  }, 5000);
+}
+
+/* ================= AUTO LOAD ================= */
+window.onload = function(){
+
+  if(checkSession()){
+    showDashboard();
+  }else{
+    document.getElementById("dashboard").style.display = "none";
   }
-}, 3000);
+}
 
 /* ================= LOGOUT ================= */
 function logout(){
@@ -242,7 +268,7 @@ function logout(){
   location.reload();
 }
 
-/* ================= LOAD ================= */
+/* ================= LOAD DATA ================= */
 async function load(){
 
   if(!checkSession()) return;
@@ -321,7 +347,7 @@ function edit(d){
 
   editRow = d.row;
 
-  document.getElementById("editBox").style.display="block";
+  document.getElementById("editBox").style.display = "block";
 
   document.getElementById("eid").value = d.id;
   document.getElementById("ename").value = d.name;
@@ -347,7 +373,7 @@ async function updateData(){
 
   await fetch(API,{method:"POST",body:form});
 
-  document.getElementById("editBox").style.display="none";
+  document.getElementById("editBox").style.display = "none";
   load();
 }
 
