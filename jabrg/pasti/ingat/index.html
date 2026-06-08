@@ -84,21 +84,22 @@ const firebaseConfig = {
   apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
-  storageBucket: "ltlist-f.firebasestorage.app",
+  storageBucket: "ltlist-f.firebaseapp.com",
   messagingSenderId: "991011425656",
   appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 
 const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGid0BjxTrhrgkw7C7R2QHIkF6DgoVkOxo42Hv4kGQ8/exec";
 
-// AUTO LOGIN
-auth.onAuthStateChanged(user => {
+let editRow = null;
 
-  if(user){
+/* ================= AUTH ================= */
+auth.onAuthStateChanged(async (user) => {
+
+  if (user) {
 
     document.getElementById("loginBox").style.display = "none";
     document.getElementById("dashboard").style.display = "block";
@@ -106,7 +107,10 @@ auth.onAuthStateChanged(user => {
     document.getElementById("userInfo").innerText =
       "Login sebagai: " + user.email;
 
-  }else{
+    // 🔥 FIX UTAMA: paksa load stabil
+    await load();
+
+  } else {
 
     document.getElementById("loginBox").style.display = "block";
     document.getElementById("dashboard").style.display = "none";
@@ -115,64 +119,40 @@ auth.onAuthStateChanged(user => {
 
 });
 
-// LOGIN
-async function login(){
+/* ================= LOGIN ================= */
+async function login() {
 
   const email = document.getElementById("email").value;
   const pass = document.getElementById("pass").value;
 
-  try{
-
+  try {
     await auth.signInWithEmailAndPassword(email, pass);
-
-    document.getElementById("msg").innerText =
-      "Login berhasil";
-
-  }catch(err){
-
-    document.getElementById("msg").innerText =
-      err.message;
-
+  } catch (err) {
+    document.getElementById("msg").innerText = err.message;
   }
-
 }
 
-// LOGOUT
-async function logout(){
-
+/* ================= LOGOUT ================= */
+async function logout() {
   await auth.signOut();
-
 }
 
-// CEK LOGIN
-function checkLogin(){
+/* ================= LOAD DATA (ANTI BLANK FIX) ================= */
+async function load() {
 
-  if(!auth.currentUser){
+  try {
 
-    alert("Silakan login");
+    const res = await fetch(API);
+    const text = await res.text();
 
-    return false;
-
-  }
-
-  return true;
-
-}
-/* ================= LOAD ================= */
-async function load(){
-
-  try{
-
-    let res = await fetch(API);
-    let text = await res.text();
-
-    if(!text || text.trim() === ""){
+    // 🔥 FIX: kalau kosong jangan crash
+    if (!text || text.trim() === "") {
       document.getElementById("table").innerHTML =
         "<tr><td>No data</td></tr>";
       return;
     }
 
-    let data = JSON.parse(text);
+    const data = JSON.parse(text);
 
     let html = `
     <tr>
@@ -184,7 +164,8 @@ async function load(){
       <th>Action</th>
     </tr>`;
 
-    data.forEach(d=>{
+    data.forEach(d => {
+
       html += `
       <tr>
         <td>${d.id}</td>
@@ -197,52 +178,67 @@ async function load(){
           <button onclick='hapus(${d.row})'>Delete</button>
         </td>
       </tr>`;
+
     });
 
     document.getElementById("table").innerHTML = html;
 
-  }catch(err){
+  } catch (err) {
     console.log("LOAD ERROR:", err);
   }
 }
 
-/* ================= ADD (AUTO ID) ================= */
-async function addData(){
+/* ================= ADD ================= */
+async function addData() {
 
-  let form = new FormData();
-  form.append("action","add");
+  if (!auth.currentUser) return;
 
-  form.append("name",document.getElementById("name").value);
-  form.append("coin",document.getElementById("coin").value);
-  form.append("link",document.getElementById("link").value);
-  form.append("cooldown",document.getElementById("cooldown").value);
+  const form = new FormData();
 
-  await fetch(API,{method:"POST",body:form});
+  form.append("action", "add");
+  form.append("name", document.getElementById("name").value);
+  form.append("coin", document.getElementById("coin").value);
+  form.append("link", document.getElementById("link").value);
+  form.append("cooldown", document.getElementById("cooldown").value);
 
-  document.getElementById("name").value="";
-  document.getElementById("link").value="";
-  document.getElementById("cooldown").value="";
+  await fetch(API, {
+    method: "POST",
+    body: form
+  });
 
-  load();
+  // clear input
+  document.getElementById("name").value = "";
+  document.getElementById("link").value = "";
+  document.getElementById("cooldown").value = "";
+
+  await load();
 }
 
 /* ================= DELETE ================= */
-async function hapus(row){
+async function hapus(row) {
 
-  let form = new FormData();
-  form.append("action","delete");
-  form.append("row",row);
+  if (!auth.currentUser) return;
 
-  await fetch(API,{method:"POST",body:form});
-  load();
+  const form = new FormData();
+  form.append("action", "delete");
+  form.append("row", row);
+
+  await fetch(API, {
+    method: "POST",
+    body: form
+  });
+
+  await load();
 }
 
 /* ================= EDIT ================= */
-function edit(d){
+function edit(d) {
+
+  if (!auth.currentUser) return;
 
   editRow = d.row;
 
-  document.getElementById("editBox").style.display="block";
+  document.getElementById("editBox").style.display = "block";
 
   document.getElementById("eid").value = d.id;
   document.getElementById("ename").value = d.name;
@@ -252,24 +248,29 @@ function edit(d){
 }
 
 /* ================= UPDATE ================= */
-async function updateData(){
+async function updateData() {
 
-  let form = new FormData();
-  form.append("action","update");
+  if (!auth.currentUser) return;
 
-  form.append("row",editRow);
-  form.append("id",document.getElementById("eid").value);
-  form.append("name",document.getElementById("ename").value);
-  form.append("coin",document.getElementById("ecoin").value);
-  form.append("link",document.getElementById("elink").value);
-  form.append("cooldown",document.getElementById("ecooldown").value);
+  const form = new FormData();
 
-  await fetch(API,{method:"POST",body:form});
+  form.append("action", "update");
+  form.append("row", editRow);
+  form.append("id", document.getElementById("eid").value);
+  form.append("name", document.getElementById("ename").value);
+  form.append("coin", document.getElementById("ecoin").value);
+  form.append("link", document.getElementById("elink").value);
+  form.append("cooldown", document.getElementById("ecooldown").value);
 
-  document.getElementById("editBox").style.display="none";
-  load();
+  await fetch(API, {
+    method: "POST",
+    body: form
+  });
+
+  document.getElementById("editBox").style.display = "none";
+
+  await load();
 }
-
 </script>
 
 </body>
