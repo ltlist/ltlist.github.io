@@ -71,7 +71,6 @@
   <input id="ecooldown" placeholder="Cooldown">
 
   <button class="btn" onclick="updateData()">💾 Save</button>
-<button class="btn-cancel" onclick="closeEdit()">❌ Cancel</button>
 </div>
 
 <div class="table-container">
@@ -235,16 +234,18 @@ async function hapus(row){
 }
 
 /* ================= EDIT ================= */
-function closeEdit(){
-  document.getElementById("editBox").style.display = "none";
+window.edit = function(d){
 
-  // optional: bersihkan input biar rapi
-  document.getElementById("eid").value = "";
-  document.getElementById("ename").value = "";
-  document.getElementById("ecoin").value = "";
-  document.getElementById("elink").value = "";
+  editRow = d.row;
+
+  document.getElementById("editBox").style.display = "block";
+
+  document.getElementById("eid").value = d.id;
+  document.getElementById("ename").value = d.name;
+  document.getElementById("ecoin").value = d.coin;
+  document.getElementById("elink").value = d.link;
   document.getElementById("ecooldown").value = d.cooldown;
-}
+};
 
 /* ================= UPDATE ================= */
 async function updateData(){
