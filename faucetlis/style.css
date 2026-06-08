@@ -30,6 +30,8 @@ body{
   position:sticky;
   top:0;
   z-index:1000;
+  border-radius: 8px;
+  margin-bottom: 20px;
 }
 
 .navbar .logo{
@@ -50,24 +52,12 @@ body{
 }
 
 /* =====================
-   CONTAINER
-===================== */
-.container{
-  max-width:1100px;
-  margin:auto;
-  background:#161b22;
-  padding:20px;
-  border-radius:12px;
-  border:1px solid #222;
-}
-
-/* =====================
-   HEADER
+   HEADER (DI LUAR KOTAK)
 ===================== */
 .header{
   text-align:center;
-  padding:30px 10px;
-  margin-bottom:20px;
+  padding:0 10px 30px; /* padding atas dihapus supaya menempel ke navbar */
+  margin-bottom:0;
 }
 
 .header h1{
@@ -78,6 +68,19 @@ body{
 
 .header p{
   color:#ccc;
+  line-height: 1.6;
+}
+
+/* =====================
+   CONTAINER
+===================== */
+.container{
+  max-width:1100px;
+  margin:auto;
+  background:#161b22;
+  padding:20px;
+  border-radius:12px;
+  border:1px solid #222;
 }
 
 /* =====================
@@ -165,11 +168,22 @@ a{
 }
 
 /* =====================
-   FOOTER
+   INFO TEKS (DI LUAR KOTAK)
+===================== */
+.info-teks{
+  text-align:center;
+  color:#ccc;
+  margin:20px 0 10px;
+  line-height: 1.6;
+  font-size:14px;
+}
+
+/* =====================
+   FOOTER (DI LUAR KOTAK)
 ===================== */
 .footer{
   text-align:center;
-  margin-top:20px;
+  margin-top:10px;
   color:#777;
 }
 
@@ -244,5 +258,9 @@ a{
   .ad-box{
     width:100%;
     height:60px;
+  }
+
+  .header h1{
+    font-size:24px;
   }
 }
