@@ -110,20 +110,13 @@ button:hover{
 
 /* hover efek biar lebih hidup */
 .btn-edit:hover{
-  background: #ffc107;
+  background: #FFFF00;
 }
 
 .btn-del:hover{
-  background: #ff5252;
-}
-.btn-cancel{
-  background:#616161;
-  color:#fff;
+  background: #FF0000;
 }
 
-.btn-cancel:hover{
-  background:#9e9e9e;
-}
 /* ================= TABLE ================= */
 .table-container{
   overflow-x: auto;
