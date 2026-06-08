@@ -127,8 +127,8 @@ async function addData() {
 
   // clear input
   document.getElementById("name").value = "";
-  document.getElementById("link").value = "";
-  document.getElementById("cooldown").value = "";
+document.getElementById("link").value = "";
+document.getElementById("cooldown").value = "";
 
   await load();
 }
