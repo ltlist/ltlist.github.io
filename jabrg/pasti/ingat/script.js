@@ -1,3 +1,4 @@
+alert("script jalan");
 // FIREBASE CONFIG
 const firebaseConfig = {
 apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
