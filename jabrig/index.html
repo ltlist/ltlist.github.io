@@ -4,39 +4,39 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Admin Login - Jabrig</title>
+<title>Jabrig Admin Panel</title>
 
 <style>
 body{
   font-family:Arial;
   background:#111;
   color:#fff;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  margin:0;
+  padding:10px;
 }
 
-/* LOGIN BOX */
+/* LOGIN */
 #loginBox{
+  max-width:320px;
+  margin:100px auto;
   background:#1c1c1c;
   padding:20px;
   border-radius:10px;
-  width:300px;
   text-align:center;
 }
 
-input,button{
+input,select,button{
   padding:10px;
-  width:100%;
-  margin-top:10px;
-  border:none;
+  margin:5px;
   border-radius:6px;
+  border:none;
+  font-size:14px;
 }
 
 button{
   cursor:pointer;
+}
+
+.btn{
   background:green;
   color:#fff;
 }
@@ -44,21 +44,29 @@ button{
 /* DASHBOARD */
 #dashboard{
   display:none;
-  width:100%;
-  padding:15px;
 }
 
+h2{
+  text-align:center;
+}
+
+/* FORM */
 .form-box{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:8px;
-  margin-bottom:10px;
+}
+
+/* TABLE */
+.table-container{
+  overflow-x:auto;
 }
 
 table{
   width:100%;
-  border-collapse:collapse;
   min-width:600px;
+  border-collapse:collapse;
+  margin-top:10px;
 }
 
 th,td{
@@ -67,14 +75,6 @@ th,td{
   font-size:13px;
 }
 
-.table-container{
-  overflow-x:auto;
-}
-
-.btn-del{background:red;color:#fff;}
-.btn-edit{background:orange;}
-.btn-add{background:green;color:#fff;}
-
 #editBox{
   display:none;
   background:#222;
@@ -82,6 +82,9 @@ th,td{
   margin-top:10px;
   border-radius:8px;
 }
+
+.btn-del{background:red;color:#fff;}
+.btn-edit{background:orange;}
 </style>
 </head>
 
@@ -90,8 +93,8 @@ th,td{
 <!-- LOGIN -->
 <div id="loginBox">
   <h2>🔐 Admin Login</h2>
-  <input type="password" id="pass" placeholder="Enter Password">
-  <button onclick="login()">Login</button>
+  <input type="password" id="pass" placeholder="Password">
+  <button class="btn" onclick="login()">Login</button>
   <p id="msg"></p>
 </div>
 
@@ -114,9 +117,11 @@ th,td{
   <input id="link" placeholder="Link">
   <input id="cooldown" placeholder="Cooldown">
 
-  <button class="btn-add" onclick="addData()">➕ Add</button>
+  <button class="btn" onclick="addData()">➕ Add</button>
+  <button onclick="logout()">Logout</button>
 </div>
 
+<!-- EDIT -->
 <div id="editBox">
   <h3>Edit Data</h3>
 
@@ -134,7 +139,7 @@ th,td{
   <input id="elink" placeholder="Link">
   <input id="ecooldown" placeholder="Cooldown">
 
-  <button class="btn-add" onclick="updateData()">💾 Save</button>
+  <button class="btn" onclick="updateData()">💾 Save</button>
 </div>
 
 <div class="table-container">
@@ -145,25 +150,45 @@ th,td{
 
 <script>
 
-/* ================= PASSWORD ================= */
-const PASSWORD = "admin123"; // <-- ganti ini bebas
+const API = "https://script.google.com/macros/s/AKfycbwqh3x6k9e5ZS5gQRG8aw7X-dC5FBPTyBtrrPWYjyMEFbtkWLlUuYshcIl663WlvflQ/exec";
 
+const PASSWORD = "admin123";
+
+let editRow = null;
+
+/* ================= AUTO LOGIN ================= */
+window.onload = function(){
+  let login = localStorage.getItem("jabrig_login");
+
+  if(login === "true"){
+    showDashboard();
+  }
+}
+
+/* ================= LOGIN ================= */
 function login(){
   let p = document.getElementById("pass").value;
 
   if(p === PASSWORD){
-    document.getElementById("loginBox").style.display="none";
-    document.getElementById("dashboard").style.display="block";
-    load();
+    localStorage.setItem("jabrig_login","true");
+    showDashboard();
   }else{
     document.getElementById("msg").innerText="❌ Password salah";
   }
 }
 
-/* ================= API ================= */
-const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGid0BjxTrhrgkw7C7R2QHIkF6DgoVkOxo42Hv4kGQ8/exec";
+/* ================= SHOW DASHBOARD ================= */
+function showDashboard(){
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("dashboard").style.display="block";
+  load();
+}
 
-let editRow = null;
+/* ================= LOGOUT ================= */
+function logout(){
+  localStorage.removeItem("jabrig_login");
+  location.reload();
+}
 
 /* ================= LOAD ================= */
 async function load(){
@@ -199,7 +224,7 @@ async function load(){
   document.getElementById("table").innerHTML = html;
 }
 
-/* ================= ADD ================= */
+/* ================= ADD (AUTO ID) ================= */
 async function addData(){
 
   let form = new FormData();
@@ -211,6 +236,11 @@ async function addData(){
   form.append("cooldown",document.getElementById("cooldown").value);
 
   await fetch(API,{method:"POST",body:form});
+
+  document.getElementById("name").value="";
+  document.getElementById("link").value="";
+  document.getElementById("cooldown").value="";
+
   load();
 }
 
@@ -227,6 +257,7 @@ async function hapus(row){
 
 /* ================= EDIT ================= */
 function edit(d){
+
   editRow = d.row;
 
   document.getElementById("editBox").style.display="block";
