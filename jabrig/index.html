@@ -12,7 +12,7 @@ body{
   padding:20px;
 }
 
-input,button{
+input,button,select{
   padding:10px;
   margin:5px;
 }
@@ -44,9 +44,16 @@ button{ cursor:pointer; }
 <h2>🔥 Jabrig Admin Panel</h2>
 
 <!-- INPUT -->
-<input id="id" placeholder="ID">
 <input id="name" placeholder="Name">
-<input id="coin" placeholder="Coin">
+
+<select id="coin">
+  <option value="LTC">LTC</option>
+  <option value="ZER">ZER</option>
+  <option value="DOGE">DOGE</option>
+  <option value="USDT">USDT</option>
+  <option value="MULTI">MULTI</option>
+</select>
+
 <input id="link" placeholder="Link">
 <input id="cooldown" placeholder="Cooldown">
 
@@ -56,9 +63,17 @@ button{ cursor:pointer; }
 <div id="editBox">
   <h3>Edit Data</h3>
 
-  <input id="eid" placeholder="ID">
+  <input id="eid" placeholder="ID (auto)">
   <input id="ename" placeholder="Name">
-  <input id="ecoin" placeholder="Coin">
+
+  <select id="ecoin">
+    <option value="LTC">LTC</option>
+    <option value="ZER">ZER</option>
+    <option value="DOGE">DOGE</option>
+    <option value="USDT">USDT</option>
+    <option value="MULTI">MULTI</option>
+  </select>
+
   <input id="elink" placeholder="Link">
   <input id="ecooldown" placeholder="Cooldown">
 
@@ -92,11 +107,11 @@ async function load(){
   data.forEach(d=>{
     html += `
     <tr>
-      <td>${d.id ?? ""}</td>
-      <td>${d.name ?? ""}</td>
-      <td>${d.coin ?? ""}</td>
-      <td>${d.link ?? ""}</td>
-      <td>${d.cooldown ?? ""}</td>
+      <td>${d.id}</td>
+      <td>${d.name}</td>
+      <td>${d.coin}</td>
+      <td>${d.link}</td>
+      <td>${d.cooldown}</td>
       <td>
         <button onclick='edit(${JSON.stringify(d)})'>Edit</button>
         <button onclick="hapus(${d.row})">Delete</button>
@@ -107,13 +122,12 @@ async function load(){
   document.getElementById("table").innerHTML = html;
 }
 
-/* ================= ADD ================= */
+/* ================= ADD (AUTO ID + COIN SELECT) ================= */
 async function addData(){
 
   let form = new FormData();
-  form.append("action","add");
 
-  form.append("id",document.getElementById("id").value);
+  form.append("action","add");
   form.append("name",document.getElementById("name").value);
   form.append("coin",document.getElementById("coin").value);
   form.append("link",document.getElementById("link").value);
@@ -124,7 +138,10 @@ async function addData(){
     body:form
   });
 
-  clearInput();
+  document.getElementById("name").value="";
+  document.getElementById("link").value="";
+  document.getElementById("cooldown").value="";
+
   load();
 }
 
@@ -150,19 +167,19 @@ function edit(d){
 
   document.getElementById("editBox").style.display = "block";
 
-  document.getElementById("eid").value = d.id || "";
-  document.getElementById("ename").value = d.name || "";
-  document.getElementById("ecoin").value = d.coin || "";
-  document.getElementById("elink").value = d.link || "";
-  document.getElementById("ecooldown").value = d.cooldown || "";
+  document.getElementById("eid").value = d.id;
+  document.getElementById("ename").value = d.name;
+  document.getElementById("ecoin").value = d.coin;
+  document.getElementById("elink").value = d.link;
+  document.getElementById("ecooldown").value = d.cooldown;
 }
 
 /* ================= UPDATE ================= */
 async function updateData(){
 
   let form = new FormData();
-  form.append("action","update");
 
+  form.append("action","update");
   form.append("row",editRow);
   form.append("id",document.getElementById("eid").value);
   form.append("name",document.getElementById("ename").value);
@@ -177,15 +194,6 @@ async function updateData(){
 
   document.getElementById("editBox").style.display = "none";
   load();
-}
-
-/* ================= CLEAR ================= */
-function clearInput(){
-  document.getElementById("id").value="";
-  document.getElementById("name").value="";
-  document.getElementById("coin").value="";
-  document.getElementById("link").value="";
-  document.getElementById("cooldown").value="";
 }
 
 load();
