@@ -1,94 +1,58 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Jabrig Admin Panel</title>
+<meta charset="UTF-8">
+<title>Jabrig Admin Panel</title>
 
-  <style>
-    body{
-      font-family:Arial;
-      background:#111;
-      color:#fff;
-      padding:20px;
-    }
+<style>
+body{
+  font-family:Arial;
+  background:#111;
+  color:#fff;
+  padding:20px;
+}
 
-    h2{ margin-bottom:10px; }
+input,button{
+  padding:10px;
+  margin:5px;
+}
 
-    input,button{
-      padding:10px;
-      margin:5px;
-      border:none;
-      border-radius:5px;
-    }
+table{
+  width:100%;
+  margin-top:20px;
+  border-collapse:collapse;
+}
 
-    input{
-      width:180px;
-    }
+th,td{
+  border:1px solid #444;
+  padding:8px;
+}
 
-    button{
-      cursor:pointer;
-    }
+#editBox{
+  display:none;
+  background:#222;
+  padding:10px;
+  margin-top:10px;
+}
 
-    table{
-      width:100%;
-      margin-top:20px;
-      border-collapse:collapse;
-    }
-
-    th,td{
-      border:1px solid #444;
-      padding:8px;
-      text-align:left;
-    }
-
-    .box{
-      background:#1c1c1c;
-      padding:10px;
-      border-radius:8px;
-    }
-
-    #editBox{
-      display:none;
-      margin-top:20px;
-      background:#222;
-      padding:10px;
-      border-radius:8px;
-    }
-
-    .btn-del{
-      background:red;
-      color:#fff;
-    }
-
-    .btn-edit{
-      background:orange;
-      color:#000;
-    }
-
-    .btn-add{
-      background:green;
-      color:#fff;
-    }
-  </style>
+button{ cursor:pointer; }
+</style>
 </head>
 
 <body>
 
 <h2>🔥 Jabrig Admin Panel</h2>
 
-<div class="box">
+<!-- INPUT -->
+<input id="id" placeholder="ID">
+<input id="name" placeholder="Name">
+<input id="coin" placeholder="Coin">
+<input id="link" placeholder="Link">
+<input id="cooldown" placeholder="Cooldown">
 
-  <input id="id" placeholder="ID">
-  <input id="name" placeholder="Name">
-  <input id="coin" placeholder="Coin">
-  <input id="link" placeholder="Link">
-  <input id="cooldown" placeholder="Cooldown">
+<button onclick="addData()">➕ Add</button>
 
-  <button class="btn-add" onclick="addData()">➕ Add</button>
-
-</div>
-
-<!-- EDIT BOX -->
+<!-- EDIT -->
 <div id="editBox">
   <h3>Edit Data</h3>
 
@@ -98,23 +62,22 @@
   <input id="elink" placeholder="Link">
   <input id="ecooldown" placeholder="Cooldown">
 
-  <button class="btn-add" onclick="updateData()">💾 Save</button>
+  <button onclick="updateData()">💾 Save</button>
 </div>
 
 <table id="table"></table>
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbwqh3x6k9e5ZS5gQRG8aw7X-dC5FBPTyBtrrPWYjyMEFbtkWLlUuYshcIl663WlvflQ/exec";
+const API = "https://script.google.com/macros/s/AKfycbxAH3KI54-U-qrFUjsm5EesO4fjj3ZvKw7K86jgrg_snqpP7YSSMUzNPRusYYb7TQLx/exec";
 
 let editRow = null;
 
-/* ======================
-   LOAD DATA
-====================== */
+/* ================= LOAD ================= */
 async function load(){
   let res = await fetch(API);
-  let data = await res.json();
+  let text = await res.text();
+  let data = JSON.parse(text);
 
   let html = `
   <tr>
@@ -129,14 +92,14 @@ async function load(){
   data.forEach(d=>{
     html += `
     <tr>
-      <td>${d.id || ""}</td>
-      <td>${d.name || ""}</td>
-      <td>${d.coin || ""}</td>
-      <td>${d.link || ""}</td>
-      <td>${d.cooldown || ""}</td>
+      <td>${d.id ?? ""}</td>
+      <td>${d.name ?? ""}</td>
+      <td>${d.coin ?? ""}</td>
+      <td>${d.link ?? ""}</td>
+      <td>${d.cooldown ?? ""}</td>
       <td>
-        <button class="btn-edit" onclick='edit(${JSON.stringify(d)})'>Edit</button>
-        <button class="btn-del" onclick="hapus(${d.row})">Delete</button>
+        <button onclick='edit(${JSON.stringify(d)})'>Edit</button>
+        <button onclick="hapus(${d.row})">Delete</button>
       </td>
     </tr>`;
   });
@@ -144,48 +107,41 @@ async function load(){
   document.getElementById("table").innerHTML = html;
 }
 
-/* ======================
-   ADD DATA
-====================== */
+/* ================= ADD ================= */
 async function addData(){
-  let form = new FormData();
+  let params = new URLSearchParams();
+  params.append("action","add");
 
-  form.append("action","add");
-  form.append("id",id.value);
-  form.append("name",name.value);
-  form.append("coin",coin.value);
-  form.append("link",link.value);
-  form.append("cooldown",cooldown.value);
+  params.append("id",document.getElementById("id").value);
+  params.append("name",document.getElementById("name").value);
+  params.append("coin",document.getElementById("coin").value);
+  params.append("link",document.getElementById("link").value);
+  params.append("cooldown",document.getElementById("cooldown").value);
 
   await fetch(API,{
     method:"POST",
-    body:form
+    body:params
   });
 
   clearInput();
   load();
 }
 
-/* ======================
-   DELETE
-====================== */
+/* ================= DELETE ================= */
 async function hapus(row){
-  let form = new FormData();
-
-  form.append("action","delete");
-  form.append("row",row);
+  let params = new URLSearchParams();
+  params.append("action","delete");
+  params.append("row",row);
 
   await fetch(API,{
     method:"POST",
-    body:form
+    body:params
   });
 
   load();
 }
 
-/* ======================
-   EDIT (OPEN FORM)
-====================== */
+/* ================= EDIT ================= */
 function edit(d){
   editRow = d.row;
 
@@ -198,38 +154,34 @@ function edit(d){
   document.getElementById("ecooldown").value = d.cooldown || "";
 }
 
-/* ======================
-   UPDATE DATA
-====================== */
+/* ================= UPDATE ================= */
 async function updateData(){
-  let form = new FormData();
+  let params = new URLSearchParams();
+  params.append("action","update");
 
-  form.append("action","update");
-  form.append("row",editRow);
-  form.append("id",eid.value);
-  form.append("name",ename.value);
-  form.append("coin",ecoin.value);
-  form.append("link",elink.value);
-  form.append("cooldown",ecooldown.value);
+  params.append("row",editRow);
+  params.append("id",document.getElementById("eid").value);
+  params.append("name",document.getElementById("ename").value);
+  params.append("coin",document.getElementById("ecoin").value);
+  params.append("link",document.getElementById("elink").value);
+  params.append("cooldown",document.getElementById("ecooldown").value);
 
   await fetch(API,{
     method:"POST",
-    body:form
+    body:params
   });
 
   document.getElementById("editBox").style.display = "none";
   load();
 }
 
-/* ======================
-   CLEAR INPUT
-====================== */
+/* ================= CLEAR ================= */
 function clearInput(){
-  id.value="";
-  name.value="";
-  coin.value="";
-  link.value="";
-  cooldown.value="";
+  document.getElementById("id").value="";
+  document.getElementById("name").value="";
+  document.getElementById("coin").value="";
+  document.getElementById("link").value="";
+  document.getElementById("cooldown").value="";
 }
 
 load();
