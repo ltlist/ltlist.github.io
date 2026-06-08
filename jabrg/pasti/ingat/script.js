@@ -1,11 +1,11 @@
 // FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
-  authDomain: "ltlist-f.firebaseapp.com",
-  projectId: "ltlist-f",
-  storageBucket: "YOUR_PROJECT.firebasestorage.app",
-  messagingSenderId: "ltlist-f.firebasestorage.app",
-  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
+apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
+authDomain: "ltlist-f.firebaseapp.com",
+projectId: "ltlist-f",
+storageBucket: "ltlist-f.firebasestorage.app",
+messagingSenderId: "991011425656",
+appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -24,7 +24,15 @@ if(user){
 document.getElementById("loginBox").style.display = "none";
 document.getElementById("dashboard").style.display = "block";
 
-load();
+const info = document.getElementById("userInfo");
+
+if(info){
+  info.innerText = "Login sebagai: " + user.email;
+}
+
+if(document.getElementById("table")){
+  load();
+}
 
 }else{
 
@@ -36,69 +44,89 @@ document.getElementById("dashboard").style.display = "none";
 });
 
 // LOGIN
-async function login(){
+window.login = async function(){
 
-const email = document.getElementById("email").value;
+const email = document.getElementById("email").value.trim();
 const pass = document.getElementById("pass").value;
 
 try{
 
 await auth.signInWithEmailAndPassword(email, pass);
 
+document.getElementById("msg").innerText = "";
+
 }catch(err){
 
-document.getElementById("msg").innerText = err.message;
+document.getElementById("msg").innerText =
+  err.message;
 
 }
 
-}
+};
 
 // LOGOUT
-async function logout(){
+window.logout = async function(){
 
 await auth.signOut();
 
-}
+};
 
 // LOAD DATA
-async function load(){
+window.load = async function(){
 
-let res = await fetch(API);
-let data = await res.json();
+try{
+
+const res = await fetch(API);
+const data = await res.json();
+
+if(!document.getElementById("table")) return;
 
 let html = `
-
-  <tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Coin</th>
-    <th>Link</th>
-    <th>Cooldown</th>
-    <th>Action</th>
-  </tr>`;data.forEach(d=>{
-
-html += `
 <tr>
-  <td>${d.id}</td>
-  <td>${d.name}</td>
-  <td>${d.coin}</td>
-  <td>${d.link}</td>
-  <td>${d.cooldown}</td>
-  <td>
-    <button onclick='edit(${JSON.stringify(d)})'>Edit</button>
-    <button onclick='hapus(${d.row})'>Delete</button>
-  </td>
+  <th>ID</th>
+  <th>Name</th>
+  <th>Coin</th>
+  <th>Link</th>
+  <th>Cooldown</th>
+  <th>Action</th>
 </tr>`;
+
+data.forEach(d=>{
+
+  html += `
+  <tr>
+    <td>${d.id}</td>
+    <td>${d.name}</td>
+    <td>${d.coin}</td>
+    <td>${d.link}</td>
+    <td>${d.cooldown}</td>
+    <td>
+      <button onclick='edit(${JSON.stringify(d)})'>
+        Edit
+      </button>
+
+      <button onclick='hapus(${d.row})'>
+        Delete
+      </button>
+    </td>
+  </tr>`;
 
 });
 
 document.getElementById("table").innerHTML = html;
+
+}catch(err){
+
+console.log(err);
+
 }
 
-// ADD
-async function addData(){
+};
 
-let form = new FormData();
+// ADD DATA
+window.addData = async function(){
+
+const form = new FormData();
 
 form.append("action","add");
 form.append("name",document.getElementById("name").value);
@@ -111,13 +139,20 @@ method:"POST",
 body:form
 });
 
+document.getElementById("name").value = "";
+document.getElementById("link").value = "";
+document.getElementById("cooldown").value = "";
+
 load();
-}
+
+};
 
 // DELETE
-async function hapus(row){
+window.hapus = async function(row){
 
-let form = new FormData();
+if(!confirm("Hapus data ini?")) return;
+
+const form = new FormData();
 
 form.append("action","delete");
 form.append("row",row);
@@ -128,10 +163,11 @@ body:form
 });
 
 load();
-}
+
+};
 
 // EDIT
-function edit(d){
+window.edit = function(d){
 
 editRow = d.row;
 
@@ -142,15 +178,17 @@ document.getElementById("ename").value = d.name;
 document.getElementById("ecoin").value = d.coin;
 document.getElementById("elink").value = d.link;
 document.getElementById("ecooldown").value = d.cooldown;
-}
+
+};
 
 // UPDATE
-async function updateData(){
+window.updateData = async function(){
 
-let form = new FormData();
+const form = new FormData();
 
 form.append("action","update");
 form.append("row",editRow);
+
 form.append("id",document.getElementById("eid").value);
 form.append("name",document.getElementById("ename").value);
 form.append("coin",document.getElementById("ecoin").value);
@@ -165,4 +203,5 @@ body:form
 document.getElementById("editBox").style.display = "none";
 
 load();
-}
+
+};
