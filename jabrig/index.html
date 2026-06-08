@@ -69,7 +69,7 @@ button{ cursor:pointer; }
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbzFu2sGQxPn0rJHVZvkUf8Q1YIqMq3YA50bxFxnaJGnW-jmMPhUhlwKzsYvNncdSg9y/exec";
+const API = "https://script.google.com/macros/s/AKfycbxAH3KI54-U-qrFUjsm5EesO4fjj3ZvKw7K86jgrg_snqpP7YSSMUzNPRusYYb7TQLx/exec";
 
 let editRow = null;
 
@@ -109,18 +109,19 @@ async function load(){
 
 /* ================= ADD ================= */
 async function addData(){
-  let params = new URLSearchParams();
-  params.append("action","add");
 
-  params.append("id",document.getElementById("id").value);
-  params.append("name",document.getElementById("name").value);
-  params.append("coin",document.getElementById("coin").value);
-  params.append("link",document.getElementById("link").value);
-  params.append("cooldown",document.getElementById("cooldown").value);
+  let form = new FormData();
+  form.append("action","add");
+
+  form.append("id",document.getElementById("id").value);
+  form.append("name",document.getElementById("name").value);
+  form.append("coin",document.getElementById("coin").value);
+  form.append("link",document.getElementById("link").value);
+  form.append("cooldown",document.getElementById("cooldown").value);
 
   await fetch(API,{
     method:"POST",
-    body:params
+    body:form
   });
 
   clearInput();
@@ -129,13 +130,14 @@ async function addData(){
 
 /* ================= DELETE ================= */
 async function hapus(row){
-  let params = new URLSearchParams();
-  params.append("action","delete");
-  params.append("row",row);
+
+  let form = new FormData();
+  form.append("action","delete");
+  form.append("row",row);
 
   await fetch(API,{
     method:"POST",
-    body:params
+    body:form
   });
 
   load();
@@ -143,6 +145,7 @@ async function hapus(row){
 
 /* ================= EDIT ================= */
 function edit(d){
+
   editRow = d.row;
 
   document.getElementById("editBox").style.display = "block";
@@ -156,19 +159,20 @@ function edit(d){
 
 /* ================= UPDATE ================= */
 async function updateData(){
-  let params = new URLSearchParams();
-  params.append("action","update");
 
-  params.append("row",editRow);
-  params.append("id",document.getElementById("eid").value);
-  params.append("name",document.getElementById("ename").value);
-  params.append("coin",document.getElementById("ecoin").value);
-  params.append("link",document.getElementById("elink").value);
-  params.append("cooldown",document.getElementById("ecooldown").value);
+  let form = new FormData();
+  form.append("action","update");
+
+  form.append("row",editRow);
+  form.append("id",document.getElementById("eid").value);
+  form.append("name",document.getElementById("ename").value);
+  form.append("coin",document.getElementById("ecoin").value);
+  form.append("link",document.getElementById("elink").value);
+  form.append("cooldown",document.getElementById("ecooldown").value);
 
   await fetch(API,{
     method:"POST",
-    body:params
+    body:form
   });
 
   document.getElementById("editBox").style.display = "none";
