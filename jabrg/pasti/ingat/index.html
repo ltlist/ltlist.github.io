@@ -30,6 +30,8 @@ input,select,button{
   border-radius:6px;
   border:none;
   font-size:14px;
+  width: 90%;
+  margin-bottom: 8px;
 }
 
 button{
@@ -85,7 +87,17 @@ th,td{
 
 .btn-del{background:red;color:#fff;}
 .btn-edit{background:orange;}
+
+#msg {
+  color: #ff6b6b;
+  font-size: 13px;
+}
 </style>
+
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js"></script>
+
 </head>
 
 <body>
@@ -93,7 +105,8 @@ th,td{
 <!-- LOGIN -->
 <div id="loginBox">
   <h2>🔐 Admin Login</h2>
-  <input type="password" id="pass" placeholder="Password">
+  <input type="email" id="email" placeholder="Email Admin">
+  <input type="password" id="pass" placeholder="Kata Sandi">
   <button class="btn" onclick="login()">Login</button>
   <p id="msg"></p>
 </div>
@@ -150,129 +163,72 @@ th,td{
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGid0BjxTrhrgkw7C7R2QHIkF6DgoVkOxo42Hv4kGQ8/exec";
-const PASSWORD = "Suminta";
+// ===== KONFIGURASI FIREBASE (SUDAH DIISI SESUAI PUNYA KAMU) =====
+const firebaseConfig = {
+  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
+  authDomain: "ltlist-f.firebaseapp.com",
+  projectId: "ltlist-f",
+  storageBucket: "ltlist-f.firebasestorage.app",
+  messagingSenderId: "991011425656",
+  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
+};
 
-const SESSION_KEY = "jabrig_session";
-const EXPIRE_TIME = 10 * 60 * 1000;
+// Inisialisasi Firebase
+const app = firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// ===== API GOOGLE SHEETS (TETAP SAMA) =====
+const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGid0BjxTrhrgkw7C7R2QHIkF6DgoVkOxo42Hv4kGQ8/exec";
 
 let editRow = null;
-let guardStarted = false;
 
-/* ================= CHECK SESSION ================= */
-function checkSession(){
-
-  let session = localStorage.getItem(SESSION_KEY);
-
-  if(!session){
-    return false;
-  }
-
-  try{
-    session = JSON.parse(session);
-  }catch(e){
-    return false;
-  }
-
-  if(!session.token || !session.time){
-    return false;
-  }
-
-  if(Date.now() - session.time > EXPIRE_TIME){
-    localStorage.removeItem(SESSION_KEY);
-    return false;
-  }
-
-  return true;
+/* ================= AUTO LOGIN ================= */
+window.onload = function(){
+  // Cek status login Firebase
+  auth.onAuthStateChanged(user => {
+    if (user) {
+      showDashboard();
+    }
+  });
 }
 
-/* ================= LOGIN ================= */
-function login(){
+/* ================= LOGIN DENGAN FIREBASE ================= */
+async function login(){
+  let email = document.getElementById("email").value;
+  let pass = document.getElementById("pass").value;
+  let msg = document.getElementById("msg");
 
-  let p = document.getElementById("pass").value;
+  msg.innerText = "";
 
-  if(p === PASSWORD){
+  if(!email || !pass) return msg.innerText = "❌ Isi email & sandi";
 
-    let session = {
-      token: crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2),
-      time: Date.now()
-    };
-
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-
-    showDashboard();
-
-  }else{
-    document.getElementById("msg").innerText = "❌ Password salah";
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+    msg.innerText = "✅ Berhasil masuk...";
+  } catch (error) {
+    console.error(error);
+    if(error.code === "auth/user-not-found") msg.innerText = "❌ Email tidak terdaftar";
+    else if(error.code === "auth/wrong-password") msg.innerText = "❌ Sandi salah";
+    else if(error.code === "auth/invalid-email") msg.innerText = "❌ Format email salah";
+    else msg.innerText = "❌ " + error.message;
   }
 }
 
 /* ================= SHOW DASHBOARD ================= */
 function showDashboard(){
-
-  if(!checkSession()){
-    return;
-  }
-
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("dashboard").style.display = "block";
-
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("dashboard").style.display="block";
   load();
-  startGuard();
-}
-
-/* ================= SAFE GUARD (FIX LOOP) ================= */
-function startGuard(){
-
-  if(guardStarted) return;
-  guardStarted = true;
-
-  setInterval(()=>{
-
-    // kalau masih di login page, jangan ganggu
-    if(document.getElementById("dashboard").style.display !== "block"){
-      return;
-    }
-
-    let session = localStorage.getItem(SESSION_KEY);
-
-    if(!session) return;
-
-    try{
-      session = JSON.parse(session);
-
-      if(Date.now() - session.time > EXPIRE_TIME){
-        logout();
-      }
-
-    }catch(e){
-      logout();
-    }
-
-  }, 5000);
-}
-
-/* ================= AUTO LOAD ================= */
-window.onload = function(){
-
-  if(checkSession()){
-    showDashboard();
-  }else{
-    document.getElementById("dashboard").style.display = "none";
-  }
 }
 
 /* ================= LOGOUT ================= */
-function logout(){
-  localStorage.removeItem(SESSION_KEY);
+async function logout(){
+  await auth.signOut();
   location.reload();
 }
 
-/* ================= LOAD DATA ================= */
+/* ================= LOAD DATA (TETAP SAMA) ================= */
 async function load(){
-
-  if(!checkSession()) return;
-
   let res = await fetch(API);
   let text = await res.text();
   let data = JSON.parse(text);
@@ -305,10 +261,8 @@ async function load(){
   document.getElementById("table").innerHTML = html;
 }
 
-/* ================= ADD ================= */
+/* ================= ADD DATA (TETAP SAMA) ================= */
 async function addData(){
-
-  if(!checkSession()) return logout();
 
   let form = new FormData();
   form.append("action","add");
@@ -327,10 +281,8 @@ async function addData(){
   load();
 }
 
-/* ================= DELETE ================= */
+/* ================= DELETE (TETAP SAMA) ================= */
 async function hapus(row){
-
-  if(!checkSession()) return logout();
 
   let form = new FormData();
   form.append("action","delete");
@@ -340,14 +292,12 @@ async function hapus(row){
   load();
 }
 
-/* ================= EDIT ================= */
+/* ================= EDIT (TETAP SAMA) ================= */
 function edit(d){
-
-  if(!checkSession()) return logout();
 
   editRow = d.row;
 
-  document.getElementById("editBox").style.display = "block";
+  document.getElementById("editBox").style.display="block";
 
   document.getElementById("eid").value = d.id;
   document.getElementById("ename").value = d.name;
@@ -356,10 +306,8 @@ function edit(d){
   document.getElementById("ecooldown").value = d.cooldown;
 }
 
-/* ================= UPDATE ================= */
+/* ================= UPDATE (TETAP SAMA) ================= */
 async function updateData(){
-
-  if(!checkSession()) return logout();
 
   let form = new FormData();
   form.append("action","update");
@@ -373,7 +321,7 @@ async function updateData(){
 
   await fetch(API,{method:"POST",body:form});
 
-  document.getElementById("editBox").style.display = "none";
+  document.getElementById("editBox").style.display="none";
   load();
 }
 
