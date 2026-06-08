@@ -1,4 +1,25 @@
-/* NAVBAR */
+/* =====================
+   RESET
+===================== */
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial, sans-serif;
+}
+
+/* =====================
+   BODY
+===================== */
+body{
+  background:#0f1419;
+  color:#e2e8f0;
+  padding:20px;
+}
+
+/* =====================
+   NAVBAR
+===================== */
 .navbar{
   display:flex;
   justify-content:space-between;
@@ -28,17 +49,200 @@
   color:#00ffcc;
 }
 
-/* HEADER TITLE */
+/* =====================
+   CONTAINER
+===================== */
+.container{
+  max-width:1100px;
+  margin:auto;
+  background:#161b22;
+  padding:20px;
+  border-radius:12px;
+  border:1px solid #222;
+}
+
+/* =====================
+   HEADER
+===================== */
 .header{
   text-align:center;
   padding:30px 10px;
+  margin-bottom:20px;
 }
 
 .header h1{
   font-size:32px;
+  color:#00ccff;
   margin-bottom:10px;
 }
 
 .header p{
   color:#ccc;
+}
+
+/* =====================
+   CONTROL PANEL
+===================== */
+.control-panel{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:15px;
+}
+
+/* INPUT, SELECT, BUTTON */
+input,
+select,
+button{
+  padding:10px;
+  border-radius:6px;
+  border:1px solid #333;
+  background:#0d1117;
+  color:#fff;
+}
+
+/* =====================
+   TABLE
+===================== */
+.tabel-pembungkus{
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th,
+td{
+  padding:12px;
+  border-bottom:1px solid #222;
+}
+
+th{
+  color:#00ccff;
+  text-align:left;
+}
+
+tr:hover td{
+  background:#1a202c;
+}
+
+/* =====================
+   LINK & BUTTON
+===================== */
+a{
+  color:#00ccff;
+  text-decoration:none;
+}
+
+.btn{
+  padding:6px 10px;
+  border-radius:6px;
+  background:#00ccff;
+  color:#000;
+  border:none;
+  cursor:pointer;
+  display:inline-block;
+  text-decoration:none;
+}
+
+.btn.disabled{
+  background:#333;
+  color:#888;
+  cursor:not-allowed;
+}
+
+/* =====================
+   COIN TAG
+===================== */
+.coin{
+  padding:3px 8px;
+  background:#0d2b3a;
+  border-radius:10px;
+  color:#00ccff;
+  font-size:12px;
+}
+
+/* =====================
+   FOOTER
+===================== */
+.footer{
+  text-align:center;
+  margin-top:20px;
+  color:#777;
+}
+
+/* =====================
+   FORM GRID
+===================== */
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-bottom:10px;
+}
+
+/* =====================
+   AD SYSTEM
+===================== */
+.ad-banner{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin:20px 0;
+}
+
+.ad-label{
+  font-size:11px;
+  color:#777;
+  margin-bottom:5px;
+}
+
+.ad-box{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  border:1px solid #222;
+  border-radius:6px;
+  overflow:hidden;
+  background:#0d1117;
+  margin:0 auto;
+  width:468px;
+  max-width:100%;
+  height:60px;
+}
+
+.ad-box iframe{
+  width:100%;
+  height:100%;
+  border:none;
+  display:block;
+}
+
+/* =====================
+   RESPONSIVE
+===================== */
+@media(max-width:600px){
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .control-panel{
+    flex-direction:column;
+  }
+
+  input,
+  select,
+  button{
+    width:100%;
+  }
+}
+
+@media(max-width:500px){
+  .ad-box{
+    width:100%;
+    height:60px;
+  }
 }
