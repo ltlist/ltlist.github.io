@@ -102,16 +102,18 @@ async function load(){
 
 /* ADD */
 async function addData(){
+  let form = new FormData();
+
+  form.append("action","add");
+  form.append("id",id.value);
+  form.append("name",name.value);
+  form.append("coin",coin.value);
+  form.append("link",link.value);
+  form.append("cooldown",cooldown.value);
+
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"add",
-      id:id.value,
-      name:name.value,
-      coin:coin.value,
-      link:link.value,
-      cooldown:cooldown.value
-    })
+    body:form
   });
 
   load();
@@ -119,12 +121,13 @@ async function addData(){
 
 /* DELETE */
 async function hapus(row){
+  let form = new FormData();
+  form.append("action","delete");
+  form.append("row",row);
+
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"delete",
-      row:row
-    })
+    body:form
   });
 
   load();
@@ -145,17 +148,19 @@ function edit(d){
 
 /* UPDATE */
 async function updateData(){
+  let form = new FormData();
+
+  form.append("action","update");
+  form.append("row",editRow);
+  form.append("id",eid.value);
+  form.append("name",ename.value);
+  form.append("coin",ecoin.value);
+  form.append("link",elink.value);
+  form.append("cooldown",ecooldown.value);
+
   await fetch(API,{
     method:"POST",
-    body:JSON.stringify({
-      action:"update",
-      row:editRow,
-      id:eid.value,
-      name:ename.value,
-      coin:ecoin.value,
-      link:elink.value,
-      cooldown:ecooldown.value
-    })
+    body:form
   });
 
   document.getElementById("editBox").style.display = "none";
