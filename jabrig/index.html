@@ -2,6 +2,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Jabrig Admin Panel</title>
 
 <style>
@@ -9,33 +11,74 @@ body{
   font-family:Arial;
   background:#111;
   color:#fff;
-  padding:20px;
-}
-
-input,button,select{
   padding:10px;
-  margin:5px;
 }
 
+/* HEADER */
+h2{
+  text-align:center;
+  font-size:20px;
+}
+
+/* INPUT GRID RESPONSIVE */
+.form-box{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:8px;
+  margin-bottom:10px;
+}
+
+input,select,button{
+  padding:10px;
+  border-radius:6px;
+  border:none;
+  font-size:14px;
+}
+
+button{
+  cursor:pointer;
+}
+
+.btn-add{
+  background:green;
+  color:#fff;
+}
+
+/* TABLE WRAPPER */
+.table-container{
+  overflow-x:auto;
+}
+
+/* TABLE */
 table{
   width:100%;
-  margin-top:20px;
   border-collapse:collapse;
+  min-width:600px;
 }
 
 th,td{
   border:1px solid #444;
   padding:8px;
+  text-align:left;
+  font-size:13px;
 }
 
+/* EDIT BOX */
 #editBox{
   display:none;
   background:#222;
   padding:10px;
   margin-top:10px;
+  border-radius:8px;
 }
 
-button{ cursor:pointer; }
+/* BUTTONS */
+.btn-edit{background:orange;}
+.btn-del{background:red;color:#fff;}
+
+@media(max-width:600px){
+  th,td{font-size:12px;}
+}
 </style>
 </head>
 
@@ -44,26 +87,28 @@ button{ cursor:pointer; }
 <h2>🔥 Jabrig Admin Panel</h2>
 
 <!-- INPUT -->
-<input id="name" placeholder="Name">
+<div class="form-box">
+  <input id="name" placeholder="Name">
 
-<select id="coin">
-  <option value="LTC">LTC</option>
-  <option value="ZER">ZER</option>
-  <option value="DOGE">DOGE</option>
-  <option value="USDT">USDT</option>
-  <option value="MULTI">MULTI</option>
-</select>
+  <select id="coin">
+    <option value="LTC">LTC</option>
+    <option value="ZER">ZER</option>
+    <option value="DOGE">DOGE</option>
+    <option value="USDT">USDT</option>
+    <option value="MULTI">MULTI</option>
+  </select>
 
-<input id="link" placeholder="Link">
-<input id="cooldown" placeholder="Cooldown">
+  <input id="link" placeholder="Link">
+  <input id="cooldown" placeholder="Cooldown">
 
-<button onclick="addData()">➕ Add</button>
+  <button class="btn-add" onclick="addData()">➕ Add</button>
+</div>
 
 <!-- EDIT -->
 <div id="editBox">
   <h3>Edit Data</h3>
 
-  <input id="eid" placeholder="ID (auto)">
+  <input id="eid" placeholder="ID">
   <input id="ename" placeholder="Name">
 
   <select id="ecoin">
@@ -77,10 +122,13 @@ button{ cursor:pointer; }
   <input id="elink" placeholder="Link">
   <input id="ecooldown" placeholder="Cooldown">
 
-  <button onclick="updateData()">💾 Save</button>
+  <button class="btn-add" onclick="updateData()">💾 Save</button>
 </div>
 
-<table id="table"></table>
+<!-- TABLE -->
+<div class="table-container">
+  <table id="table"></table>
+</div>
 
 <script>
 
@@ -88,7 +136,7 @@ const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGi
 
 let editRow = null;
 
-/* ================= LOAD ================= */
+/* LOAD */
 async function load(){
   let res = await fetch(API);
   let text = await res.text();
@@ -113,8 +161,8 @@ async function load(){
       <td>${d.link}</td>
       <td>${d.cooldown}</td>
       <td>
-        <button onclick='edit(${JSON.stringify(d)})'>Edit</button>
-        <button onclick="hapus(${d.row})">Delete</button>
+        <button class="btn-edit" onclick='edit(${JSON.stringify(d)})'>Edit</button>
+        <button class="btn-del" onclick="hapus(${d.row})">Delete</button>
       </td>
     </tr>`;
   });
@@ -122,45 +170,35 @@ async function load(){
   document.getElementById("table").innerHTML = html;
 }
 
-/* ================= ADD (AUTO ID + COIN SELECT) ================= */
+/* ADD */
 async function addData(){
 
   let form = new FormData();
-
   form.append("action","add");
+
   form.append("name",document.getElementById("name").value);
   form.append("coin",document.getElementById("coin").value);
   form.append("link",document.getElementById("link").value);
   form.append("cooldown",document.getElementById("cooldown").value);
 
-  await fetch(API,{
-    method:"POST",
-    body:form
-  });
-
-  document.getElementById("name").value="";
-  document.getElementById("link").value="";
-  document.getElementById("cooldown").value="";
+  await fetch(API,{ method:"POST", body:form });
 
   load();
 }
 
-/* ================= DELETE ================= */
+/* DELETE */
 async function hapus(row){
 
   let form = new FormData();
   form.append("action","delete");
   form.append("row",row);
 
-  await fetch(API,{
-    method:"POST",
-    body:form
-  });
+  await fetch(API,{ method:"POST", body:form });
 
   load();
 }
 
-/* ================= EDIT ================= */
+/* EDIT */
 function edit(d){
 
   editRow = d.row;
@@ -174,12 +212,12 @@ function edit(d){
   document.getElementById("ecooldown").value = d.cooldown;
 }
 
-/* ================= UPDATE ================= */
+/* UPDATE */
 async function updateData(){
 
   let form = new FormData();
-
   form.append("action","update");
+
   form.append("row",editRow);
   form.append("id",document.getElementById("eid").value);
   form.append("name",document.getElementById("ename").value);
@@ -187,10 +225,7 @@ async function updateData(){
   form.append("link",document.getElementById("elink").value);
   form.append("cooldown",document.getElementById("ecooldown").value);
 
-  await fetch(API,{
-    method:"POST",
-    body:form
-  });
+  await fetch(API,{ method:"POST", body:form });
 
   document.getElementById("editBox").style.display = "none";
   load();
