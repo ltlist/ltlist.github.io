@@ -235,19 +235,15 @@ async function hapus(row){
 }
 
 /* ================= EDIT ================= */
-function edit(d){
+function closeEdit(){
+  document.getElementById("editBox").style.display = "none";
 
-  if(!auth.currentUser) return;
-
-  editRow = d.row;
-
-  document.getElementById("editBox").style.display = "block";
-
-  document.getElementById("eid").value = d.id;
-  document.getElementById("ename").value = d.name;
-  document.getElementById("ecoin").value = d.coin;
-  document.getElementById("elink").value = d.link;
-  document.getElementById("ecooldown").value = d.cooldown;
+  // optional: bersihkan input biar rapi
+  document.getElementById("eid").value = "";
+  document.getElementById("ename").value = "";
+  document.getElementById("ecoin").value = "";
+  document.getElementById("elink").value = "";
+  document.getElementById("ecooldown").value = "";
 }
 
 /* ================= UPDATE ================= */
