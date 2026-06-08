@@ -1,71 +1,72 @@
 /* ================= GLOBAL ================= */
+*{
+  box-sizing: border-box;
+}
+
 body{
   font-family: Arial, sans-serif;
   background: #0f1115;
   color: #eaeaea;
   margin: 0;
-  padding: 20px;
+  padding: 15px;
 }
 
-/* ================= LOGIN BOX ================= */
+/* ================= LOGIN ================= */
 #loginBox{
-  max-width: 350px;
-  margin: 100px auto;
+  max-width: 360px;
+  width: 100%;
+  margin: 80px auto;
   background: #1b1f2a;
-  padding: 25px;
+  padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
   text-align: center;
 }
 
 #loginBox input{
-  width: 90%;
+  width: 100%;
   padding: 10px;
   margin: 8px 0;
   border-radius: 8px;
   border: none;
-  outline: none;
   background: #111522;
   color: #fff;
 }
 
 #loginBox button{
-  width: 95%;
+  width: 100%;
   padding: 10px;
-  border: none;
   border-radius: 8px;
+  border: none;
   background: #00c853;
-  color: white;
-  cursor: pointer;
+  color: #fff;
   font-weight: bold;
-}
-
-#loginBox button:hover{
-  background: #00e676;
+  cursor: pointer;
 }
 
 /* ================= DASHBOARD ================= */
 #dashboard{
-  max-width: 1000px;
+  max-width: 1100px;
   margin: auto;
 }
 
-/* ================= HEADER ================= */
+/* HEADER */
 h2{
   text-align: center;
-  margin-bottom: 15px;
+  font-size: 20px;
 }
 
 #userInfo{
   text-align: center;
   color: #aaa;
   margin-bottom: 10px;
+  font-size: 13px;
 }
 
 /* ================= FORM ================= */
 .form-box{
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
   margin-bottom: 15px;
 }
@@ -77,6 +78,7 @@ input, select{
   outline: none;
   background: #1b1f2a;
   color: #fff;
+  font-size: 13px;
 }
 
 button{
@@ -86,63 +88,72 @@ button{
   cursor: pointer;
   font-weight: bold;
   transition: 0.2s;
+  font-size: 13px;
 }
 
-button:hover{
-  transform: scale(1.03);
-}
-
-/* BUTTON COLORS */
+/* ================= BUTTON ================= */
 .btn{
   background: #00c853;
   color: white;
 }
 
 .btn-edit{
-  background: #ffb300; /* kuning */
+  background: #ffb300;
   color: #000;
 }
 
 .btn-del{
-  background: #e53935; /* merah */
+  background: #e53935;
   color: #fff;
 }
 
-/* hover efek biar lebih hidup */
 .btn-edit:hover{
-  background: #FFFF00;
+  background: #ffca28;
+  transform: scale(1.05);
 }
 
 .btn-del:hover{
-  background: #FF0000;
+  background: #ef5350;
+  transform: scale(1.05);
+}
+
+button:hover{
+  transform: scale(1.03);
+  opacity: 0.95;
 }
 
 /* ================= TABLE ================= */
 .table-container{
+  width: 100%;
   overflow-x: auto;
   margin-top: 15px;
 }
 
 table{
   width: 100%;
-  border-collapse: collapse;
   min-width: 700px;
+  border-collapse: collapse;
   background: #1b1f2a;
   border-radius: 10px;
   overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
 }
 
 th{
   background: #222838;
   padding: 12px;
   text-align: left;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 td{
   padding: 10px;
   border-bottom: 1px solid #2a2f3d;
-  font-size: 13px;
+  font-size: 12px;
+}
+
+tr{
+  transition: 0.2s;
 }
 
 tr:hover{
@@ -158,17 +169,39 @@ tr:hover{
   display: none;
 }
 
-/* ================= MOBILE ================= */
-@media(max-width:600px){
+/* ================= TABLET ================= */
+@media (max-width: 900px){
+  table{
+    min-width: 600px;
+  }
+}
+
+/* ================= HP ================= */
+@media (max-width: 600px){
+
   body{
     padding: 10px;
   }
 
-  table{
-    min-width: 600px;
+  h2{
+    font-size: 18px;
   }
 
   .form-box{
     grid-template-columns: 1fr;
+  }
+
+  table{
+    min-width: 520px;
+  }
+
+  th, td{
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  button{
+    font-size: 12px;
+    padding: 8px;
   }
 }
