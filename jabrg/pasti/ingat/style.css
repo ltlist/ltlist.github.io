@@ -98,18 +98,23 @@ button:hover{
   color: white;
 }
 
-.btn:hover{
-  background: #00e676;
-}
-
 .btn-edit{
-  background: #ff9800;
-  color: #fff;
+  background: #ffb300; /* kuning */
+  color: #000;
 }
 
 .btn-del{
-  background: #f44336;
+  background: #e53935; /* merah */
   color: #fff;
+}
+
+/* hover efek biar lebih hidup */
+.btn-edit:hover{
+  background: #ffc107;
+}
+
+.btn-del:hover{
+  background: #ff5252;
 }
 
 /* ================= TABLE ================= */
