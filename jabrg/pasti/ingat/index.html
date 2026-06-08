@@ -160,36 +160,50 @@ function checkLogin(){
 }
 /* ================= LOAD ================= */
 async function load(){
-  let res = await fetch(API);
-  let text = await res.text();
-  let data = JSON.parse(text);
 
-  let html = `
-  <tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Coin</th>
-    <th>Link</th>
-    <th>Cooldown</th>
-    <th>Action</th>
-  </tr>`;
+  try{
 
-  data.forEach(d=>{
-    html += `
+    let res = await fetch(API);
+    let text = await res.text();
+
+    if(!text || text.trim() === ""){
+      document.getElementById("table").innerHTML =
+        "<tr><td>No data</td></tr>";
+      return;
+    }
+
+    let data = JSON.parse(text);
+
+    let html = `
     <tr>
-      <td>${d.id}</td>
-      <td>${d.name}</td>
-      <td>${d.coin}</td>
-      <td>${d.link}</td>
-      <td>${d.cooldown}</td>
-      <td>
-        <button class="btn-edit" onclick='edit(${JSON.stringify(d)})'>Edit</button>
-        <button class="btn-del" onclick="hapus(${d.row})">Delete</button>
-      </td>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Coin</th>
+      <th>Link</th>
+      <th>Cooldown</th>
+      <th>Action</th>
     </tr>`;
-  });
 
-  document.getElementById("table").innerHTML = html;
+    data.forEach(d=>{
+      html += `
+      <tr>
+        <td>${d.id}</td>
+        <td>${d.name}</td>
+        <td>${d.coin}</td>
+        <td>${d.link}</td>
+        <td>${d.cooldown}</td>
+        <td>
+          <button onclick='edit(${JSON.stringify(d)})'>Edit</button>
+          <button onclick='hapus(${d.row})'>Delete</button>
+        </td>
+      </tr>`;
+    });
+
+    document.getElementById("table").innerHTML = html;
+
+  }catch(err){
+    console.log("LOAD ERROR:", err);
+  }
 }
 
 /* ================= ADD (AUTO ID) ================= */
