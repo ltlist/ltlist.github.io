@@ -6,14 +6,45 @@ const sortBtn = document.getElementById("sortBtn");
 
 let data = [];
 let sortAsc = true;
-
 let cache = {};
-let hidden = JSON.parse(localStorage.getItem("hidden_faucet") || "[]");
 
+/* ================= GOOGLE SHEETS CSV ================= */
 const DATA_URL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vRW7rtoShpbVR3Aw1zikPX01GRnkzfyAbj0-2oAd9ULxlfD6Gky1Jj-LwtZS4sUkgq6kZ3uq4NQgvUN/pub?gid=0&single=true&output=csv";
 
-// ================= TIMER =================
+/* ================= CSV PARSER ================= */
+function csvToJSON(csv){
+  const lines = csv.trim().split("\n");
+  const headers = lines[0].split(",");
+
+  return lines.slice(1).map(line => {
+    const values = line.split(",");
+    let obj = {};
+
+    headers.forEach((h, i) => {
+      obj[h.trim().toLowerCase()] = values[i] ? values[i].trim() : "";
+    });
+
+    return obj;
+  });
+}
+
+/* ================= ANALYTICS ================= */
+function getStats(id){
+  return JSON.parse(localStorage.getItem("stats_" + id) || "{}");
+}
+
+function saveStats(id, stats){
+  localStorage.setItem("stats_" + id, JSON.stringify(stats));
+}
+
+function trackClick(id){
+  let s = getStats(id);
+  s.clicks = (s.clicks || 0) + 1;
+  saveStats(id, s);
+}
+
+/* ================= COOLDOWN ================= */
 function getLast(id){
   return localStorage.getItem("claim_" + id);
 }
@@ -27,7 +58,9 @@ function remainingSeconds(item){
   if(!last) return 0;
 
   const diff = Math.floor((Date.now() - last) / 1000);
-  return Math.max(0, item.cooldown * 60 - diff);
+  const cooldown = (Number(item.cooldown) || 0) * 60;
+
+  return Math.max(0, cooldown - diff);
 }
 
 function formatTime(sec){
@@ -36,89 +69,84 @@ function formatTime(sec){
   return `${m}m ${s}s`;
 }
 
-// ================= CHECK =================
+/* ================= LIGHT STATUS CHECK (SAFE) ================= */
 async function checkLight(url, id){
 
-  if(cache[id] && Date.now() - cache[id].t < 600000){
+  if(cache[id] && Date.now() - cache[id].t < 300000){
     return cache[id];
   }
 
   let status = "LIVE";
 
   try{
-    const controller = new AbortController();
-    const timeout = setTimeout(()=>controller.abort(), 5000);
-
-    await fetch(url, {
-      method: "HEAD",
-      mode: "no-cors",
-      signal: controller.signal
-    });
-
-    clearTimeout(timeout);
-
+    const res = await fetch(url, { method: "HEAD", mode: "no-cors" });
+    // no-cors = kita anggap LIVE kalau tidak error jaringan
   }catch(e){
     status = "DEAD";
   }
 
-  const result = {
-    status,
-    t: Date.now()
-  };
-
+  const result = { status, t: Date.now() };
   cache[id] = result;
 
   return result;
 }
 
-// ================= HIDE DEAD =================
-function hideDead(id){
-  if(!hidden.includes(id)){
-    hidden.push(id);
-    localStorage.setItem("hidden_faucet", JSON.stringify(hidden));
-  }
+/* ================= SCORE ================= */
+function calcScore(id, status){
+
+  let s = getStats(id);
+
+  if(!s.clicks) s.clicks = 0;
+  if(!s.fail) s.fail = 0;
+  if(!s.success) s.success = 0;
+
+  if(status === "DEAD") s.fail++;
+  else s.success++;
+
+  const total = s.fail + s.success;
+
+  let score = total === 0 ? 75 : Math.round((s.success / total) * 100);
+
+  s.score = score;
+  saveStats(id, s);
+
+  return score;
 }
 
-// ================= RESET =================
-function resetHidden(){
-  localStorage.removeItem("hidden_faucet");
-  hidden = [];
-  render();
-}
-
-// ================= LOAD DATA =================
+/* ================= LOAD DATA ================= */
 async function loadData(){
   const res = await fetch(DATA_URL);
-  data = await res.json();
+  const csv = await res.text();
+
+  data = csvToJSON(csv);
 
   document.getElementById("kotakPesan").innerText =
-  "Auto Remove DEAD System Active ✔";
+  "GOOGLE SHEETS SAAS ACTIVE ✔";
 
   render();
 }
 
-// ================= RENDER =================
+/* ================= RENDER ================= */
 async function render(){
 
   let list = [...data];
-
-  // remove hidden
-  list = list.filter(x => !hidden.includes(x.id));
 
   const keyword = search.value.toLowerCase();
 
   if(keyword){
     list = list.filter(x =>
-      x.nama.toLowerCase().includes(keyword)
+      (x.name || "").toLowerCase().includes(keyword)
     );
   }
 
   if(filterKoin.value !== "all"){
-    list = list.filter(x => x.koin === filterKoin.value);
+    list = list.filter(x => x.coin === filterKoin.value);
   }
 
   list.sort((a,b)=>
-    sortAsc ? a.nama.localeCompare(b.nama) : b.nama.localeCompare(a.nama)
+    sortAsc
+    ? (a.name||"").localeCompare(b.name||"")
+    : (b.name||"").localeCompare(a.name||"")
   );
 
   tbody.innerHTML = "";
@@ -130,19 +158,24 @@ async function render(){
     const left = remainingSeconds(item);
     const ready = left === 0;
 
-    const s = await checkLight(item.link, item.id);
+    const statusObj = cache[item.id] || {status:"LIVE"};
+    const score = calcScore(item.id, statusObj.status);
 
-    // AUTO REMOVE DEAD
-    if(s.status === "DEAD"){
-      hideDead(item.id);
-      continue;
-    }
+    let color = "#ffcc00";
+    if(score >= 80) color = "#00ff99";
+    else if(score >= 50) color = "#ffcc00";
+    else color = "#ff4444";
 
     tbody.innerHTML += `
       <tr>
         <td>${no++}</td>
-        <td>${item.nama}</td>
-        <td>${item.koin}</td>
+
+        <td onclick="trackClick('${item.id}')">
+          ${item.name || "-"}
+        </td>
+
+        <td>${item.coin || "-"}</td>
+
         <td>
           ${
             ready
@@ -150,13 +183,16 @@ async function render(){
             : `<button class="btn disabled">⏳ ${formatTime(left)}</button>`
           }
         </td>
-        <td><span class="status-live">● LIVE</span></td>
+
+        <td style="color:${color};font-weight:bold">
+          ${score}% ${statusObj.status}
+        </td>
       </tr>
     `;
   }
 }
 
-// ================= EVENTS =================
+/* ================= EVENTS ================= */
 search.addEventListener("input", render);
 filterKoin.addEventListener("change", render);
 
@@ -165,8 +201,8 @@ sortBtn.addEventListener("click", ()=>{
   render();
 });
 
-// ================= LOOP =================
-setInterval(render, 15000);
+/* ================= LOOP ================= */
+setInterval(render, 10000);
 
-// ================= INIT =================
+/* ================= INIT ================= */
 loadData();
