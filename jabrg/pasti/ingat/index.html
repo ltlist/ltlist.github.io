@@ -105,7 +105,7 @@ th,td{
 <!-- LOGIN -->
 <div id="loginBox">
   <h2>🔐 Admin Login</h2>
-  <input type="email" id="email" placeholder="Email Admin">
+  <input type="email" id="email" placeholder="Email Admin" value="muda36755@gmail.com">
   <input type="password" id="pass" placeholder="Kata Sandi">
   <button class="btn" onclick="login()">Login</button>
   <p id="msg"></p>
@@ -163,7 +163,7 @@ th,td{
 
 <script>
 
-// ===== KONFIGURASI FIREBASE (SUDAH DIISI SESUAI PUNYA KAMU) =====
+// ===== KONFIGURASI FIREBASE =====
 const firebaseConfig = {
   apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
@@ -173,18 +173,17 @@ const firebaseConfig = {
   appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 
-// Inisialisasi Firebase
+// 🔧 PERBAIKAN: Inisialisasi DULU baru bikin variabel auth
 const app = firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 
-// ===== API GOOGLE SHEETS (TETAP SAMA) =====
+// ===== API GOOGLE SHEETS =====
 const API = "https://script.google.com/macros/s/AKfycbw8NvblgJJ6EOvjWRgHkizjWCGid0BjxTrhrgkw7C7R2QHIkF6DgoVkOxo42Hv4kGQ8/exec";
 
 let editRow = null;
 
 /* ================= AUTO LOGIN ================= */
 window.onload = function(){
-  // Cek status login Firebase
   auth.onAuthStateChanged(user => {
     if (user) {
       showDashboard();
@@ -192,12 +191,11 @@ window.onload = function(){
   });
 }
 
-/* ================= LOGIN DENGAN FIREBASE ================= */
+/* ================= LOGIN ================= */
 async function login(){
   let email = document.getElementById("email").value;
   let pass = document.getElementById("pass").value;
   let msg = document.getElementById("msg");
-
   msg.innerText = "";
 
   if(!email || !pass) return msg.innerText = "❌ Isi email & sandi";
@@ -207,7 +205,7 @@ async function login(){
     msg.innerText = "✅ Berhasil masuk...";
   } catch (error) {
     console.error(error);
-    if(error.code === "auth/user-not-found") msg.innerText = "❌ Email tidak terdaftar";
+    if(error.code === "auth/user-not-found") msg.innerText = "❌ Email tidak terdaftar di Firebase";
     else if(error.code === "auth/wrong-password") msg.innerText = "❌ Sandi salah";
     else if(error.code === "auth/invalid-email") msg.innerText = "❌ Format email salah";
     else msg.innerText = "❌ " + error.message;
@@ -227,7 +225,7 @@ async function logout(){
   location.reload();
 }
 
-/* ================= LOAD DATA (TETAP SAMA) ================= */
+/* ================= LOAD DATA ================= */
 async function load(){
   let res = await fetch(API);
   let text = await res.text();
@@ -261,7 +259,7 @@ async function load(){
   document.getElementById("table").innerHTML = html;
 }
 
-/* ================= ADD DATA (TETAP SAMA) ================= */
+/* ================= ADD DATA ================= */
 async function addData(){
 
   let form = new FormData();
@@ -281,7 +279,7 @@ async function addData(){
   load();
 }
 
-/* ================= DELETE (TETAP SAMA) ================= */
+/* ================= DELETE ================= */
 async function hapus(row){
 
   let form = new FormData();
@@ -292,7 +290,7 @@ async function hapus(row){
   load();
 }
 
-/* ================= EDIT (TETAP SAMA) ================= */
+/* ================= EDIT ================= */
 function edit(d){
 
   editRow = d.row;
@@ -306,7 +304,7 @@ function edit(d){
   document.getElementById("ecooldown").value = d.cooldown;
 }
 
-/* ================= UPDATE (TETAP SAMA) ================= */
+/* ================= UPDATE ================= */
 async function updateData(){
 
   let form = new FormData();
