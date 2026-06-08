@@ -29,6 +29,13 @@
     button{
       cursor:pointer;
     }
+
+    .editBox{
+      background:#222;
+      padding:10px;
+      margin-top:10px;
+      display:none;
+    }
   </style>
 </head>
 <body>
@@ -43,12 +50,24 @@
 
 <button onclick="addData()">➕ Add</button>
 
+<div class="editBox" id="editBox">
+  <h3>Edit Data</h3>
+  <input id="eid" placeholder="ID">
+  <input id="ename" placeholder="Name">
+  <input id="ecoin" placeholder="Coin">
+  <input id="elink" placeholder="Link">
+  <input id="ecooldown" placeholder="Cooldown">
+  <button onclick="updateData()">💾 Save</button>
+</div>
+
 <table id="table"></table>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbyyAtwgh5ALV8RPLTdw70VUAvr_tmF0-3r2sOiE3VbayYQKxWIS4r3K496TtiEOUW9T/exec";
+const API = "https://script.google.com/macros/s/AKfycbxAH3KI54-U-qrFUjsm5EesO4fjj3ZvKw7K86jgrg_snqpP7YSSMUzNPRusYYb7TQLx/exec";
 
-/* LOAD DATA */
+let editRow = null;
+
+/* LOAD */
 async function load(){
   let res = await fetch(API);
   let data = await res.json();
@@ -72,6 +91,7 @@ async function load(){
       <td>${d.link || ""}</td>
       <td>${d.cooldown || ""}</td>
       <td>
+        <button onclick='edit(${JSON.stringify(d)})'>Edit</button>
         <button onclick="hapus(${d.row})">Delete</button>
       </td>
     </tr>`;
@@ -80,7 +100,7 @@ async function load(){
   document.getElementById("table").innerHTML = html;
 }
 
-/* ADD DATA */
+/* ADD */
 async function addData(){
   await fetch(API,{
     method:"POST",
@@ -107,6 +127,38 @@ async function hapus(row){
     })
   });
 
+  load();
+}
+
+/* EDIT */
+function edit(d){
+  editRow = d.row;
+
+  document.getElementById("editBox").style.display = "block";
+
+  eid.value = d.id;
+  ename.value = d.name;
+  ecoiin.value = d.coin;
+  elink.value = d.link;
+  ecooldown.value = d.cooldown;
+}
+
+/* UPDATE */
+async function updateData(){
+  await fetch(API,{
+    method:"POST",
+    body:JSON.stringify({
+      action:"update",
+      row:editRow,
+      id:eid.value,
+      name:ename.value,
+      coin:ecoin.value,
+      link:elink.value,
+      cooldown:ecooldown.value
+    })
+  });
+
+  document.getElementById("editBox").style.display = "none";
   load();
 }
 
