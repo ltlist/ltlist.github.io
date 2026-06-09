@@ -1,0 +1,127 @@
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: Arial, sans-serif;
+}
+
+body{
+  background:#0f172a;
+  color:#ffffff;
+  padding:20px;
+}
+
+/* =====================
+   HEADER
+===================== */
+h1{
+  color:#00ffcc;
+  margin-bottom:10px;
+}
+
+h2{
+  margin:20px 0 10px;
+  color:#ffffff;
+}
+
+/* =====================
+   BUTTON
+===================== */
+button{
+  padding:10px 15px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  margin:5px 0;
+  transition:0.2s;
+}
+
+button:hover{
+  opacity:0.85;
+}
+
+/* tombol logout */
+button[onclick="logout()"]{
+  background:#ef4444;
+  color:white;
+}
+
+/* tombol add */
+button[onclick="addFaucet()"]{
+  background:#00ffcc;
+  color:#000;
+  font-weight:bold;
+}
+
+/* tombol edit */
+button[onclick*="editFaucet"]{
+  background:#3b82f6;
+  color:white;
+}
+
+/* tombol delete */
+button[onclick*="deleteFaucet"]{
+  background:#ef4444;
+  color:white;
+}
+
+/* =====================
+   INPUT
+===================== */
+input{
+  width:100%;
+  max-width:400px;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
+  border:none;
+  outline:none;
+}
+
+/* =====================
+   CARD LIST FAUCET
+===================== */
+#list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:10px;
+}
+
+#list div{
+  background:#111827;
+  padding:15px;
+  border-radius:10px;
+  border:1px solid #1f2937;
+}
+
+/* link visit */
+#list a{
+  color:#00ffcc;
+  text-decoration:none;
+}
+
+#list a:hover{
+  text-decoration:underline;
+}
+
+/* =====================
+   MESSAGE
+===================== */
+#msg{
+  margin-top:10px;
+  color:#00ffcc;
+}
+
+/* =====================
+   MOBILE RESPONSIVE
+===================== */
+@media(max-width:600px){
+  body{
+    padding:10px;
+  }
+
+  input{
+    max-width:100%;
+  }
+}
