@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>LTList MarketCap</title>
+
+<link rel="stylesheet" href="market.css">
+</head>
+
+<body>
+
+<div class="header">
+  <h1>LTList MarketCap</h1>
+  <p>Live Crypto Prices (CoinGecko API)</p>
+</div>
+
+<div class="container">
+
+<table>
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Coin</th>
+      <th>Price (USD)</th>
+      <th>24h Change</th>
+      <th>Market Cap</th>
+    </tr>
+  </thead>
+
+  <tbody id="coinTable">
+    <tr><td colspan="5" class="loading">Loading data...</td></tr>
+  </tbody>
+</table>
+
+</div>
+
+<script src="market.js"></script>
+</body>
+</html>
