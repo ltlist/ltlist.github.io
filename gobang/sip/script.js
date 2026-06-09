@@ -1,0 +1,135 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+import {
+  getAuth,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+
+// 🔥 FIREBASE CONFIG
+const firebaseConfig = {
+  apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKdv75S8",
+  authDomain: "ltlist-f.firebaseapp.com",
+  projectId: "ltlist-f",
+  storageBucket: "ltlist-f.firebasestorage.app",
+  messagingSenderId: "991011425656",
+  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const listDiv = document.getElementById("list");
+const msg = document.getElementById("msg");
+
+
+// =========================
+// 🔥 LOAD FAUCETS
+// =========================
+async function loadFaucets() {
+  const snap = await getDocs(collection(db, "faucets"));
+
+  let html = "";
+
+  snap.forEach((d) => {
+    const data = d.data();
+
+    html += `
+      <div style="background:#111827;padding:10px;margin:10px 0;border-radius:8px;">
+        <b>${data.name}</b><br>
+        Coin: ${data.coin}<br>
+        <a href="${data.url}" target="_blank" style="color:#00ffcc;">Visit</a>
+
+        <br><br>
+
+        <button onclick="editFaucet('${d.id}','${data.name}','${data.url}','${data.coin}')">Edit</button>
+        <button onclick="deleteFaucet('${d.id}')" style="background:red;color:white;">Delete</button>
+      </div>
+    `;
+  });
+
+  listDiv.innerHTML = html;
+}
+
+
+// =========================
+// ➕ ADD FAUCET
+// =========================
+window.addFaucet = async function () {
+  const name = document.getElementById("name").value;
+  const url = document.getElementById("url").value;
+  const coin = document.getElementById("coin").value;
+
+  if (!name || !url || !coin) {
+    msg.innerText = "Isi semua data!";
+    return;
+  }
+
+  await addDoc(collection(db, "faucets"), {
+    name,
+    url,
+    coin,
+    status: "active",
+    created: Date.now()
+  });
+
+  msg.innerText = "Faucet berhasil ditambahkan ✔";
+
+  loadFaucets();
+};
+
+
+// =========================
+// 🗑️ DELETE FAUCET
+// =========================
+window.deleteFaucet = async function (id) {
+  if (confirm("Hapus faucet ini?")) {
+    await deleteDoc(doc(db, "faucets", id));
+    loadFaucets();
+  }
+};
+
+
+// =========================
+// ✏️ EDIT FAUCET
+// =========================
+window.editFaucet = async function (id, name, url, coin) {
+
+  const newName = prompt("Edit Name", name);
+  const newUrl = prompt("Edit URL", url);
+  const newCoin = prompt("Edit Coin", coin);
+
+  if (!newName || !newUrl || !newCoin) return;
+
+  await updateDoc(doc(db, "faucets", id), {
+    name: newName,
+    url: newUrl,
+    coin: newCoin
+  });
+
+  loadFaucets();
+};
+
+
+// =========================
+// 🚪 LOGOUT
+// =========================
+window.logout = function () {
+  signOut(auth).then(() => {
+    window.location.href = "login.html";
+  });
+};
+
+
+// INIT
+loadFaucets();
