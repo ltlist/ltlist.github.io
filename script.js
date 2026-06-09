@@ -32,11 +32,12 @@ async function loadFaucets(){
 
   render(allFaucets);
 
-  loadCoinFilter(); // 🔥 AUTO COIN FILTER
+  renderCoinStats();   // 🔥 COUNT
+  loadCoinFilter();    // 🔥 FILTER AUTO
 }
 
 // =====================
-// RENDER
+// RENDER LIST
 // =====================
 function render(data){
 
@@ -77,7 +78,6 @@ function loadCoinFilter(){
 
   const select = document.getElementById("coinFilter");
 
-  // reset dulu (biar tidak double)
   select.innerHTML = `<option value="all">All Coin</option>`;
 
   const coins = [...new Set(allFaucets.map(f => f.coin))];
@@ -88,6 +88,27 @@ function loadCoinFilter(){
     opt.textContent = c;
     select.appendChild(opt);
   });
+}
+
+// =====================
+// AUTO COUNT COIN
+// =====================
+function renderCoinStats(){
+
+  const count = {};
+
+  allFaucets.forEach(f => {
+    const coin = f.coin || "UNKNOWN";
+    count[coin] = (count[coin] || 0) + 1;
+  });
+
+  let html = "";
+
+  Object.keys(count).forEach(c => {
+    html += `<span class="badge">${c} (${count[c]})</span> `;
+  });
+
+  document.getElementById("coinStats").innerHTML = html;
 }
 
 // =====================
