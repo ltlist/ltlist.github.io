@@ -1,49 +1,31 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>LTList Faucet PRO MAX</title>
-
+<title>LTList Faucet</title>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="nav-left">
-    <span class="logo">LTList</span>
-  </div>
-    <div class="nav-right">
-    <a href="/">HOME</a>
-    <a href="https://ltlist.github.io/faucetlis">LIST 1</a>
-    <a href="https://ltlist.github.io/faucetlist">LIST 2</a>
-  </div>
-</nav>
+<body>
 
 <div class="container">
 
 <h1>LTList Faucet</h1>
 
-<p>Daftar faucet crypto terbaru & terpercaya</p>
+<input id="search" placeholder="Search faucet..." onkeyup="searchPublic()">
 
-<hr>
+<select id="coinFilter" onchange="filterCoin()">
+  <option value="all">All Coin</option>
+  <option value="BTC">BTC</option>
+  <option value="LTC">LTC</option>
+  <option value="DOGE">DOGE</option>
+  <option value="USDT">USDT</option>
+</select>
 
-<h2>Faucet List</h2>
-
-<input id="search" placeholder="Search faucet / coin..." onkeyup="searchFaucet()">
-
-<!-- LIST FAUCET -->
 <div id="list"></div>
-
-<footer class="footer">
-© LTList Faucet PRO MAX
-</footer>
 
 </div>
 
-<!-- FIREBASE PUBLIC SCRIPT -->
 <script type="module" src="script.js"></script>
 
 </body>
