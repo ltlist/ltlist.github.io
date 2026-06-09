@@ -12,7 +12,6 @@ body{
   top:0;
   background:#111827;
   padding:10px;
-  z-index:10;
 }
 
 input{
@@ -25,7 +24,7 @@ input{
   color:#fff;
 }
 
-/* COIN LIST */
+/* MARKET LIST */
 .container{
   padding:10px;
 }
@@ -33,39 +32,61 @@ input{
 .coin{
   display:flex;
   justify-content:space-between;
-  align-items:center;
-  background:#111827;
   padding:12px;
+  background:#111827;
   margin:8px 0;
   border-radius:12px;
+  cursor:pointer;
 }
 
-.left{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-
-img{
-  width:28px;
-}
-
-/* BOTTOM NAV */
-.bottom-nav{
+/* DETAIL PAGE (BINANCE STYLE) */
+.detail{
   position:fixed;
-  bottom:0;
+  top:0;
   left:0;
   width:100%;
-  display:flex;
-  justify-content:space-around;
-  background:#111827;
-  padding:10px 0;
-  border-top:1px solid #222;
+  height:100%;
+  background:#0b0f1a;
+  display:none;
+  flex-direction:column;
+  z-index:999;
+  padding:10px;
 }
 
-.bottom-nav button{
-  background:none;
+.detail-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.detail-header span{
+  font-size:22px;
+  cursor:pointer;
+}
+
+.price-box{
+  margin-top:10px;
+}
+
+.tf{
+  display:flex;
+  gap:8px;
+  margin:10px 0;
+}
+
+.tf button{
+  flex:1;
+  padding:8px;
   border:none;
+  border-radius:8px;
+  background:#111827;
   color:#fff;
-  font-size:12px;
+}
+
+/* CANVAS */
+canvas{
+  width:100%;
+  height:300px;
+  background:#0f172a;
+  border-radius:10px;
 }
