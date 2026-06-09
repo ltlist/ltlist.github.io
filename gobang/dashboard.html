@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard LTList</title>
+</head>
+
+<body style="font-family:Arial;background:#0f172a;color:white;padding:20px;">
+
+<h1>Dashboard Admin</h1>
+
+<p>Login berhasil 👍</p>
+
+<button onclick="logout()">Logout</button>
+
+<script type="module">
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const auth = getAuth();
+
+window.logout = function(){
+  signOut(auth).then(() => {
+    window.location.href = "login.html";
+  });
+}
+</script>
+
+</body>
+</html>
