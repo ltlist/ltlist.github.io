@@ -13,15 +13,21 @@
 
 <button onclick="logout()">Logout</button>
 
+<hr>
+
 <h2>Faucet List</h2>
+<input id="search" placeholder="Search..." onkeyup="searchFaucet()">
+
 <div id="list"></div>
+
+<hr>
 
 <h2>Add Faucet</h2>
 
 <div class="form">
   <input id="name" placeholder="Name">
   <input id="url" placeholder="URL">
-  <input id="coin" placeholder="Coin">
+  <input id="coin" placeholder="Coin (BTC/LTC/DOGE)">
   <button onclick="addFaucet()">Add</button>
 </div>
 
@@ -29,7 +35,6 @@
 
 </div>
 
-<!-- SCRIPT TERPISAH -->
 <script type="module" src="script.js"></script>
 
 </body>
