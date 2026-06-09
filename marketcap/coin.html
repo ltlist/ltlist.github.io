@@ -11,13 +11,17 @@
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
   <h1 id="coinName">Loading...</h1>
 </div>
 
 <div class="page">
 
-  <div class="card" id="priceBox"></div>
+  <!-- PRICE BOX -->
+  <div class="card" id="priceBox">
+    Loading price...
+  </div>
 
   <!-- TIMEFRAME -->
   <div class="tf">
@@ -26,13 +30,22 @@
     <button onclick="setTF(30)">30D</button>
   </div>
 
-  <!-- CHART -->
+  <!-- CHART (CANDLE + GRID + CROSSHAIR) -->
   <div class="card chart-wrap">
     <canvas id="candleChart"></canvas>
     <canvas id="overlay"></canvas>
   </div>
 
-  <div class="card" id="fundamental"></div>
+  <!-- MACD INDICATOR -->
+  <div class="card">
+    <h3 style="margin-bottom:10px;">MACD Indicator</h3>
+    <canvas id="macdChart"></canvas>
+  </div>
+
+  <!-- FUNDAMENTAL -->
+  <div class="card" id="fundamental">
+    Loading fundamentals...
+  </div>
 
 </div>
 
