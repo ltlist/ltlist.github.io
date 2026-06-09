@@ -1,7 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Dashboard LTList</title>
+
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -9,26 +13,58 @@
 
 <div class="container">
 
-<h1>Dashboard Admin</h1>
+  <div class="topbar">
+    <h1>Dashboard Admin</h1>
 
-<button onclick="logout()">Logout</button>
+    <button class="logout-btn" onclick="logout()">
+      Logout
+    </button>
+  </div>
 
-<hr>
+  <div class="card">
 
-<h2>Faucet List</h2>
-<input id="search" placeholder="Search..." onkeyup="searchFaucet()">
+    <h2>Faucet List</h2>
 
-<div id="list"></div>
+    <input
+      id="search"
+      placeholder="Search faucet..."
+      onkeyup="searchFaucet()"
+    >
 
-<hr>
+    <div id="list"></div>
 
-<h2>Add Faucet</h2>
+  </div>
 
-<input id="name" placeholder="Name">
-<input id="url" placeholder="URL">
-<input id="coin" placeholder="Coin (BTC/LTC/DOGE)">
+  <div class="card">
 
-<button onclick="addFaucet()">Add</button>
+    <h2>Add Faucet</h2>
+
+    <input
+      id="name"
+      placeholder="Faucet Name"
+    >
+
+    <input
+      id="url"
+      placeholder="https://..."
+    >
+
+    <input
+      id="coin"
+      placeholder="Coin (LTC/BTC/DOGE/MULTI)"
+    >
+
+    <input
+      id="rank"
+      type="number"
+      placeholder="Rank (1,2,3...)"
+    >
+
+    <button onclick="addFaucet()">
+      Add Faucet
+    </button>
+
+  </div>
 
 </div>
 
