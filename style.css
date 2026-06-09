@@ -43,6 +43,17 @@ button{
   color:#00ffcc;
 }
 
+.badge{
+  display:inline-block;
+  background:#1f2937;
+  color:#00ffcc;
+  padding:5px 10px;
+  border-radius:6px;
+  margin:3px;
+  font-size:12px;
+  border:1px solid #00ffcc;
+}
+
 @media(max-width:600px){
   button{
     width:100%;
