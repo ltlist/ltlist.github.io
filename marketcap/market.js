@@ -1,149 +1,139 @@
-let coins = [];
-let currentCoin = null;
-let currentName = "";
-let currentDays = 7;
-
-/* PAGE SWITCH */
-function showPage(page){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(page).classList.add("active");
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
 }
 
-/* LOAD MARKET */
-async function loadMarket(){
-
-  const res = await fetch(
-    "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,dogecoin,solana,litecoin"
-  );
-
-  coins = await res.json();
-  renderCoins();
+body{
+  font-family:Arial;
+  background:#0b0f1a;
+  color:#fff;
+  padding-bottom:70px;
 }
 
-/* RENDER MARKET */
-function renderCoins(){
-
-  let html = "";
-
-  coins.forEach(c=>{
-
-    html += `
-      <div class="coin-item" onclick="openChart('${c.id}','${c.name}')">
-
-        <div class="coin-left">
-          <img src="${c.image}">
-          <div>
-            <div>${c.name}</div>
-            <small>$${c.current_price}</small>
-          </div>
-        </div>
-
-        <div style="color:${c.price_change_percentage_24h>=0?'#00ff88':'#ff4d4d'}">
-          ${c.price_change_percentage_24h.toFixed(2)}%
-        </div>
-
-      </div>
-    `;
-  });
-
-  document.getElementById("coinList").innerHTML = html;
+/* HEADER */
+.header{
+  position:sticky;
+  top:0;
+  z-index:999;
+  background:#0f172a;
+  padding:12px;
+  text-align:center;
+  border-bottom:1px solid #1f2937;
 }
 
-/* OPEN CHART */
-async function openChart(id,name){
+/* PAGES */
+.page{
+  display:none;
+  padding:15px;
+}
 
-  currentCoin = id;
-  currentName = name;
+.page.active{
+  display:block;
+}
 
-  document.getElementById("chartModal").style.display="block";
+/* CARD */
+.card{
+  background:#111827;
+  padding:15px;
+  border-radius:10px;
+  margin-top:10px;
+}
 
-  loadChart();
+/* SEARCH */
+#searchBox{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+  border:none;
+  border-radius:8px;
+}
+
+/* COIN LIST */
+.coin-item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px;
+  background:#111827;
+  margin-bottom:8px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.coin-left{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.coin-left img{
+  width:25px;
+}
+
+/* MODAL */
+.modal{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.85);
+  z-index:9999;
+}
+
+.modal-content{
+  width:95%;
+  max-width:900px;
+  margin:10% auto;
+  background:#0f172a;
+  padding:15px;
+  border-radius:12px;
+}
+
+.close{
+  float:right;
+  cursor:pointer;
+  color:red;
 }
 
 /* TIMEFRAME */
-function changeTF(days){
-  currentDays = days;
-  loadChart();
+.tf{
+  display:flex;
+  gap:5px;
+  margin:10px 0;
 }
 
-/* LOAD CHART */
-async function loadChart(){
-
-  const res = await fetch(
-    `https://api.coingecko.com/api/v3/coins/${currentCoin}/market_chart?vs_currency=usd&days=${currentDays}`
-  );
-
-  const data = await res.json();
-
-  let candles = createCandles(data.prices);
-
-  drawChart(candles);
+.tf button{
+  background:#1f2937;
+  color:#fff;
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
 }
 
-/* OHLC */
-function createCandles(prices){
-
-  let candles = [];
-  let chunk = Math.max(1, Math.floor(prices.length/20));
-
-  for(let i=0;i<prices.length;i+=chunk){
-
-    let slice = prices.slice(i,i+chunk);
-    if(!slice.length) continue;
-
-    candles.push({
-      open: slice[0][1],
-      close: slice[slice.length-1][1],
-      high: Math.max(...slice.map(p=>p[1])),
-      low: Math.min(...slice.map(p=>p[1]))
-    });
-  }
-
-  return candles;
+/* CANVAS */
+canvas{
+  width:100%;
 }
 
-/* DRAW */
-function drawChart(candles){
-
-  let canvas = document.getElementById("candleChart");
-  let ctx = canvas.getContext("2d");
-
-  canvas.width = 900;
-  canvas.height = 400;
-
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  let max = Math.max(...candles.map(c=>c.high));
-  let min = Math.min(...candles.map(c=>c.low));
-
-  let step = canvas.width / candles.length;
-
-  candles.forEach((c,i)=>{
-
-    let x = i*step + step/2;
-
-    let openY = canvas.height - ((c.open-min)/(max-min))*canvas.height;
-    let closeY = canvas.height - ((c.close-min)/(max-min))*canvas.height;
-    let highY = canvas.height - ((c.high-min)/(max-min))*canvas.height;
-    let lowY = canvas.height - ((c.low-min)/(max-min))*canvas.height;
-
-    ctx.strokeStyle="#fff";
-    ctx.beginPath();
-    ctx.moveTo(x,highY);
-    ctx.lineTo(x,lowY);
-    ctx.stroke();
-
-    ctx.fillStyle = c.close>=c.open ? "#00ff88" : "#ff4d4d";
-
-    ctx.fillRect(x-4,Math.min(openY,closeY),8,Math.abs(closeY-openY));
-  });
+/* BOTTOM NAV */
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  background:#0f172a;
+  padding:10px;
+  border-top:1px solid #1f2937;
 }
 
-/* CLOSE */
-function closeChart(){
-  document.getElementById("chartModal").style.display="none";
+.bottom-nav button{
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:14px;
 }
-
-/* INIT */
-loadMarket();
-setInterval(loadMarket,15000);
