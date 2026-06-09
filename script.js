@@ -14,15 +14,32 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const listDiv = document.getElementById("list");
+const searchInput = document.getElementById("search");
 
-async function loadFaucets() {
+let allFaucets = [];
+
+// =====================
+// LOAD DATA
+// =====================
+async function loadFaucets(){
   const snap = await getDocs(collection(db, "faucets"));
 
-  let html = "";
+  allFaucets = [];
 
   snap.forEach((doc) => {
-    const d = doc.data();
+    allFaucets.push(doc.data());
+  });
 
+  render(allFaucets);
+}
+
+// =====================
+// RENDER LIST
+// =====================
+function render(data){
+  let html = "";
+
+  data.forEach((d) => {
     html += `
       <div class="card">
         <b>${d.name}</b><br>
@@ -35,4 +52,22 @@ async function loadFaucets() {
   listDiv.innerHTML = html;
 }
 
+// =====================
+// SEARCH FUNCTION
+// =====================
+window.searchFaucet = function(){
+
+  const value = searchInput.value.toLowerCase();
+
+  const filtered = allFaucets.filter((f) => {
+    return (
+      f.name.toLowerCase().includes(value) ||
+      f.coin.toLowerCase().includes(value)
+    );
+  });
+
+  render(filtered);
+};
+
+// INIT
 loadFaucets();
