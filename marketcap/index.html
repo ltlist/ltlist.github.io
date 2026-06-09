@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>LTList MarketCap</title>
+<title>LTList Market</title>
 
 <link rel="stylesheet" href="market.css">
 </head>
@@ -17,17 +17,32 @@
   <input id="search" placeholder="Search coin..." oninput="renderCoins()">
 </div>
 
-<!-- PAGE -->
+<!-- MARKET LIST -->
 <div class="container">
   <div id="coinList"></div>
 </div>
 
-<!-- BOTTOM NAV (BINANCE STYLE) -->
-<div class="bottom-nav">
-  <button>🏠 Home</button>
-  <button>📊 Market</button>
-  <button>⭐ Favorite</button>
-  <button>👛 Wallet</button>
+<!-- DETAIL MODAL (BINANCE STYLE) -->
+<div id="detail" class="detail">
+
+  <div class="detail-header">
+    <span onclick="closeDetail()">←</span>
+    <h3 id="coinName"></h3>
+  </div>
+
+  <div class="price-box">
+    <h2 id="coinPrice"></h2>
+    <p id="coinChange"></p>
+  </div>
+
+  <div class="tf">
+    <button onclick="loadChart(1)">1D</button>
+    <button onclick="loadChart(7)">7D</button>
+    <button onclick="loadChart(30)">30D</button>
+  </div>
+
+  <canvas id="chart"></canvas>
+
 </div>
 
 <script src="market.js"></script>
