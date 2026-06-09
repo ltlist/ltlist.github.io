@@ -6,6 +6,49 @@ body{
   padding:20px;
 }
 
+/* =====================
+   NAVBAR (SUDAH DIUBAH)
+===================== */
+.navbar{
+  display:flex;
+  justify-content:flex-start; /* menu mulai dari kiri, dekat logo */
+  align-items:center;
+  padding:12px 15px;
+  background:#111827;
+  color:#fff;
+  position:sticky;
+  top:0;
+  left:0;
+  right:0;
+  width:100%; /* lebar penuh layar */
+  margin:0; /* hapus jarak luar */
+  border-radius:0; /* hapus lengkungan */
+  z-index:1000;
+}
+
+.navbar .logo{
+  font-size:20px;
+  font-weight:bold;
+  color:#00ffcc;
+  margin-right:20px; /* jarak logo ke menu */
+}
+
+.navbar a{
+  color:#fff;
+  text-decoration:none;
+  margin-left:12px; /* jarak antar menu didekatkan */
+  font-size:14px;
+}
+
+.navbar a:hover{
+  color:#00ffcc;
+}
+
+
+.navbar a:hover{
+  color:#00ffcc;
+}
+
 .container{
   max-width:1000px;
   margin:auto;
