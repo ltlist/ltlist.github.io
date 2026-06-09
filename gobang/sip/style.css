@@ -1,11 +1,8 @@
-/* =====================
-   GLOBAL
-===================== */
 *{
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:Arial, sans-serif;
+  font-family: Arial, sans-serif;
 }
 
 body{
@@ -14,114 +11,111 @@ body{
   padding:15px;
 }
 
-/* =====================
-   CONTAINER
-===================== */
+/* container */
 .container{
-  max-width:1100px;
+  max-width:900px;
   margin:auto;
 }
 
-/* =====================
-   HEADER
-===================== */
+/* header */
 h1{
   color:#00ffcc;
   margin-bottom:10px;
 }
 
 h2{
-  margin:20px 0 10px;
+  margin:15px 0 10px;
 }
 
-/* =====================
-   FORM
-===================== */
-.form{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  max-width:500px;
-}
-
-/* =====================
-   INPUT
-===================== */
-input{
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:8px;
-  outline:none;
-}
-
-/* =====================
-   BUTTON
-===================== */
+/* button */
 button{
-  padding:10px;
+  padding:10px 12px;
   border:none;
-  border-radius:8px;
+  border-radius:6px;
   cursor:pointer;
-  font-weight:bold;
-}
-
-/* warna tombol */
-button{
-  background:#00ffcc;
-  color:#000;
-}
-
-button:hover{
-  opacity:0.85;
+  margin:5px 0;
+  font-size:14px;
 }
 
 /* logout */
 button[onclick="logout()"]{
   background:#ef4444;
-  color:#fff;
+  color:white;
 }
 
-/* =====================
-   LIST FAUCET
-===================== */
+/* add */
+button[onclick="addFaucet()"]{
+  background:#00ffcc;
+  color:#000;
+  font-weight:bold;
+}
+
+/* edit */
+button[onclick*="editFaucet"]{
+  background:#3b82f6;
+  color:white;
+}
+
+/* delete */
+button[onclick*="deleteFaucet"]{
+  background:#ef4444;
+  color:white;
+}
+
+/* input */
+input{
+  width:100%;
+  max-width:400px;
+  padding:10px;
+  margin:5px 0;
+  border-radius:6px;
+  border:none;
+  outline:none;
+}
+
+/* form */
+.form{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  max-width:400px;
+}
+
+/* list */
 #list{
-  display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
-  gap:15px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:10px;
 }
 
-/* CARD */
+/* card */
 #list div{
   background:#111827;
-  padding:15px;
-  border-radius:10px;
+  padding:12px;
+  border-radius:8px;
   border:1px solid #1f2937;
 }
 
-/* LINK */
+/* link */
 #list a{
   color:#00ffcc;
   text-decoration:none;
 }
 
-/* =====================
-   TABLET
-===================== */
-@media(max-width:900px){
+/* tablet */
+@media(max-width:768px){
   body{
     padding:10px;
   }
+
+  input{
+    max-width:100%;
+  }
 }
 
-/* =====================
-   HP
-===================== */
-@media(max-width:600px){
-  #list{
-    grid-template-columns:1fr;
-  }
-
+/* hp */
+@media(max-width:480px){
   button{
     width:100%;
   }
