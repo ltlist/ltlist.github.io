@@ -2,12 +2,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKDV75S8",
-  authDomain: "ltlist-f.firebaseapp.com",
-  projectId: "ltlist-f",
-  storageBucket: "ltlist-f.firebasestorage.app",
-  messagingSenderId: "991011425656",
-  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
+  apiKey: "API_KEY_KAMU",
+  authDomain: "PROJECT.firebaseapp.com",
+  projectId: "PROJECT_ID",
+  storageBucket: "PROJECT.appspot.com",
+  messagingSenderId: "XXXXXXXX",
+  appId: "XXXXXXXX"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -17,53 +17,56 @@ const listDiv = document.getElementById("list");
 
 let allFaucets = [];
 
-// =====================
 // LOAD DATA
-// =====================
-async function loadFaucets(){
+async function loadFaucets() {
 
   const snap = await getDocs(collection(db, "faucets"));
 
   allFaucets = [];
 
   snap.forEach((doc) => {
-    allFaucets.push(doc.data());
+
+    const data = doc.data();
+
+    // tampilkan hanya active
+    if (data.status === "active") {
+      allFaucets.push(data);
+    }
+
   });
 
-  render(allFaucets);
+  // ranking
+  allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
 
-  renderCoinStats();   // 🔥 COUNT
-  loadCoinFilter();    // 🔥 FILTER AUTO
+  render(allFaucets);
+  renderCoinStats();
+  loadCoinFilter();
 }
 
-// =====================
 // RENDER LIST
-// =====================
-function render(data){
+function render(data) {
 
   let html = "";
 
   data.forEach((d) => {
 
-    const active = d.status === "active";
-
     html += `
       <div class="card">
-        <b>${d.name}</b>
 
-        <span style="float:right;
-          background:${active ? '#00ff88' : '#ff4d4d'};
-          padding:3px 8px;
-          border-radius:6px;
-          font-size:12px;">
-          ${d.status}
-        </span>
+        <div class="rank-badge">
+          #${d.rank || "-"}
+        </div>
 
-        <br><br>
+        <h3>${d.name}</h3>
 
-        Coin: ${d.coin}<br><br>
+        <p>
+          Coin: <b>${d.coin}</b>
+        </p>
 
-        <a href="${d.url}" target="_blank">Visit</a>
+        <a href="${d.url}" target="_blank" class="visit-btn">
+          Visit Faucet
+        </a>
+
       </div>
     `;
   });
@@ -71,76 +74,89 @@ function render(data){
   listDiv.innerHTML = html;
 }
 
-// =====================
-// AUTO COIN FILTER
-// =====================
-function loadCoinFilter(){
+// COIN FILTER AUTO
+function loadCoinFilter() {
 
   const select = document.getElementById("coinFilter");
 
-  select.innerHTML = `<option value="all">All Coin</option>`;
+  select.innerHTML = `
+    <option value="all">All Coins</option>
+  `;
 
   const coins = [...new Set(allFaucets.map(f => f.coin))];
 
-  coins.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c;
-    opt.textContent = c;
-    select.appendChild(opt);
+  coins.sort();
+
+  coins.forEach((coin) => {
+
+    const option = document.createElement("option");
+
+    option.value = coin;
+    option.textContent = coin;
+
+    select.appendChild(option);
+
   });
 }
 
-// =====================
-// AUTO COUNT COIN
-// =====================
-function renderCoinStats(){
+// COIN COUNTER
+function renderCoinStats() {
 
   const count = {};
 
-  allFaucets.forEach(f => {
-    const coin = f.coin || "UNKNOWN";
-    count[coin] = (count[coin] || 0) + 1;
+  allFaucets.forEach((f) => {
+
+    count[f.coin] = (count[f.coin] || 0) + 1;
+
   });
 
   let html = "";
 
-  Object.keys(count).forEach(c => {
-    html += `<span class="badge">${c} (${count[c]})</span> `;
+  Object.keys(count).sort().forEach((coin) => {
+
+    html += `
+      <span class="badge">
+        ${coin} (${count[coin]})
+      </span>
+    `;
+
   });
 
   document.getElementById("coinStats").innerHTML = html;
 }
 
-// =====================
 // SEARCH
-// =====================
-window.searchPublic = function(){
+window.searchPublic = function () {
 
-  const v = document.getElementById("search").value.toLowerCase();
+  const q = document
+    .getElementById("search")
+    .value
+    .toLowerCase();
 
   const filtered = allFaucets.filter(f =>
-    f.name.toLowerCase().includes(v)
+    f.name.toLowerCase().includes(q)
   );
 
   render(filtered);
 };
 
-// =====================
 // FILTER COIN
-// =====================
-window.filterCoin = function(){
+window.filterCoin = function () {
 
   const coin = document.getElementById("coinFilter").value;
 
-  if(coin === "all"){
+  if (coin === "all") {
+
     render(allFaucets);
     return;
+
   }
 
-  const filtered = allFaucets.filter(f => f.coin === coin);
+  const filtered = allFaucets.filter(f =>
+    f.coin === coin
+  );
 
   render(filtered);
 };
 
-// INIT
 loadFaucets();
