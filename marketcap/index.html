@@ -4,40 +4,67 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>LTList Binance Clone</title>
+<title>LTList Mobile Exchange</title>
 
 <link rel="stylesheet" href="market.css">
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <h2>LTList Exchange Pro</h2>
-  <p>Binance Clone Lite</p>
+  <h1>LTList Exchange</h1>
+  <p>Crypto Market • Mobile Pro UI</p>
 </div>
 
-<div class="container">
+<!-- PAGES -->
+<div id="home" class="page active">
+  <h2>Home</h2>
+  <div class="card">
+    Welcome to LTList Trading App 🚀
+  </div>
+</div>
+
+<div id="market" class="page">
+  <h2>Market</h2>
+
+  <input id="searchBox" placeholder="Search coin..." />
+
+  <div id="coinList"></div>
+</div>
+
+<div id="wallet" class="page">
+  <h2>Wallet</h2>
 
   <div class="card">
-    <h3>Balance</h3>
-    <p>USDT: <b id="usdtBal">1000</b></p>
+    Balance: $0.00 (Demo)
   </div>
+</div>
 
-  <div class="card">
-    <h3>Market</h3>
-    <div id="coinList"></div>
+<!-- CHART MODAL -->
+<div id="chartModal" class="modal">
+  <div class="modal-content">
+
+    <span class="close" onclick="closeChart()">✖</span>
+
+    <h3 id="chartTitle"></h3>
+
+    <div class="tf">
+      <button onclick="changeTF(1)">1D</button>
+      <button onclick="changeTF(7)">7D</button>
+      <button onclick="changeTF(30)">30D</button>
+    </div>
+
+    <canvas id="candleChart"></canvas>
+
   </div>
+</div>
 
-  <div class="card">
-    <h3>Portfolio</h3>
-    <div id="portfolio"></div>
-  </div>
-
-  <div class="card">
-    <h3>Open Positions</h3>
-    <div id="positions"></div>
-  </div>
-
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button onclick="showPage('home')">🏠 Home</button>
+  <button onclick="showPage('market')">📊 Market</button>
+  <button onclick="showPage('wallet')">👛 Wallet</button>
 </div>
 
 <script src="market.js"></script>
