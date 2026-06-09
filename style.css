@@ -119,6 +119,19 @@ button.btn.disabled{
   border-radius:6px;
 }
 
+.card{
+  background:#111827;
+  padding:12px;
+  margin:10px 0;
+  border-radius:8px;
+  border:1px solid #1f2937;
+}
+
+.card a{
+  color:#00ffcc;
+  text-decoration:none;
+}
+
 .footer{
   text-align:center;
   margin-top:20px;
