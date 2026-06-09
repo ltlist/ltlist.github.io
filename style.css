@@ -1,57 +1,41 @@
 body{
-  font-family:Arial;
+  margin:0;
+  font-family:Arial,sans-serif;
   background:#0f172a;
-  color:white;
-  padding:15px;
+  color:#fff;
 }
 
 .container{
   max-width:900px;
   margin:auto;
+  padding:15px;
 }
 
 h1{
   color:#00ffcc;
+  margin-bottom:20px;
 }
 
-input,select{
+input,
+select{
   width:100%;
-  padding:10px;
-  margin:5px 0;
-  border-radius:6px;
+  padding:12px;
+  margin-bottom:10px;
   border:none;
-}
-
-button{
-  padding:10px;
-  margin:5px 0;
-  border:none;
-  border-radius:6px;
-  cursor:pointer;
-  background:#00ffcc;
+  border-radius:8px;
+  box-sizing:border-box;
 }
 
 .card{
   background:#111827;
-  padding:12px;
-  margin:10px 0;
-  border-radius:8px;
   border:1px solid #1f2937;
+  border-radius:12px;
+  padding:15px;
+  margin-bottom:15px;
 }
 
-.card a{
-  color:#00ffcc;
-}
-
-.badge{
-  display:inline-block;
-  background:#1f2937;
-  color:#00ffcc;
-  padding:5px 10px;
-  border-radius:6px;
-  margin:3px;
-  font-size:12px;
-  border:1px solid #00ffcc;
+.card h3{
+  margin:10px 0;
 }
 
 .rank-badge{
@@ -66,26 +50,38 @@ button{
 
 .badge{
   display:inline-block;
-  padding:5px 10px;
-  margin:3px;
-  border-radius:6px;
   background:#1f2937;
   border:1px solid #00ffcc;
+  color:#00ffcc;
+  padding:5px 10px;
+  border-radius:6px;
+  margin:3px;
+  font-size:12px;
 }
 
 .visit-btn{
   display:inline-block;
   margin-top:10px;
-  padding:10px 14px;
   background:#00ffcc;
   color:#000;
-  border-radius:6px;
+  padding:10px 16px;
+  border-radius:8px;
   text-decoration:none;
   font-weight:bold;
 }
 
+.visit-btn:hover{
+  opacity:.9;
+}
+
 @media(max-width:600px){
-  button{
-    width:100%;
+
+  .container{
+    padding:12px;
   }
+
+  .card{
+    padding:12px;
+  }
+
 }
