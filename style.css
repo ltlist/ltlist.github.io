@@ -96,6 +96,12 @@ button:hover{
   background:#115e59;
 }
 
+card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
 @media(max-width:600px){
 
   .container{
