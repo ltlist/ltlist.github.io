@@ -39,35 +39,43 @@ input::placeholder{
   color:#94a3b8;
 }
 
+/* ✅ DIPERBAIKI: Kotak lebih kecil & sejajar */
 .card{
   background:#111827;
   border:1px solid #334155;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:15px;
+  border-radius:10px; /* lebih kecil */
+  padding:12px 15px; /* dikurangi agar kotak lebih padat */
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
 }
 
 .rank-badge{
   display:inline-block;
   background:#134e4a;
   color:#99f6e4;
-  padding:6px 12px;
-  border-radius:8px;
+  padding:5px 10px; /* diperkecil */
+  border-radius:6px;
   font-weight:bold;
-  font-size:14px;
-  margin-bottom:10px;
+  font-size:13px;
+  margin:0; /* hapus margin bawah */
+  min-width:32px;
+  text-align:center;
 }
 
 .card-header{
   display:flex;
-  justify-content:space-between;
   align-items:center;
-  gap:10px;
+  gap:12px;
+  flex:1;
 }
 
 .card-header h3{
   margin:0;
-  font-size:18px;
+  font-size:16px; /* diperkecil sedikit */
 }
 
 .badge{
@@ -75,20 +83,21 @@ input::placeholder{
   background:#1f2937;
   border:1px solid #134e4a;
   color:#5eead4;
-  padding:6px 12px;
-  border-radius:8px;
-  margin:3px;
-  font-size:12px;
+  padding:4px 9px; /* diperkecil */
+  border-radius:6px;
+  font-size:11px;
+  white-space:nowrap;
 }
 
 .visit-btn{
   display:inline-block;
-  padding:8px 14px;
+  padding:7px 13px; /* diperkecil */
   background:#0f766e;
   color:#fff;
-  border-radius:8px;
+  border-radius:6px;
   text-decoration:none;
   font-weight:bold;
+  font-size:13px;
   white-space:nowrap;
   transition:.2s;
 }
@@ -121,6 +130,7 @@ button:hover{
   border-top:1px solid #334155;
 }
 
+/* ✅ Responsif tetap rapi di HP */
 @media(max-width:600px){
 
   .container{
@@ -131,15 +141,22 @@ button:hover{
     font-size:1.8rem;
   }
 
-  .card-header{
+  .card{
     flex-direction:column;
     align-items:flex-start;
+    gap:10px;
+  }
+
+  .card-header{
+    width:100%;
+    justify-content:space-between;
   }
 
   .visit-btn{
     width:100%;
     text-align:center;
     box-sizing:border-box;
+    padding:9px;
   }
 
   button{
