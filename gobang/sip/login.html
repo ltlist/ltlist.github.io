@@ -1,112 +1,32 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login - LTList</title>
-
-<style>
-body{
-  font-family: Arial, sans-serif;
-  background:#0f172a;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  margin:0;
-}
-
-.box{
-  background:#111827;
-  padding:25px;
-  border-radius:12px;
-  width:300px;
-  box-shadow:0 0 10px rgba(0,0,0,0.5);
-}
-
-h2{
-  color:#00ffcc;
-  text-align:center;
-}
-
-input{
-  width:100%;
-  padding:10px;
-  margin:10px 0;
-  border:none;
-  border-radius:8px;
-  outline:none;
-}
-
-button{
-  width:100%;
-  padding:10px;
-  background:#00ffcc;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-button:hover{
-  background:#00d6aa;
-}
-
-#error{
-  color:red;
-  font-size:13px;
-  text-align:center;
-}
-</style>
-</head>
-
-<body>
-
-<div class="box">
-  <h2>Admin Login</h2>
-
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-
-  <button onclick="login()">Login</button>
-
-  <p id="error"></p>
-</div>
-
 <script type="module">
-// 🔥 Firebase Import
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-// 🔑 CONFIG FIREBASE (ISI PUNYAMU DARI FIREBASE)
+// Firebase config kamu
 const firebaseConfig = {
-  apiKey: "ISI_API_KEY",
-  authDomain: "ISI_AUTH_DOMAIN",
-  projectId: "ISI_PROJECT_ID",
-  appId: "ISI_APP_ID"
+  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
+  authDomain: "ltlist-f.firebaseapp.com",
+  projectId: "ltlist-f",
+  storageBucket: "ltlist-f.firebasestorage.app",
+  messagingSenderId: "991011425656",
+  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 
-// Init Firebase
+// INIT FIREBASE (INI YANG KAMU KURANG)
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
 // LOGIN FUNCTION
-window.login = function(){
-
+window.login = function () {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
   signInWithEmailAndPassword(auth, email, password)
-  .then((userCredential) => {
-    // sukses login
-    window.location.href = "dashboard.html";
-  })
-  .catch((error) => {
-    document.getElementById("error").innerText = error.message;
-  });
-
-}
+    .then((userCredential) => {
+      window.location.href = "dashboard.html";
+    })
+    .catch((error) => {
+      document.getElementById("error").innerText = error.message;
+    });
+};
 </script>
-
-</body>
-</html>
