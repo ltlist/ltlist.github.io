@@ -1,53 +1,120 @@
+/***********************
+ * LTList MARKET STABLE
+ * Anti Error + Fallback + Retry
+ ***********************/
+
 let coins = [];
-let priceMap = {};
-
-let wallet = {
-  usdt: 1000,
-  assets: {},
-  positions: []
-};
-
-const FEE = 0.001;
+let currentCoin = null;
+let currentDays = 7;
 
 /* =========================
-   LOAD MARKET
+   FALLBACK DATA (kalau API gagal)
 ========================= */
-async function loadMarket(){
+const fallbackCoins = [
+  {
+    id: "bitcoin",
+    name: "Bitcoin",
+    image: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+    current_price: 0,
+    price_change_percentage_24h: 0,
+    market_cap: 0
+  },
+  {
+    id: "ethereum",
+    name: "Ethereum",
+    image: "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+    current_price: 0,
+    price_change_percentage_24h: 0,
+    market_cap: 0
+  }
+];
 
-  const res = await fetch(
-    "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=10&page=1"
-  );
-
-  coins = await res.json();
-
-  coins.forEach(c=>{
-    priceMap[c.id] = c.current_price;
-  });
-
-  renderCoins();
-  updateUI();
+/* =========================
+   LOADING UI
+========================= */
+function showLoading() {
+  document.getElementById("coinList").innerHTML =
+    "<div style='padding:20px;color:#00ffcc'>Loading market...</div>";
 }
 
 /* =========================
-   RENDER MARKET
+   LOAD MARKET (ANTI ERROR)
 ========================= */
-function renderCoins(){
+async function loadMarket(retry = 0) {
+
+  showLoading();
+
+  try {
+
+    const url =
+      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=10&page=1&sparkline=false";
+
+    const res = await fetch(url, { cache: "no-store" });
+
+    if (!res.ok) {
+      throw new Error("HTTP " + res.status);
+    }
+
+    const data = await res.json();
+
+    if (!data || data.length === 0) {
+      throw new Error("Empty data");
+    }
+
+    coins = data;
+    renderCoins();
+
+  } catch (err) {
+
+    console.log("Market error:", err);
+
+    // retry max 3x
+    if (retry < 3) {
+      console.log("Retrying...", retry + 1);
+
+      setTimeout(() => {
+        loadMarket(retry + 1);
+      }, 2000);
+
+      return;
+    }
+
+    // fallback mode
+    coins = fallbackCoins;
+    renderCoins();
+
+    document.getElementById("coinList").innerHTML +=
+      "<div style='padding:10px;color:#ff4d4d'>⚠️ Offline / API fallback mode</div>";
+  }
+}
+
+/* =========================
+   RENDER COINS (SAFE)
+========================= */
+function renderCoins() {
 
   let html = "";
 
-  coins.forEach(c=>{
+  coins.forEach(c => {
 
-    let price = priceMap[c.id];
+    let price = c.current_price ?? 0;
+    let change = c.price_change_percentage_24h ?? 0;
 
     html += `
-      <div class="coin-item" onclick="trade('${c.id}')">
+      <div class="coin-item" onclick="openChart('${c.id}','${c.name}')">
 
         <div class="coin-left">
-          <img src="${c.image}">
-          <div>${c.name}</div>
+          <img src="${c.image}" onerror="this.style.display='none'">
+
+          <div>
+            <div>${c.name}</div>
+            <small>$${price.toLocaleString()}</small>
+          </div>
         </div>
 
-        <div>$${price.toFixed(2)}</div>
+        <div style="color:${change>=0?'#00ff88':'#ff4d4d'}">
+          ${change.toFixed(2)}%
+        </div>
 
       </div>
     `;
@@ -57,165 +124,140 @@ function renderCoins(){
 }
 
 /* =========================
-   TRADE (BUY/SELL)
+   OPEN CHART
 ========================= */
-function trade(id){
+async function openChart(id, name) {
 
-  let amount = prompt("Amount:");
+  currentCoin = id;
+  currentDays = 7;
 
-  if(!amount) return;
+  document.getElementById("chartModal").style.display = "block";
 
-  amount = parseFloat(amount);
+  document.getElementById("chartTitle").innerText = name;
 
-  let action = confirm("OK = BUY | Cancel = SELL");
+  loadChart();
+}
 
-  if(action){
-    buy(id, amount);
-  } else {
-    sell(id, amount);
+/* =========================
+   TIMEFRAME
+========================= */
+function changeTF(days) {
+  currentDays = days;
+  loadChart();
+}
+
+/* =========================
+   LOAD CHART (SAFE)
+========================= */
+async function loadChart(retry = 0) {
+
+  try {
+
+    const url =
+      `https://api.coingecko.com/api/v3/coins/${currentCoin}/market_chart?vs_currency=usd&days=${currentDays}`;
+
+    const res = await fetch(url);
+
+    if (!res.ok) throw new Error("Chart API error");
+
+    const data = await res.json();
+
+    if (!data.prices) throw new Error("No chart data");
+
+    let candles = createCandles(data.prices);
+
+    drawChart(candles);
+
+  } catch (err) {
+
+    console.log("Chart error:", err);
+
+    if (retry < 2) {
+      setTimeout(() => loadChart(retry + 1), 2000);
+      return;
+    }
+
+    document.getElementById("candleChart").getContext("2d")
+      .fillText("Chart error / retry failed", 20, 50);
   }
 }
 
 /* =========================
-   BUY
+   OHLC BUILDER
 ========================= */
-function buy(id, amount){
+function createCandles(prices) {
 
-  let price = priceMap[id];
+  let candles = [];
+  let chunk = Math.max(1, Math.floor(prices.length / 20));
 
-  let cost = amount * price;
-  let fee = cost * FEE;
-  let total = cost + fee;
+  for (let i = 0; i < prices.length; i += chunk) {
 
-  if(wallet.usdt < total){
-    alert("Not enough USDT");
-    return;
+    let slice = prices.slice(i, i + chunk);
+    if (!slice.length) continue;
+
+    candles.push({
+      open: slice[0][1],
+      close: slice[slice.length - 1][1],
+      high: Math.max(...slice.map(p => p[1])),
+      low: Math.min(...slice.map(p => p[1]))
+    });
   }
 
-  wallet.usdt -= total;
+  return candles;
+}
 
-  wallet.assets[id] = (wallet.assets[id] || 0) + amount;
+/* =========================
+   DRAW CHART SAFE
+========================= */
+function drawChart(candles) {
 
-  wallet.positions.push({
-    id,
-    amount,
-    entry: price
+  const canvas = document.getElementById("candleChart");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = 900;
+  canvas.height = 400;
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  if (!candles || candles.length === 0) return;
+
+  let max = Math.max(...candles.map(c=>c.high));
+  let min = Math.min(...candles.map(c=>c.low));
+
+  let step = canvas.width / candles.length;
+
+  candles.forEach((c,i)=>{
+
+    let x = i * step + step/2;
+
+    let openY = canvas.height - ((c.open-min)/(max-min))*canvas.height;
+    let closeY = canvas.height - ((c.close-min)/(max-min))*canvas.height;
+    let highY = canvas.height - ((c.high-min)/(max-min))*canvas.height;
+    let lowY = canvas.height - ((c.low-min)/(max-min))*canvas.height;
+
+    ctx.strokeStyle = "#999";
+
+    ctx.beginPath();
+    ctx.moveTo(x,highY);
+    ctx.lineTo(x,lowY);
+    ctx.stroke();
+
+    ctx.fillStyle = c.close>=c.open ? "#00ff88" : "#ff4d4d";
+
+    ctx.fillRect(x-3,Math.min(openY,closeY),6,Math.abs(closeY-openY));
   });
-
-  save();
-  updateUI();
 }
 
 /* =========================
-   SELL
+   CLOSE CHART
 ========================= */
-function sell(id, amount){
-
-  let price = priceMap[id];
-
-  if(!wallet.assets[id] || wallet.assets[id] < amount){
-    alert("Not enough coin");
-    return;
-  }
-
-  let revenue = amount * price;
-  let fee = revenue * FEE;
-
-  wallet.usdt += (revenue - fee);
-
-  wallet.assets[id] -= amount;
-
-  if(wallet.assets[id] <= 0){
-    delete wallet.assets[id];
-  }
-
-  save();
-  updateUI();
+function closeChart(){
+  document.getElementById("chartModal").style.display="none";
 }
 
 /* =========================
-   UI UPDATE
+   INIT (SAFE START)
 ========================= */
-function updateUI(){
-
-  document.getElementById("usdtBal").innerText =
-    wallet.usdt.toFixed(2);
-
-  renderPortfolio();
-  renderPositions();
-}
-
-/* =========================
-   PORTFOLIO
-========================= */
-function renderPortfolio(){
-
-  let html = "";
-
-  for(let id in wallet.assets){
-
-    let price = priceMap[id];
-    let value = wallet.assets[id] * price;
-
-    html += `
-      <div class="coin-item">
-        <div>${id.toUpperCase()}</div>
-        <div>$${value.toFixed(2)}</div>
-      </div>
-    `;
-  }
-
-  document.getElementById("portfolio").innerHTML =
-    html || "<p>No assets</p>";
-}
-
-/* =========================
-   POSITIONS (P/L)
-========================= */
-function renderPositions(){
-
-  let html = "";
-
-  wallet.positions.forEach(p=>{
-
-    let price = priceMap[p.id];
-    let pnl = (price - p.entry) * p.amount;
-
-    html += `
-      <div class="coin-item">
-        <div>${p.id.toUpperCase()}</div>
-        <div style="color:${pnl>=0?'#00ffcc':'#ff4d4d'}">
-          $${pnl.toFixed(2)}
-        </div>
-      </div>
-    `;
-  });
-
-  document.getElementById("positions").innerHTML =
-    html || "<p>No open positions</p>";
-}
-
-/* =========================
-   SAVE LOCAL
-========================= */
-function save(){
-  localStorage.setItem("wallet", JSON.stringify(wallet));
-}
-
-/* =========================
-   LOAD LOCAL
-========================= */
-function load(){
-
-  let data = localStorage.getItem("wallet");
-
-  if(data){
-    wallet = JSON.parse(data);
-  }
-}
-
-/* =========================
-   INIT
-========================= */
-load();
-loadMarket();
+window.addEventListener("load", () => {
+  loadMarket();
+});
