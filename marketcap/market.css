@@ -8,7 +8,7 @@ body{
   font-family:Arial;
   background:#0b0f1a;
   color:#fff;
-  padding-bottom:70px;
+  padding-bottom:50px;
 }
 
 /* HEADER */
@@ -27,7 +27,7 @@ body{
   padding:15px;
 }
 
-/* INPUT */
+/* SEARCH */
 #searchBox{
   width:100%;
   padding:10px;
@@ -36,6 +36,7 @@ body{
   border-radius:8px;
   background:#111827;
   color:#fff;
+  outline:none;
 }
 
 /* COIN LIST */
@@ -63,9 +64,22 @@ body{
 
 .coin-left img{
   width:28px;
+  height:28px;
 }
 
-/* MODAL */
+/* LOAD MORE */
+#loadMoreBtn{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  background:#1f2937;
+  border:none;
+  color:#fff;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* MODAL (kalau masih dipakai) */
 .modal{
   display:none;
   position:fixed;
@@ -112,22 +126,9 @@ canvas{
   width:100%;
 }
 
-/* BOTTOM NAV */
-.bottom-nav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  display:flex;
-  justify-content:center;
-  background:#0f172a;
+/* SCROLL LOADING TEXT */
+.loading{
+  text-align:center;
   padding:10px;
-  border-top:1px solid #1f2937;
-}
-
-.bottom-nav button{
-  background:none;
-  border:none;
-  color:#fff;
-  font-size:14px;
+  color:#94a3b8;
 }
