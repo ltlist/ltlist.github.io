@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Coin Detail</title>
+
 <link rel="stylesheet" href="market.css">
 </head>
 
@@ -17,7 +19,18 @@
 
   <div class="card" id="priceBox"></div>
 
-  <canvas id="chart"></canvas>
+  <!-- TIMEFRAME -->
+  <div class="tf">
+    <button onclick="setTF(1)">1D</button>
+    <button onclick="setTF(7)">7D</button>
+    <button onclick="setTF(30)">30D</button>
+  </div>
+
+  <!-- CHART -->
+  <div class="card chart-wrap">
+    <canvas id="candleChart"></canvas>
+    <canvas id="overlay"></canvas>
+  </div>
 
   <div class="card" id="fundamental"></div>
 
