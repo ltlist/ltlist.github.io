@@ -48,12 +48,6 @@ body{
   color:#00ccff;
 }
 
-.card-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
 .control-panel{
   display:flex;
   gap:10px;
