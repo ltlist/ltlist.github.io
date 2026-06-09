@@ -14,8 +14,13 @@
 
 <input id="search" placeholder="Search faucet..." onkeyup="searchPublic()">
 
-<!-- COIN STATS AUTO COUNT -->
 <div id="coinStats"></div>
+
+<select id="coinFilter" onchange="filterCoin()">
+  <option value="all">All Coins</option>
+</select>
+
+<div id="list"></div>
 
 <!-- FILTER COIN AUTO -->
 <select id="coinFilter" onchange="filterCoin()">
