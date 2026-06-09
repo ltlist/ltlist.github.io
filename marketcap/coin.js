@@ -12,6 +12,19 @@ async function loadCoin(){
 
   document.getElementById("coinName").innerText = data.name;
 
+  document.getElementById("priceBox").innerHTML = `
+    <h2>$${data.market_data.current_price.usd}</h2>
+    <p>Market Cap: $${data.market_data.market_cap.usd.toLocaleString()}</p>
+    <p>24h: ${data.market_data.price_change_percentage_24h.toFixed(2)}%</p>
+  `;
+
+  document.getElementById("fundamental").innerHTML = `
+    <p>Rank: #${data.market_cap_rank}</p>
+    <p>ATH: $${data.market_data.ath.usd}</p>
+    <p>ATL: $${data.market_data.atl.usd}</p>
+    <p>Supply: ${data.market_data.circulating_supply.toLocaleString()}</p>
+  `;
+
   loadChart();
 }
 
@@ -35,7 +48,7 @@ async function loadChart(){
   draw();
 }
 
-/* CREATE OHLC + VOLUME */
+/* CREATE OHLC */
 function createCandles(prices, volumes){
 
   let candles = [];
@@ -58,48 +71,13 @@ function createCandles(prices, volumes){
   return candles;
 }
 
-/* RSI */
-function calcRSI(data, period=14){
-
-  let gains=0, losses=0;
-
-  for(let i=1;i<period;i++){
-    let diff = data[i].close - data[i-1].close;
-    if(diff>=0) gains+=diff;
-    else losses-=diff;
-  }
-
-  let rs = gains/(losses || 1);
-  return 100 - (100/(1+rs));
-}
-
-/* MA */
-function calcMA(data, period=10){
-
-  let ma = [];
-
-  for(let i=0;i<data.length;i++){
-    if(i<period) ma.push(null);
-    else{
-      let sum=0;
-      for(let j=0;j<period;j++){
-        sum += data[i-j].close;
-      }
-      ma.push(sum/period);
-    }
-  }
-
-  return ma;
-}
-
-/* DRAW ALL */
+/* DRAW */
 function draw(){
-
   drawCandles();
   drawOverlay();
 }
 
-/* MAIN CHART */
+/* CANDLE + GRID + MA + VOLUME */
 function drawCandles(){
 
   const canvas = document.getElementById("candleChart");
@@ -110,7 +88,9 @@ function drawCandles(){
 
   ctx.clearRect(0,0,canvas.width,canvas.height);
 
-  let data = candlesData.slice(-Math.floor(candlesData.length*zoom));
+  let data = candlesData;
+
+  if(data.length < 2) return;
 
   let max = Math.max(...data.map(d=>d.high));
   let min = Math.min(...data.map(d=>d.low));
@@ -119,6 +99,7 @@ function drawCandles(){
 
   /* GRID */
   ctx.strokeStyle = "#1f2937";
+
   for(let i=0;i<10;i++){
     let y = (canvas.height/10)*i;
     ctx.beginPath();
@@ -129,6 +110,7 @@ function drawCandles(){
 
   /* MA */
   let ma = calcMA(data,10);
+
   ctx.strokeStyle = "#00ffcc";
   ctx.beginPath();
 
@@ -174,16 +156,14 @@ function drawCandles(){
 
     let x = i*step;
 
-    let vh = (c.volume/vMax)*80;
+    let vh = (c.volume/vMax)*60;
 
-    ctx.fillStyle = "rgba(100,100,255,0.4)";
+    ctx.fillStyle = "rgba(100,100,255,0.3)";
     ctx.fillRect(x,canvas.height-vh,step,vh);
   });
-
-  window.chartData = data;
 }
 
-/* CROSSHAIR + ZOOM */
+/* CROSSHAIR */
 function drawOverlay(){
 
   const canvas = document.getElementById("overlay");
@@ -201,34 +181,57 @@ function drawOverlay(){
 
     ctx.strokeStyle="#666";
 
-    /* vertical */
     ctx.beginPath();
     ctx.moveTo(x,0);
     ctx.lineTo(x,canvas.height);
     ctx.stroke();
 
-    /* horizontal */
     ctx.beginPath();
     ctx.moveTo(0,y);
     ctx.lineTo(canvas.width,y);
     ctx.stroke();
   };
 
-  /* ZOOM (scroll) */
+  /* ZOOM FIX */
   canvas.onwheel = (e)=>{
 
     e.preventDefault();
 
     if(e.deltaY < 0){
       zoom += 0.1;
-    }else{
+    } else {
       zoom -= 0.1;
     }
 
     zoom = Math.max(0.3, Math.min(1, zoom));
 
+    let start = Math.floor(candlesData.length * (1 - zoom));
+    let data = candlesData.slice(start);
+
+    candlesData = data;
+
     drawCandles();
   };
 }
 
+/* MA FUNCTION */
+function calcMA(data, period=10){
+
+  let ma = [];
+
+  for(let i=0;i<data.length;i++){
+    if(i<period) ma.push(null);
+    else{
+      let sum=0;
+      for(let j=0;j<period;j++){
+        sum += data[i-j].close;
+      }
+      ma.push(sum/period);
+    }
+  }
+
+  return ma;
+}
+
+/* START */
 loadCoin();
