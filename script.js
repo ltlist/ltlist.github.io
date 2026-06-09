@@ -21,6 +21,7 @@ let allFaucets = [];
 // LOAD DATA
 // =====================
 async function loadFaucets(){
+
   const snap = await getDocs(collection(db, "faucets"));
 
   allFaucets = [];
@@ -30,10 +31,12 @@ async function loadFaucets(){
   });
 
   render(allFaucets);
+
+  loadCoinFilter(); // 🔥 AUTO COIN FILTER
 }
 
 // =====================
-// RENDER PUBLIC
+// RENDER
 // =====================
 function render(data){
 
@@ -68,7 +71,27 @@ function render(data){
 }
 
 // =====================
-// SEARCH PUBLIC
+// AUTO COIN FILTER
+// =====================
+function loadCoinFilter(){
+
+  const select = document.getElementById("coinFilter");
+
+  // reset dulu (biar tidak double)
+  select.innerHTML = `<option value="all">All Coin</option>`;
+
+  const coins = [...new Set(allFaucets.map(f => f.coin))];
+
+  coins.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    select.appendChild(opt);
+  });
+}
+
+// =====================
+// SEARCH
 // =====================
 window.searchPublic = function(){
 
