@@ -5,13 +5,13 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family: Arial, sans-serif;
+  font-family:Arial, sans-serif;
 }
 
 body{
   background:#0f172a;
   color:#fff;
-  padding:20px;
+  padding:15px;
 }
 
 /* =====================
@@ -35,16 +35,41 @@ h2{
 }
 
 /* =====================
+   FORM
+===================== */
+.form{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  max-width:500px;
+}
+
+/* =====================
+   INPUT
+===================== */
+input{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+  outline:none;
+}
+
+/* =====================
    BUTTON
 ===================== */
 button{
-  padding:10px 14px;
+  padding:10px;
   border:none;
   border-radius:8px;
   cursor:pointer;
-  margin:5px 0;
-  transition:0.2s;
-  font-size:14px;
+  font-weight:bold;
+}
+
+/* warna tombol */
+button{
+  background:#00ffcc;
+  color:#000;
 }
 
 button:hover{
@@ -54,62 +79,24 @@ button:hover{
 /* logout */
 button[onclick="logout()"]{
   background:#ef4444;
-  color:white;
-}
-
-/* add */
-button[onclick="addFaucet()"]{
-  background:#00ffcc;
-  color:#000;
-  font-weight:bold;
-}
-
-/* edit */
-button[onclick*="editFaucet"]{
-  background:#3b82f6;
-  color:white;
-}
-
-/* delete */
-button[onclick*="deleteFaucet"]{
-  background:#ef4444;
-  color:white;
+  color:#fff;
 }
 
 /* =====================
-   INPUT
-===================== */
-input{
-  width:100%;
-  max-width:500px;
-  padding:10px;
-  margin:5px 0;
-  border-radius:8px;
-  border:none;
-  outline:none;
-}
-
-/* =====================
-   FAUCET LIST (GRID RESPONSIVE)
+   LIST FAUCET
 ===================== */
 #list{
   display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
   gap:15px;
-  margin-top:10px;
 }
 
 /* CARD */
 #list div{
   background:#111827;
   padding:15px;
-  border-radius:12px;
+  border-radius:10px;
   border:1px solid #1f2937;
-  transition:0.2s;
-}
-
-#list div:hover{
-  transform:translateY(-2px);
 }
 
 /* LINK */
@@ -119,39 +106,23 @@ input{
 }
 
 /* =====================
-   MESSAGE
-===================== */
-#msg{
-  margin-top:10px;
-  color:#00ffcc;
-}
-
-/* =====================
    TABLET
 ===================== */
-@media (max-width: 900px){
+@media(max-width:900px){
   body{
-    padding:15px;
-  }
-
-  input{
-    max-width:100%;
+    padding:10px;
   }
 }
 
 /* =====================
    HP
 ===================== */
-@media (max-width: 600px){
-  body{
-    padding:10px;
+@media(max-width:600px){
+  #list{
+    grid-template-columns:1fr;
   }
 
   button{
     width:100%;
-  }
-
-  #list{
-    grid-template-columns: 1fr;
   }
 }
