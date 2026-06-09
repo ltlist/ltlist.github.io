@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>LTList Mobile Exchange</title>
+<title>LTList Exchange</title>
 
 <link rel="stylesheet" href="market.css">
 </head>
@@ -14,31 +14,18 @@
 <!-- HEADER -->
 <div class="header">
   <h1>LTList Exchange</h1>
-  <p>Crypto Market • Mobile Pro UI</p>
+  <p>Crypto Market • Live Price</p>
 </div>
 
-<!-- PAGES -->
-<div id="home" class="page active">
-  <h2>Home</h2>
-  <div class="card">
-    Welcome to LTList Trading App 🚀
-  </div>
-</div>
+<!-- MARKET PAGE ONLY -->
+<div id="market" class="page active">
 
-<div id="market" class="page">
   <h2>Market</h2>
 
-  <input id="searchBox" placeholder="Search coin..." />
+  <input id="searchBox" placeholder="Search coin..." oninput="filterCoins()" />
 
   <div id="coinList"></div>
-</div>
 
-<div id="wallet" class="page">
-  <h2>Wallet</h2>
-
-  <div class="card">
-    Balance: $0.00 (Demo)
-  </div>
 </div>
 
 <!-- CHART MODAL -->
@@ -60,11 +47,9 @@
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
+<!-- BOTTOM NAV (SIMPLE) -->
 <div class="bottom-nav">
-  <button onclick="showPage('home')">🏠 Home</button>
-  <button onclick="showPage('market')">📊 Market</button>qq
-  <button onclick="showPage('wallet')">👛 Wallet</button>
+  <button onclick="showPage('market')">📊 Market</button>
 </div>
 
 <script src="market.js"></script>
