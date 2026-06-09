@@ -14,7 +14,13 @@ body{
 h1{
   color:#5eead4;
   font-size:2rem;
-  margin-bottom:20px;
+  margin-bottom:10px;
+}
+
+#totalFaucets{
+  color:#94a3b8;
+  font-size:14px;
+  margin:0 0 15px 0;
 }
 
 input,
@@ -41,10 +47,6 @@ input::placeholder{
   margin-bottom:15px;
 }
 
-.card h3{
-  margin:12px 0;
-}
-
 .rank-badge{
   display:inline-block;
   background:#134e4a;
@@ -53,6 +55,19 @@ input::placeholder{
   border-radius:8px;
   font-weight:bold;
   font-size:14px;
+  margin-bottom:10px;
+}
+
+.card-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+}
+
+.card-header h3{
+  margin:0;
+  font-size:18px;
 }
 
 .badge{
@@ -68,14 +83,14 @@ input::placeholder{
 
 .visit-btn{
   display:inline-block;
-  margin-top:12px;
-  padding:10px 18px;
+  padding:8px 14px;
   background:#0f766e;
   color:#fff;
   border-radius:8px;
   text-decoration:none;
   font-weight:bold;
-  transition:0.2s;
+  white-space:nowrap;
+  transition:.2s;
 }
 
 .visit-btn:hover{
@@ -96,12 +111,6 @@ button:hover{
   background:#115e59;
 }
 
-card-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
 @media(max-width:600px){
 
   .container{
@@ -110,6 +119,17 @@ card-header{
 
   h1{
     font-size:1.8rem;
+  }
+
+  .card-header{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .visit-btn{
+    width:100%;
+    text-align:center;
+    box-sizing:border-box;
   }
 
   button{
