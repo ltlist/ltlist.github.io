@@ -4,30 +4,26 @@ let page = 1;
 let loading = false;
 
 const coinList = document.getElementById("coinList");
-const loadBtn = document.getElementById("loadMoreBtn");
 
-/* START */
 loadMarket();
 
-/* LOAD MARKET */
 async function loadMarket(){
 
   if(loading) return;
   loading = true;
 
-  if(loadBtn) loadBtn.innerText = "Loading...";
+  const btn = document.getElementById("loadMoreBtn");
+  if(btn) btn.innerText = "Loading...";
 
   try {
 
-    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=${page}`;
-
-    const res = await fetch(url);
+    const res = await fetch(
+      `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=${page}`
+    );
 
     const data = await res.json();
 
-    console.log("DATA COINS:", data); // penting debug
-
-    if(!Array.isArray(data)) throw new Error("API ERROR");
+    if(!Array.isArray(data)) throw new Error("API error");
 
     coins = coins.concat(data);
     filteredCoins = coins;
@@ -37,24 +33,15 @@ async function loadMarket(){
     page++;
 
   } catch(err){
-    console.error("ERROR LOAD COIN:", err);
+    console.log(err);
     coinList.innerHTML = "<p>Gagal load data API</p>";
   }
 
   loading = false;
-
-  if(loadBtn) loadBtn.innerText = "Load More";
+  if(btn) btn.innerText = "Load More";
 }
 
-/* RENDER */
 function renderCoins(){
-
-  if(!coinList) return;
-
-  if(filteredCoins.length === 0){
-    coinList.innerHTML = "<p>No coin found</p>";
-    return;
-  }
 
   let html = "";
 
@@ -64,7 +51,7 @@ function renderCoins(){
       <div class="coin-item" onclick="openCoin('${c.id}')">
 
         <div class="coin-left">
-          <img src="${c.image}" />
+          <img src="${c.image}">
           <div>
             <div>${c.name}</div>
             <small>$${c.current_price}</small>
@@ -82,7 +69,6 @@ function renderCoins(){
   coinList.innerHTML = html;
 }
 
-/* SEARCH */
 function filterCoins(){
 
   const val = document.getElementById("searchBox").value.toLowerCase().trim();
@@ -99,19 +85,16 @@ function filterCoins(){
   renderCoins();
 }
 
-/* OPEN DETAIL */
 function openCoin(id){
   window.location.href = `coin.html?id=${id}`;
 }
 
-/* LOAD MORE */
 function loadMore(){
   loadMarket();
 }
 
-/* AUTO SCROLL */
+/* optional infinite scroll */
 window.addEventListener("scroll", () => {
-
   if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200){
     loadMarket();
   }
