@@ -2,25 +2,22 @@
 <html>
 <head>
 <title>Dashboard LTList</title>
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body style="font-family:Arial;background:#0f172a;color:white;padding:20px;">
 
 <h1>Dashboard Admin</h1>
 
-<p>Login berhasil 👍</p>
-
 <button onclick="logout()">Logout</button>
 
 <hr>
 
-<!-- FAUCET LIST -->
 <h2>Faucet List</h2>
 <div id="list"></div>
 
 <hr>
 
-<!-- ADD FAUCET -->
 <h2>Add Faucet</h2>
 
 <input id="name" placeholder="Name"><br><br>
@@ -31,18 +28,24 @@
 
 <p id="msg"></p>
 
-<!-- FIREBASE SCRIPT -->
+<!-- FIREBASE -->
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { 
-  getFirestore, collection, getDocs, addDoc 
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 
-// 🔥 FIREBASE CONFIG (PUNYAMU)
+// 🔥 FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
@@ -60,20 +63,27 @@ const listDiv = document.getElementById("list");
 const msg = document.getElementById("msg");
 
 
+// =========================
 // 🔥 LOAD FAUCETS
+// =========================
 async function loadFaucets() {
   const snap = await getDocs(collection(db, "faucets"));
 
   let html = "";
 
-  snap.forEach((doc) => {
-    const d = doc.data();
+  snap.forEach((d) => {
+    const data = d.data();
 
     html += `
       <div style="background:#111827;padding:10px;margin:10px 0;border-radius:8px;">
-        <b>${d.name}</b><br>
-        Coin: ${d.coin}<br>
-        <a href="${d.url}" target="_blank" style="color:#00ffcc;">Visit</a>
+        <b>${data.name}</b><br>
+        Coin: ${data.coin}<br>
+        <a href="${data.url}" target="_blank" style="color:#00ffcc;">Visit</a>
+
+        <br><br>
+
+        <button onclick="editFaucet('${d.id}','${data.name}','${data.url}','${data.coin}')">Edit</button>
+        <button onclick="deleteFaucet('${d.id}')" style="background:red;color:white;">Delete</button>
       </div>
     `;
   });
@@ -82,7 +92,9 @@ async function loadFaucets() {
 }
 
 
-// 🔥 ADD FAUCET
+// =========================
+// ➕ ADD FAUCET
+// =========================
 window.addFaucet = async function () {
   const name = document.getElementById("name").value;
   const url = document.getElementById("url").value;
@@ -107,15 +119,49 @@ window.addFaucet = async function () {
 };
 
 
-// 🔥 LOGOUT
+// =========================
+// 🗑️ DELETE FAUCET
+// =========================
+window.deleteFaucet = async function(id){
+  if(confirm("Hapus faucet ini?")){
+    await deleteDoc(doc(db, "faucets", id));
+    loadFaucets();
+  }
+};
+
+
+// =========================
+// ✏️ EDIT FAUCET
+// =========================
+window.editFaucet = async function(id, name, url, coin){
+
+  const newName = prompt("Edit Name", name);
+  const newUrl = prompt("Edit URL", url);
+  const newCoin = prompt("Edit Coin", coin);
+
+  if(!newName || !newUrl || !newCoin) return;
+
+  await updateDoc(doc(db, "faucets", id), {
+    name: newName,
+    url: newUrl,
+    coin: newCoin
+  });
+
+  loadFaucets();
+};
+
+
+// =========================
+// 🚪 LOGOUT
+// =========================
 window.logout = function(){
   signOut(auth).then(() => {
     window.location.href = "login.html";
   });
-}
+};
 
 
-// init
+// INIT
 loadFaucets();
 
 </script>
