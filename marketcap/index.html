@@ -13,7 +13,7 @@
 
 <div class="header">
   <h1>LTList MarketCap</h1>
-  <p>TradingView Style Crypto Chart</p>
+  <p>TradingView Style Candlestick</p>
 
   <input type="text" id="searchBox" placeholder="Search coin..." />
 </div>
@@ -40,9 +40,21 @@
 <!-- CHART MODAL -->
 <div id="chartModal" class="modal">
   <div class="modal-content">
+
     <span class="close" onclick="closeChart()">✖</span>
+
     <h3 id="chartTitle"></h3>
-    <canvas id="tvChart"></canvas>
+
+    <!-- TIMEFRAME BUTTONS -->
+    <div class="tf">
+      <button onclick="changeTF('1')">1H</button>
+      <button onclick="changeTF('1')">1D</button>
+      <button onclick="changeTF('7')">7D</button>
+      <button onclick="changeTF('30')">30D</button>
+    </div>
+
+    <canvas id="candleChart"></canvas>
+
   </div>
 </div>
 
