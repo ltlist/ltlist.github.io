@@ -88,13 +88,18 @@ input{
   gap:10px;
   margin-top:10px;
 }
-
-/* card */
-#list div{
+.card{
   background:#111827;
   padding:12px;
+  margin:10px 0;
   border-radius:8px;
   border:1px solid #1f2937;
+}
+
+/* tombol di card */
+.card button{
+  margin-right:5px;
+  margin-top:8px;
 }
 
 /* link */
