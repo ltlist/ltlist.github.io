@@ -3,26 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MarketCap LTList</title>
+
+<title>LTList MarketCap</title>
+
 <link rel="stylesheet" href="market.css">
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <h1>MarketCap LTList</h1>
+  <h1>LTList MarketCap</h1>
+  <p>Crypto Prices • Live Market</p>
 </div>
 
+<!-- PAGE -->
 <div class="page">
 
-  <input id="searchBox" placeholder="Search coin..." oninput="filterCoins()" />
+  <!-- SEARCH -->
+  <input 
+    id="searchBox" 
+    type="text"
+    placeholder="Search coin (btc, eth, sol...)"
+    oninput="filterCoins()"
+  />
 
+  <!-- COIN LIST -->
   <div id="coinList"></div>
 
-  <button id="loadMoreBtn" onclick="loadMore()">Load More</button>
+  <!-- LOAD MORE -->
+  <button id="loadMoreBtn" onclick="loadMore()">
+    Load More
+  </button>
 
 </div>
 
+<!-- LOADING TEXT (optional) -->
+<div class="loading" id="loadingText" style="display:none;">
+  Loading more coins...
+</div>
+
+<!-- SCRIPT -->
 <script src="market.js"></script>
+
 </body>
 </html>
