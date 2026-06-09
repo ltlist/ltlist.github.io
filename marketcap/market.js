@@ -7,13 +7,11 @@ const coinList = document.getElementById("coinList");
 
 loadMarket();
 
+/* LOAD MARKET */
 async function loadMarket(){
 
   if(loading) return;
   loading = true;
-
-  const btn = document.getElementById("loadMoreBtn");
-  if(btn) btn.innerText = "Loading...";
 
   try {
 
@@ -23,7 +21,7 @@ async function loadMarket(){
 
     const data = await res.json();
 
-    if(!Array.isArray(data)) throw new Error("API error");
+    if(!Array.isArray(data)) throw new Error("API ERROR");
 
     coins = coins.concat(data);
     filteredCoins = coins;
@@ -34,13 +32,13 @@ async function loadMarket(){
 
   } catch(err){
     console.log(err);
-    coinList.innerHTML = "<p>Gagal load data API</p>";
+    coinList.innerHTML = "<p>Failed load data</p>";
   }
 
   loading = false;
-  if(btn) btn.innerText = "Load More";
 }
 
+/* RENDER */
 function renderCoins(){
 
   let html = "";
@@ -69,32 +67,34 @@ function renderCoins(){
   coinList.innerHTML = html;
 }
 
+/* SEARCH */
 function filterCoins(){
 
   const val = document.getElementById("searchBox").value.toLowerCase().trim();
 
-  if(val === ""){
-    filteredCoins = coins;
-  } else {
-    filteredCoins = coins.filter(c =>
-      c.name.toLowerCase().includes(val) ||
-      c.symbol.toLowerCase().includes(val)
-    );
-  }
+  filteredCoins = val
+    ? coins.filter(c =>
+        c.name.toLowerCase().includes(val) ||
+        c.symbol.toLowerCase().includes(val)
+      )
+    : coins;
 
   renderCoins();
 }
 
+/* OPEN COIN PAGE */
 function openCoin(id){
   window.location.href = `coin.html?id=${id}`;
 }
 
+/* LOAD MORE */
 function loadMore(){
   loadMarket();
 }
 
-/* optional infinite scroll */
+/* INFINITE SCROLL */
 window.addEventListener("scroll", () => {
+
   if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200){
     loadMarket();
   }
