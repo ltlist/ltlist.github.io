@@ -11,23 +11,19 @@ body{
   padding-bottom:50px;
 }
 
-/* HEADER */
 .header{
   position:sticky;
   top:0;
-  z-index:999;
   background:#0f172a;
   padding:12px;
   text-align:center;
   border-bottom:1px solid #1f2937;
 }
 
-/* PAGE */
 .page{
   padding:15px;
 }
 
-/* SEARCH */
 #searchBox{
   width:100%;
   padding:10px;
@@ -36,10 +32,8 @@ body{
   border-radius:8px;
   background:#111827;
   color:#fff;
-  outline:none;
 }
 
-/* COIN LIST */
 .coin-item{
   display:flex;
   justify-content:space-between;
@@ -49,11 +43,6 @@ body{
   margin-bottom:8px;
   border-radius:10px;
   cursor:pointer;
-  transition:0.2s;
-}
-
-.coin-item:hover{
-  background:#1f2937;
 }
 
 .coin-left{
@@ -67,7 +56,6 @@ body{
   height:28px;
 }
 
-/* LOAD MORE */
 #loadMoreBtn{
   width:100%;
   padding:12px;
@@ -76,59 +64,4 @@ body{
   border:none;
   color:#fff;
   border-radius:8px;
-  cursor:pointer;
-}
-
-/* MODAL (kalau masih dipakai) */
-.modal{
-  display:none;
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.85);
-  z-index:9999;
-}
-
-.modal-content{
-  width:95%;
-  max-width:900px;
-  margin:10% auto;
-  background:#0f172a;
-  padding:15px;
-  border-radius:12px;
-}
-
-.close{
-  float:right;
-  cursor:pointer;
-  color:red;
-}
-
-/* TF BUTTON */
-.tf{
-  display:flex;
-  gap:5px;
-  margin:10px 0;
-}
-
-.tf button{
-  background:#1f2937;
-  color:#fff;
-  border:none;
-  padding:6px 10px;
-  border-radius:6px;
-}
-
-/* CANVAS */
-canvas{
-  width:100%;
-}
-
-/* SCROLL LOADING TEXT */
-.loading{
-  text-align:center;
-  padding:10px;
-  color:#94a3b8;
 }
