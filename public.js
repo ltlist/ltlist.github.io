@@ -1,6 +1,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
@@ -17,10 +22,14 @@ const listDiv = document.getElementById("list");
 
 let allFaucets = [];
 
+// =====================
 // LOAD DATA
+// =====================
 async function loadFaucets() {
 
-  const snap = await getDocs(collection(db, "faucets"));
+  const snap = await getDocs(
+    collection(db, "faucets")
+  );
 
   allFaucets = [];
 
@@ -28,27 +37,39 @@ async function loadFaucets() {
 
     const data = doc.data();
 
-    // tampilkan hanya active
+    // hanya tampilkan active
     if (data.status === "active") {
-      allFaucets.push(data);
+
+      allFaucets.push({
+        id: doc.id,
+        ...data
+      });
+
     }
 
   });
 
-  // ranking
-  allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
+  // SORT RANK
+  allFaucets.sort(
+    (a, b) =>
+      (a.rank || 9999) -
+      (b.rank || 9999)
+  );
 
-// TOTAL FAUCETS
-
-document.getElementById("totalFaucets").innerHTML =
-  `📊 ${allFaucets.length} Active Faucets`;
+  // TOTAL
+  document.getElementById(
+    "totalFaucets"
+  ).innerHTML =
+    `📊 ${allFaucets.length} Active Faucets`;
 
   render(allFaucets);
   renderCoinStats();
   loadCoinFilter();
 }
 
+// =====================
 // RENDER LIST
+// =====================
 function render(data) {
 
   let html = "";
@@ -62,15 +83,23 @@ function render(data) {
           #${d.rank || "-"}
         </div>
 
-        <h3>${d.name}</h3>
+        <div class="card-header">
+
+          <h3>${d.name}</h3>
+
+          <a
+            href="${d.url}"
+            target="_blank"
+            class="visit-btn"
+          >
+            Visit
+          </a>
+
+        </div>
 
         <p>
           Coin: <b>${d.coin}</b>
         </p>
-
-        <a href="${d.url}" target="_blank" class="visit-btn">
-          Visit Faucet
-        </a>
 
       </div>
     `;
@@ -79,22 +108,35 @@ function render(data) {
   listDiv.innerHTML = html;
 }
 
+// =====================
 // COIN FILTER AUTO
+// =====================
 function loadCoinFilter() {
 
-  const select = document.getElementById("coinFilter");
+  const select =
+    document.getElementById(
+      "coinFilter"
+    );
 
-  select.innerHTML = `
-    <option value="all">All Coins</option>
-  `;
+  select.innerHTML =
+    `<option value="all">All Coins</option>`;
 
-  const coins = [...new Set(allFaucets.map(f => f.coin))];
+  const coins = [
+    ...new Set(
+      allFaucets.map(
+        f => f.coin
+      )
+    )
+  ];
 
   coins.sort();
 
   coins.forEach((coin) => {
 
-    const option = document.createElement("option");
+    const option =
+      document.createElement(
+        "option"
+      );
 
     option.value = coin;
     option.textContent = coin;
@@ -104,51 +146,72 @@ function loadCoinFilter() {
   });
 }
 
+// =====================
 // COIN COUNTER
+// =====================
 function renderCoinStats() {
 
   const count = {};
 
   allFaucets.forEach((f) => {
 
-    count[f.coin] = (count[f.coin] || 0) + 1;
+    count[f.coin] =
+      (count[f.coin] || 0) + 1;
 
   });
 
   let html = "";
 
-  Object.keys(count).sort().forEach((coin) => {
+  Object.keys(count)
+    .sort()
+    .forEach((coin) => {
 
-    html += `
-      <span class="badge">
-        ${coin} (${count[coin]})
-      </span>
-    `;
+      html += `
+        <span class="badge">
+          ${coin} (${count[coin]})
+        </span>
+      `;
 
-  });
+    });
 
-  document.getElementById("coinStats").innerHTML = html;
+  document.getElementById(
+    "coinStats"
+  ).innerHTML = html;
 }
 
+// =====================
 // SEARCH
-window.searchPublic = function () {
+// =====================
+window.searchPublic =
+function () {
 
-  const q = document
-    .getElementById("search")
-    .value
-    .toLowerCase();
+  const q =
+    document
+      .getElementById("search")
+      .value
+      .toLowerCase();
 
-  const filtered = allFaucets.filter(f =>
-    f.name.toLowerCase().includes(q)
-  );
+  const filtered =
+    allFaucets.filter(
+      f =>
+        f.name
+          .toLowerCase()
+          .includes(q)
+    );
 
   render(filtered);
 };
 
+// =====================
 // FILTER COIN
-window.filterCoin = function () {
+// =====================
+window.filterCoin =
+function () {
 
-  const coin = document.getElementById("coinFilter").value;
+  const coin =
+    document.getElementById(
+      "coinFilter"
+    ).value;
 
   if (coin === "all") {
 
@@ -157,11 +220,15 @@ window.filterCoin = function () {
 
   }
 
-  const filtered = allFaucets.filter(f =>
-    f.coin === coin
-  );
+  const filtered =
+    allFaucets.filter(
+      f => f.coin === coin
+    );
 
   render(filtered);
 };
 
+// =====================
+// INIT
+// =====================
 loadFaucets();
