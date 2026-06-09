@@ -1,19 +1,36 @@
+/***********************
+ * LTList Market PRO
+ * CoinGecko + Binance WS
+ ***********************/
+
 let coins = [];
 let favorites = JSON.parse(localStorage.getItem("fav")) || [];
+let currentCoin = null;
+let currentName = "";
+let currentDays = 7;
 
-async function loadMarket(){
+/* ======================
+   COINGECKO MARKET DATA
+====================== */
+async function loadMarket() {
 
-  const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,dogecoin,ethereum,solana,ripple,cardano,tron,litecoin";
+  const url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum,dogecoin,solana,ripple,cardano,tron,litecoin";
 
-  const res = await fetch(url);
-  coins = await res.json();
+  try {
+    const res = await fetch(url);
+    coins = await res.json();
 
-  render(coins);
+    render(coins);
+  } catch (e) {
+    console.log("API error", e);
+  }
 }
 
-/* FAVORITE */
-function toggleFav(id){
-  if(favorites.includes(id)){
+/* ======================
+   FAVORITE SYSTEM
+====================== */
+function toggleFav(id) {
+  if (favorites.includes(id)) {
     favorites = favorites.filter(f => f !== id);
   } else {
     favorites.push(id);
@@ -23,83 +40,129 @@ function toggleFav(id){
   render(coins);
 }
 
-/* OPEN CHART (TradingView STYLE) */
-async function openChart(id,name){
+/* ======================
+   OPEN CHART
+====================== */
+async function openChart(id, name) {
 
-  document.getElementById("chartModal").style.display="block";
-  document.getElementById("chartTitle").innerText = name + " (7D Trend)";
+  currentCoin = id;
+  currentName = name;
+  currentDays = 7;
 
-  const url = `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=7`;
+  document.getElementById("chartModal").style.display = "block";
+
+  loadChart();
+}
+
+/* ======================
+   TIMEFRAME SWITCH
+====================== */
+function changeTF(days) {
+  currentDays = days;
+  loadChart();
+}
+
+/* ======================
+   LOAD CHART DATA
+====================== */
+async function loadChart() {
+
+  const url = `https://api.coingecko.com/api/v3/coins/${currentCoin}/market_chart?vs_currency=usd&days=${currentDays}`;
+
   const res = await fetch(url);
   const data = await res.json();
 
-  let prices = data.prices;
+  let candles = createCandles(data.prices);
 
-  drawTVChart(prices);
+  drawCandles(candles);
 }
 
-/* TRADINGVIEW STYLE LINE (smooth + glow) */
-function drawTVChart(prices){
+/* ======================
+   OHLC CONVERTER
+====================== */
+function createCandles(prices) {
 
-  let canvas = document.getElementById("tvChart");
-  let ctx = canvas.getContext("2d");
+  let candles = [];
+  let chunkSize = Math.max(1, Math.floor(prices.length / 20));
 
-  canvas.width = 850;
-  canvas.height = 350;
+  for (let i = 0; i < prices.length; i += chunkSize) {
 
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+    let slice = prices.slice(i, i + chunkSize);
 
-  let max = Math.max(...prices.map(p=>p[1]));
-  let min = Math.min(...prices.map(p=>p[1]));
+    if (!slice.length) continue;
 
-  let w = canvas.width;
-  let h = canvas.height;
+    let open = slice[0][1];
+    let close = slice[slice.length - 1][1];
+    let high = Math.max(...slice.map(p => p[1]));
+    let low = Math.min(...slice.map(p => p[1]));
 
-  let step = w / prices.length;
-
-  ctx.strokeStyle = "#00ffcc";
-  ctx.shadowColor = "#00ffcc";
-  ctx.shadowBlur = 8;
-  ctx.lineWidth = 2;
-
-  ctx.beginPath();
-
-  prices.forEach((p,i)=>{
-
-    let x = i * step;
-    let y = h - ((p[1]-min)/(max-min))*h;
-
-    if(i===0) ctx.moveTo(x,y);
-    else ctx.lineTo(x,y);
-
-  });
-
-  ctx.stroke();
-
-  /* background grid (TradingView feel) */
-  ctx.shadowBlur = 0;
-  ctx.strokeStyle = "#1f2937";
-
-  for(let i=0;i<5;i++){
-    let y = (h/5)*i;
-    ctx.beginPath();
-    ctx.moveTo(0,y);
-    ctx.lineTo(w,y);
-    ctx.stroke();
+    candles.push({ open, high, low, close });
   }
+
+  return candles;
 }
 
-/* CLOSE */
-function closeChart(){
-  document.getElementById("chartModal").style.display="none";
+/* ======================
+   CANDLESTICK DRAW
+====================== */
+function drawCandles(candles) {
+
+  const canvas = document.getElementById("candleChart");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = 900;
+  canvas.height = 420;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  let max = Math.max(...candles.map(c => c.high));
+  let min = Math.min(...candles.map(c => c.low));
+
+  let step = canvas.width / candles.length;
+
+  candles.forEach((c, i) => {
+
+    let x = i * step + step / 2;
+
+    let openY = canvas.height - ((c.open - min) / (max - min)) * canvas.height;
+    let closeY = canvas.height - ((c.close - min) / (max - min)) * canvas.height;
+    let highY = canvas.height - ((c.high - min) / (max - min)) * canvas.height;
+    let lowY = canvas.height - ((c.low - min) / (max - min)) * canvas.height;
+
+    // wick
+    ctx.strokeStyle = "#fff";
+    ctx.beginPath();
+    ctx.moveTo(x, highY);
+    ctx.lineTo(x, lowY);
+    ctx.stroke();
+
+    // body
+    ctx.fillStyle = c.close >= c.open ? "#00ff88" : "#ff4d4d";
+
+    ctx.fillRect(
+      x - 4,
+      Math.min(openY, closeY),
+      8,
+      Math.max(2, Math.abs(closeY - openY))
+    );
+  });
 }
 
-/* RENDER TABLE */
-function render(data){
+/* ======================
+   CLOSE CHART
+====================== */
+function closeChart() {
+  document.getElementById("chartModal").style.display = "none";
+}
 
-  let html="";
+/* ======================
+   RENDER TABLE
+====================== */
+function render(data) {
 
-  data.forEach((c,i)=>{
+  let html = "";
+
+  data.forEach((c, i) => {
 
     let fav = favorites.includes(c.id) ? "star active" : "star";
 
@@ -110,22 +173,28 @@ function render(data){
           <span class="${fav}">★</span>
         </td>
 
-        <td>${i+1}</td>
+        <td>${i + 1}</td>
 
         <td>
           <div class="coin" onclick="openChart('${c.id}','${c.name}')">
             <img src="${c.image}">
             ${c.name}
           </div>
+
+          <small id="${c.id}-live" style="color:#00ffcc"></small>
         </td>
 
-        <td>$${c.current_price.toLocaleString()}</td>
+        <td>
+          $${c.current_price.toLocaleString()}
+        </td>
 
-        <td style="color:${c.price_change_percentage_24h>=0?'#00ff88':'#ff4d4d'}">
+        <td style="color:${c.price_change_percentage_24h >= 0 ? '#00ff88' : '#ff4d4d'}">
           ${c.price_change_percentage_24h.toFixed(2)}%
         </td>
 
-        <td>$${c.market_cap.toLocaleString()}</td>
+        <td>
+          $${c.market_cap.toLocaleString()}
+        </td>
 
       </tr>
     `;
@@ -134,21 +203,49 @@ function render(data){
   document.getElementById("coinTable").innerHTML = html;
 }
 
-/* SEARCH */
-document.addEventListener("input",(e)=>{
+/* ======================
+   SEARCH
+====================== */
+document.addEventListener("input", (e) => {
 
-  if(e.target.id==="searchBox"){
-    let v = e.target.value.toLowerCase();
+  if (e.target.id === "searchBox") {
 
-    let f = coins.filter(c =>
-      c.name.toLowerCase().includes(v) ||
-      c.symbol.toLowerCase().includes(v)
+    let val = e.target.value.toLowerCase();
+
+    let filtered = coins.filter(c =>
+      c.name.toLowerCase().includes(val) ||
+      c.symbol.toLowerCase().includes(val)
     );
 
-    render(f);
+    render(filtered);
   }
-
 });
 
+/* ======================
+   BINANCE REAL-TIME WS
+====================== */
+const ws = new WebSocket(
+  "wss://stream.binance.com:9443/stream?streams=" +
+  "btcusdt@trade/ethusdt@trade/dogeusdt@trade/solusdt@trade"
+);
+
+ws.onmessage = (event) => {
+
+  let msg = JSON.parse(event.data);
+  let data = msg.data;
+
+  let symbol = data.s.toLowerCase().replace("usdt", "");
+  let price = parseFloat(data.p);
+
+  let el = document.getElementById(symbol + "-live");
+
+  if (el) {
+    el.innerText = "LIVE: $" + price.toFixed(2);
+  }
+};
+
+/* ======================
+   INIT
+====================== */
 loadMarket();
-setInterval(loadMarket,15000);
+setInterval(loadMarket, 15000);
