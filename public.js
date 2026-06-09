@@ -2,12 +2,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "API_KEY_KAMU",
-  authDomain: "PROJECT.firebaseapp.com",
-  projectId: "PROJECT_ID",
-  storageBucket: "PROJECT.appspot.com",
-  messagingSenderId: "XXXXXXXX",
-  appId: "XXXXXXXX"
+  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
+  authDomain: "ltlist-f.firebaseapp.com",
+  projectId: "ltlist-f",
+  storageBucket: "ltlist-f.firebasestorage.app",
+  messagingSenderId: "991011425656",
+  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 
 const app = initializeApp(firebaseConfig);
