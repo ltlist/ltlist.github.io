@@ -32,7 +32,7 @@ const listDiv = document.getElementById("list");
 let allFaucets = [];
 
 // =====================
-// LOAD ADMIN DATA
+// LOAD
 // =====================
 async function loadFaucets(){
 
@@ -48,7 +48,7 @@ async function loadFaucets(){
 }
 
 // =====================
-// RENDER ADMIN
+// RENDER
 // =====================
 function render(data){
 
@@ -86,7 +86,7 @@ function render(data){
 }
 
 // =====================
-// ADD FAUCET
+// ADD
 // =====================
 window.addFaucet = async function(){
 
