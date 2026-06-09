@@ -6,6 +6,34 @@ body{
   padding:20px;
 }
 
+/* =====================
+   NAVBAR
+===================== */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:15px 20px;
+  background:#111827;
+  color:#fff;
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
+
+.navbar .logo{
+  font-size:20px;
+  font-weight:bold;
+  color:#00ffcc;
+}
+
+.navbar a{
+  color:#fff;
+  text-decoration:none;
+  margin-left:15px;
+  font-size:14px;
+}
+
 .container{
   max-width:1000px;
   margin:auto;
