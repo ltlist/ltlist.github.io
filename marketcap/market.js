@@ -1,36 +1,60 @@
 let coins = [];
 let filteredCoins = [];
-
 let page = 1;
 let loading = false;
 
-/* LOAD MARKET (2000+ COIN via pagination) */
+const coinList = document.getElementById("coinList");
+const loadBtn = document.getElementById("loadMoreBtn");
+
+/* START */
+loadMarket();
+
+/* LOAD MARKET */
 async function loadMarket(){
 
   if(loading) return;
   loading = true;
 
-  document.getElementById("loadMoreBtn").innerText = "Loading...";
+  if(loadBtn) loadBtn.innerText = "Loading...";
 
-  const res = await fetch(
-    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=${page}`
-  );
+  try {
 
-  const data = await res.json();
+    const url = `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=${page}`;
 
-  coins = coins.concat(data);
-  filteredCoins = coins;
+    const res = await fetch(url);
 
-  renderCoins();
+    const data = await res.json();
 
-  page++;
+    console.log("DATA COINS:", data); // penting debug
+
+    if(!Array.isArray(data)) throw new Error("API ERROR");
+
+    coins = coins.concat(data);
+    filteredCoins = coins;
+
+    renderCoins();
+
+    page++;
+
+  } catch(err){
+    console.error("ERROR LOAD COIN:", err);
+    coinList.innerHTML = "<p>Gagal load data API</p>";
+  }
+
   loading = false;
 
-  document.getElementById("loadMoreBtn").innerText = "Load More";
+  if(loadBtn) loadBtn.innerText = "Load More";
 }
 
-/* RENDER COINS */
+/* RENDER */
 function renderCoins(){
+
+  if(!coinList) return;
+
+  if(filteredCoins.length === 0){
+    coinList.innerHTML = "<p>No coin found</p>";
+    return;
+  }
 
   let html = "";
 
@@ -40,7 +64,7 @@ function renderCoins(){
       <div class="coin-item" onclick="openCoin('${c.id}')">
 
         <div class="coin-left">
-          <img src="${c.image}">
+          <img src="${c.image}" />
           <div>
             <div>${c.name}</div>
             <small>$${c.current_price}</small>
@@ -55,10 +79,10 @@ function renderCoins(){
     `;
   });
 
-  document.getElementById("coinList").innerHTML = html;
+  coinList.innerHTML = html;
 }
 
-/* SEARCH (REALTIME) */
+/* SEARCH */
 function filterCoins(){
 
   const val = document.getElementById("searchBox").value.toLowerCase().trim();
@@ -75,23 +99,20 @@ function filterCoins(){
   renderCoins();
 }
 
-/* OPEN COIN DETAIL PAGE */
+/* OPEN DETAIL */
 function openCoin(id){
   window.location.href = `coin.html?id=${id}`;
 }
 
-/* LOAD MORE BUTTON */
+/* LOAD MORE */
 function loadMore(){
   loadMarket();
 }
 
-/* INFINITE SCROLL */
+/* AUTO SCROLL */
 window.addEventListener("scroll", () => {
 
   if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200){
     loadMarket();
   }
 });
-
-/* INIT */
-loadMarket();
