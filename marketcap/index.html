@@ -13,7 +13,9 @@
 
 <div class="header">
   <h1>LTList MarketCap</h1>
-  <p>Live Crypto Prices (CoinGecko API)</p>
+  <p>TradingView Style Crypto Chart</p>
+
+  <input type="text" id="searchBox" placeholder="Search coin..." />
 </div>
 
 <div class="container">
@@ -21,19 +23,27 @@
 <table>
   <thead>
     <tr>
+      <th>★</th>
       <th>#</th>
       <th>Coin</th>
-      <th>Price (USD)</th>
-      <th>24h Change</th>
+      <th>Price</th>
+      <th>24h</th>
       <th>Market Cap</th>
     </tr>
   </thead>
 
-  <tbody id="coinTable">
-    <tr><td colspan="5" class="loading">Loading data...</td></tr>
-  </tbody>
+  <tbody id="coinTable"></tbody>
 </table>
 
+</div>
+
+<!-- CHART MODAL -->
+<div id="chartModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeChart()">✖</span>
+    <h3 id="chartTitle"></h3>
+    <canvas id="tvChart"></canvas>
+  </div>
 </div>
 
 <script src="market.js"></script>
