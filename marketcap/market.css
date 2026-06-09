@@ -1,11 +1,10 @@
 body{
   margin:0;
-  font-family:Arial,sans-serif;
-  background:#0b1220;
+  font-family:Arial;
+  background:#0b0f1a;
   color:#fff;
 }
 
-/* HEADER */
 .header{
   padding:20px;
   text-align:center;
@@ -13,43 +12,43 @@ body{
   border-bottom:1px solid #1f2937;
 }
 
-.header h1{
-  margin:0;
-  color:#00ffcc;
+.header h1{ color:#00ffcc; }
+
+#searchBox{
+  margin-top:10px;
+  padding:10px;
+  width:250px;
+  border-radius:8px;
+  border:none;
 }
 
-/* CONTAINER */
 .container{
   max-width:1000px;
   margin:auto;
   padding:20px;
 }
 
-/* TABLE */
 table{
   width:100%;
   border-collapse:collapse;
   background:#111827;
-  border-radius:10px;
-  overflow:hidden;
 }
 
-th, td{
+th,td{
   padding:15px;
-  text-align:left;
   border-bottom:1px solid #1f2937;
 }
 
 th{
-  background:#0f172a;
   color:#94a3b8;
-  font-size:14px;
+  background:#0f172a;
 }
 
 .coin{
   display:flex;
   align-items:center;
   gap:10px;
+  cursor:pointer;
 }
 
 .coin img{
@@ -57,18 +56,37 @@ th{
   height:25px;
 }
 
-/* COLOR CHANGE */
-.price-up{
-  color:#00ff88;
+.star{
+  cursor:pointer;
+  color:#555;
 }
 
-.price-down{
-  color:#ff4d4d;
+.star.active{
+  color:gold;
 }
 
-/* LOADING */
-.loading{
-  text-align:center;
+/* MODAL (TradingView feel) */
+.modal{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.8);
+}
+
+.modal-content{
+  width:90%;
+  max-width:900px;
+  margin:5% auto;
+  background:#0f172a;
   padding:20px;
-  color:#94a3b8;
+  border-radius:10px;
+}
+
+.close{
+  float:right;
+  cursor:pointer;
+  color:red;
 }
