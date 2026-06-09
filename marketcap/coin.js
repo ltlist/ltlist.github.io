@@ -2,9 +2,8 @@ const id = new URLSearchParams(window.location.search).get("id");
 
 let currentDays = 7;
 let candlesData = [];
-let zoom = 1;
 
-/* LOAD COIN INFO */
+/* LOAD COIN */
 async function loadCoin(){
 
   const res = await fetch(`https://api.coingecko.com/api/v3/coins/${id}`);
@@ -18,13 +17,6 @@ async function loadCoin(){
     <p>24h: ${data.market_data.price_change_percentage_24h.toFixed(2)}%</p>
   `;
 
-  document.getElementById("fundamental").innerHTML = `
-    <p>Rank: #${data.market_cap_rank}</p>
-    <p>ATH: $${data.market_data.ath.usd}</p>
-    <p>ATL: $${data.market_data.atl.usd}</p>
-    <p>Supply: ${data.market_data.circulating_supply.toLocaleString()}</p>
-  `;
-
   loadChart();
 }
 
@@ -34,7 +26,7 @@ function setTF(days){
   loadChart();
 }
 
-/* LOAD CHART DATA */
+/* LOAD DATA */
 async function loadChart(){
 
   const res = await fetch(
@@ -48,7 +40,7 @@ async function loadChart(){
   draw();
 }
 
-/* CREATE OHLC */
+/* OHLC */
 function createCandles(prices, volumes){
 
   let candles = [];
@@ -71,13 +63,14 @@ function createCandles(prices, volumes){
   return candles;
 }
 
-/* DRAW */
+/* DRAW ALL */
 function draw(){
   drawCandles();
   drawOverlay();
+  drawMACD();
 }
 
-/* CANDLE + GRID + MA + VOLUME */
+/* CANDLE */
 function drawCandles(){
 
   const canvas = document.getElementById("candleChart");
@@ -99,7 +92,6 @@ function drawCandles(){
 
   /* GRID */
   ctx.strokeStyle = "#1f2937";
-
   for(let i=0;i<10;i++){
     let y = (canvas.height/10)*i;
     ctx.beginPath();
@@ -107,23 +99,6 @@ function drawCandles(){
     ctx.lineTo(canvas.width,y);
     ctx.stroke();
   }
-
-  /* MA */
-  let ma = calcMA(data,10);
-
-  ctx.strokeStyle = "#00ffcc";
-  ctx.beginPath();
-
-  data.forEach((c,i)=>{
-    if(ma[i]){
-      let x = i*step;
-      let y = canvas.height - ((ma[i]-min)/(max-min))*canvas.height;
-      if(i===0) ctx.moveTo(x,y);
-      else ctx.lineTo(x,y);
-    }
-  });
-
-  ctx.stroke();
 
   /* CANDLES */
   data.forEach((c,i)=>{
@@ -155,7 +130,6 @@ function drawCandles(){
   data.forEach((c,i)=>{
 
     let x = i*step;
-
     let vh = (c.volume/vMax)*60;
 
     ctx.fillStyle = "rgba(100,100,255,0.3)";
@@ -191,46 +165,102 @@ function drawOverlay(){
     ctx.lineTo(canvas.width,y);
     ctx.stroke();
   };
-
-  /* ZOOM FIX */
-  canvas.onwheel = (e)=>{
-
-    e.preventDefault();
-
-    if(e.deltaY < 0){
-      zoom += 0.1;
-    } else {
-      zoom -= 0.1;
-    }
-
-    zoom = Math.max(0.3, Math.min(1, zoom));
-
-    let start = Math.floor(candlesData.length * (1 - zoom));
-    let data = candlesData.slice(start);
-
-    candlesData = data;
-
-    drawCandles();
-  };
 }
 
-/* MA FUNCTION */
-function calcMA(data, period=10){
+/* ===================== */
+/* MACD ENGINE */
+/* ===================== */
 
-  let ma = [];
+function ema(data, period){
+  let k = 2 / (period + 1);
+  let emaArray = [];
 
-  for(let i=0;i<data.length;i++){
-    if(i<period) ma.push(null);
-    else{
-      let sum=0;
-      for(let j=0;j<period;j++){
-        sum += data[i-j].close;
-      }
-      ma.push(sum/period);
-    }
+  emaArray[0] = data[0];
+
+  for(let i=1;i<data.length;i++){
+    emaArray[i] = data[i] * k + emaArray[i-1] * (1-k);
   }
 
-  return ma;
+  return emaArray;
+}
+
+function drawMACD(){
+
+  const canvas = document.getElementById("macdChart");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = window.innerWidth * 0.95;
+  canvas.height = 180;
+
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  let closes = candlesData.map(c => c.close);
+
+  if(closes.length < 20) return;
+
+  let ema12 = ema(closes, 12);
+  let ema26 = ema(closes, 26);
+
+  let macdLine = ema12.map((v,i)=> v - ema26[i]);
+  let signalLine = ema(macdLine, 9);
+
+  let histogram = macdLine.map((v,i)=> v - signalLine[i]);
+
+  let max = Math.max(...macdLine);
+  let min = Math.min(...macdLine);
+
+  let step = canvas.width / macdLine.length;
+
+  /* GRID */
+  ctx.strokeStyle = "#1f2937";
+  for(let i=0;i<5;i++){
+    let y = (canvas.height/5)*i;
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(canvas.width,y);
+    ctx.stroke();
+  }
+
+  function scale(v){
+    return canvas.height - ((v-min)/(max-min))*canvas.height;
+  }
+
+  /* HISTOGRAM */
+  histogram.forEach((h,i)=>{
+
+    let x = i*step;
+
+    ctx.fillStyle = h>=0 ? "rgba(0,255,136,0.4)" : "rgba(255,77,77,0.4)";
+    ctx.fillRect(x, canvas.height/2, step, -h*20);
+  });
+
+  /* MACD LINE */
+  ctx.strokeStyle = "#00ffcc";
+  ctx.beginPath();
+
+  macdLine.forEach((v,i)=>{
+    let x = i*step;
+    let y = scale(v);
+
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+
+  ctx.stroke();
+
+  /* SIGNAL LINE */
+  ctx.strokeStyle = "#ffcc00";
+  ctx.beginPath();
+
+  signalLine.forEach((v,i)=>{
+    let x = i*step;
+    let y = scale(v);
+
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+
+  ctx.stroke();
 }
 
 /* START */
