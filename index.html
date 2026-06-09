@@ -3,19 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>LTList Faucet</title>
-<meta name="description"
-content="Verified crypto faucets with active payouts and ranking.">
 
-<meta name="keywords"
-content="crypto faucet,litecoin faucet,doge faucet,faucetpay">
-
-<meta name="robots"
-content="index,follow">
+<meta name="description" content="Verified crypto faucets with active payouts and ranking.">
+<meta name="keywords" content="crypto faucet,litecoin faucet,doge faucet,faucetpay">
+<meta name="robots" content="index,follow">
 
 <meta property="og:title" content="LTList Faucet">
 <meta property="og:description" content="Verified Crypto Faucets">
 <meta property="og:type" content="website">
+
 <link rel="icon" href="favicon.png">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -25,7 +23,9 @@ content="index,follow">
 <div class="container">
 
   <h1>LTList Faucet</h1>
+
   <p id="totalFaucets"></p>
+
   <input
     id="search"
     placeholder="Search faucet..."
@@ -41,12 +41,18 @@ content="index,follow">
     <option value="all">All Coins</option>
   </select>
 
+  <div id="loading">
+    Loading faucets...
+  </div>
+
   <div id="list"></div>
 
-<footer class="footer">
-© LTList Faucet - All rights reserved
-</footer>
+  <footer class="footer">
+    © LTList Faucet - All rights reserved
+  </footer>
+
 </div>
+
 <script type="module" src="public.js"></script>
 
 </body>
