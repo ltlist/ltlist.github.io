@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coin Detail</title>
+<link rel="stylesheet" href="market.css">
+</head>
+
+<body>
+
+<div class="header">
+  <h1 id="coinName">Loading...</h1>
+</div>
+
+<div class="page">
+
+  <div class="card" id="priceBox"></div>
+
+  <canvas id="fullChart"></canvas>
+
+  <div class="card" id="fundamental"></div>
+
+</div>
+
+<script>
+const id = new URLSearchParams(window.location.search).get("id");
+
+/* LOAD DETAIL */
+async function loadCoin(){
+
+  const res = await fetch(`https://api.coingecko.com/api/v3/coins/${id}`);
+  const data = await res.json();
+
+  document.getElementById("coinName").innerText = data.name;
+
+  document.getElementById("priceBox").innerHTML = `
+    <h2>$${data.market_data.current_price.usd}</h2>
+    <p>Market Cap: $${data.market_data.market_cap.usd}</p>
+    <p>24h Change: ${data.market_data.price_change_percentage_24h}%</p>
+  `;
+
+  document.getElementById("fundamental").innerHTML = `
+    <p>Rank: #${data.market_cap_rank}</p>
+    <p>ATH: $${data.market_data.ath.usd}</p>
+    <p>ATL: $${data.market_data.atl.usd}</p>
+    <p>Supply: ${data.market_data.circulating_supply}</p>
+  `;
+
+  loadChart();
+}
+
+/* CHART FULL */
+async function loadChart(){
+
+  const res = await fetch(
+    `https://api.coingecko.com/api/v3/coins/${id}/market_chart?vs_currency=usd&days=7`
+  );
+
+  const data = await res.json();
+
+  let prices = data.prices;
+
+  let canvas = document.getElementById("fullChart");
+  let ctx = canvas.getContext("2d");
+
+  canvas.width = 900;
+  canvas.height = 400;
+
+  let max = Math.max(...prices.map(p=>p[1]));
+  let min = Math.min(...prices.map(p=>p[1]));
+
+  let step = canvas.width / prices.length;
+
+  ctx.strokeStyle="#00ffcc";
+  ctx.beginPath();
+
+  prices.forEach((p,i)=>{
+
+    let x = i*step;
+    let y = canvas.height - ((p[1]-min)/(max-min))*canvas.height;
+
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+
+  });
+
+  ctx.stroke();
+}
+
+loadCoin();
+</script>
+
+</body>
+</html>
