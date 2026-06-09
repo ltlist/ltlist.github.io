@@ -1,18 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  addDoc,
-  deleteDoc,
-  doc,
-  updateDoc
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-import {
-  getAuth,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKDV75S8",
@@ -25,29 +12,28 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(app);
 
 const listDiv = document.getElementById("list");
 
 let allFaucets = [];
 
 // =====================
-// LOAD
+// LOAD DATA
 // =====================
 async function loadFaucets(){
   const snap = await getDocs(collection(db, "faucets"));
 
   allFaucets = [];
 
-  snap.forEach((d) => {
-    allFaucets.push({ id: d.id, ...d.data() });
+  snap.forEach((doc) => {
+    allFaucets.push(doc.data());
   });
 
   render(allFaucets);
 }
 
 // =====================
-// RENDER (ADMIN)
+// RENDER PUBLIC
 // =====================
 function render(data){
 
@@ -64,19 +50,16 @@ function render(data){
         <span style="float:right;
           background:${active ? '#00ff88' : '#ff4d4d'};
           padding:3px 8px;
-          border-radius:6px;">
+          border-radius:6px;
+          font-size:12px;">
           ${d.status}
         </span>
 
         <br><br>
 
-        Coin: ${d.coin}<br>
+        Coin: ${d.coin}<br><br>
+
         <a href="${d.url}" target="_blank">Visit</a>
-
-        <br><br>
-
-        <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
-        <button onclick="deleteFaucet('${d.id}')">Delete</button>
       </div>
     `;
   });
@@ -85,69 +68,17 @@ function render(data){
 }
 
 // =====================
-// ADD
-// =====================
-window.addFaucet = async function(){
-
-  const name = document.getElementById("name").value;
-  const url = document.getElementById("url").value;
-  const coin = document.getElementById("coin").value;
-
-  await addDoc(collection(db, "faucets"), {
-    name,
-    url,
-    coin,
-    status: "active"
-  });
-
-  loadFaucets();
-};
-
-// =====================
-// DELETE
-// =====================
-window.deleteFaucet = async function(id){
-  await deleteDoc(doc(db, "faucets", id));
-  loadFaucets();
-};
-
-// =====================
-// TOGGLE STATUS
-// =====================
-window.toggleStatus = async function(id, status){
-
-  const newStatus = status === "active" ? "inactive" : "active";
-
-  await updateDoc(doc(db, "faucets", id), {
-    status: newStatus
-  });
-
-  loadFaucets();
-};
-
-// =====================
-// SEARCH ADMIN
-// =====================
-window.searchFaucet = function(){
-
-  const v = document.getElementById("search").value.toLowerCase();
-
-  render(allFaucets.filter(f =>
-    f.name.toLowerCase().includes(v) ||
-    f.coin.toLowerCase().includes(v)
-  ));
-};
-
-// =====================
-// PUBLIC SEARCH
+// SEARCH PUBLIC
 // =====================
 window.searchPublic = function(){
 
   const v = document.getElementById("search").value.toLowerCase();
 
-  render(allFaucets.filter(f =>
+  const filtered = allFaucets.filter(f =>
     f.name.toLowerCase().includes(v)
-  ));
+  );
+
+  render(filtered);
 };
 
 // =====================
@@ -162,16 +93,9 @@ window.filterCoin = function(){
     return;
   }
 
-  render(allFaucets.filter(f => f.coin === coin));
-};
+  const filtered = allFaucets.filter(f => f.coin === coin);
 
-// =====================
-// LOGOUT
-// =====================
-window.logout = function(){
-  signOut(auth).then(() => {
-    window.location.href = "login.html";
-  });
+  render(filtered);
 };
 
 // INIT
