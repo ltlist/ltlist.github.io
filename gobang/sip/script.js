@@ -45,7 +45,7 @@ async function loadFaucets() {
     const data = d.data();
 
     html += `
-      <div style="background:#111827;padding:10px;margin:10px 0;border-radius:8px;">
+<div class="card">
         <b>${data.name}</b><br>
         Coin: ${data.coin}<br>
         <a href="${data.url}" target="_blank" style="color:#00ffcc;">Visit</a>
