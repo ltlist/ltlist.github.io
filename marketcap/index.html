@@ -4,37 +4,41 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>LTList MarketCap</title>
+<title>LTList Mobile Exchange</title>
 
 <link rel="stylesheet" href="market.css">
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
-  <h1>LTList MarketCap</h1>
-  <p>TradingView Style Candlestick</p>
-
-  <input type="text" id="searchBox" placeholder="Search coin..." />
+  <h1>LTList Exchange</h1>
+  <p>Crypto Market • Mobile Pro UI</p>
 </div>
 
-<div class="container">
+<!-- PAGES -->
+<div id="home" class="page active">
+  <h2>Home</h2>
+  <div class="card">
+    Welcome to LTList Trading App 🚀
+  </div>
+</div>
 
-<table>
-  <thead>
-    <tr>
-      <th>★</th>
-      <th>#</th>
-      <th>Coin</th>
-      <th>Price</th>
-      <th>24h</th>
-      <th>Market Cap</th>
-    </tr>
-  </thead>
+<div id="market" class="page">
+  <h2>Market</h2>
 
-  <tbody id="coinTable"></tbody>
-</table>
+  <input id="searchBox" placeholder="Search coin..." />
 
+  <div id="coinList"></div>
+</div>
+
+<div id="wallet" class="page">
+  <h2>Wallet</h2>
+
+  <div class="card">
+    Balance: $0.00 (Demo)
+  </div>
 </div>
 
 <!-- CHART MODAL -->
@@ -45,17 +49,22 @@
 
     <h3 id="chartTitle"></h3>
 
-    <!-- TIMEFRAME BUTTONS -->
     <div class="tf">
-      <button onclick="changeTF('1')">1H</button>
-      <button onclick="changeTF('1')">1D</button>
-      <button onclick="changeTF('7')">7D</button>
-      <button onclick="changeTF('30')">30D</button>
+      <button onclick="changeTF(1)">1D</button>
+      <button onclick="changeTF(7)">7D</button>
+      <button onclick="changeTF(30)">30D</button>
     </div>
 
     <canvas id="candleChart"></canvas>
 
   </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button onclick="showPage('home')">🏠 Home</button>
+  <button onclick="showPage('market')">📊 Market</button>
+  <button onclick="showPage('wallet')">👛 Wallet</button>
 </div>
 
 <script src="market.js"></script>
