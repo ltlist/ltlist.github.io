@@ -1,38 +1,140 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Dashboard LTList</title>
-<link rel="stylesheet" href="style.css">
-</head>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  doc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<body>
+import {
+  getAuth,
+  signOut
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-<div class="container">
+const firebaseConfig = {
+  apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKDV75S8",
+  authDomain: "ltlist-f.firebaseapp.com",
+  projectId: "ltlist-f",
+  storageBucket: "ltlist-f.firebasestorage.app",
+  messagingSenderId: "991011425656",
+  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
+};
 
-<h1>Dashboard Admin</h1>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-<button onclick="logout()">Logout</button>
+const listDiv = document.getElementById("list");
 
-<hr>
+let allFaucets = [];
 
-<h2>Faucet List</h2>
-<input id="search" placeholder="Search..." onkeyup="searchFaucet()">
+// LOAD
+async function loadFaucets(){
 
-<div id="list"></div>
+  const snap = await getDocs(collection(db, "faucets"));
 
-<hr>
+  allFaucets = [];
 
-<h2>Add Faucet</h2>
+  snap.forEach((d) => {
+    allFaucets.push({ id: d.id, ...d.data() });
+  });
 
-<input id="name" placeholder="Name">
-<input id="url" placeholder="URL">
-<input id="coin" placeholder="Coin (BTC/LTC/DOGE)">
+  render(allFaucets);
+}
 
-<button onclick="addFaucet()">Add</button>
+// RENDER ADMIN
+function render(data){
 
-</div>
+  let html = "";
 
-<script type="module" src="dashboard.js"></script>
+  data.forEach((d) => {
 
-</body>
-</html>
+    const active = d.status === "active";
+
+    html += `
+      <div class="card">
+        <b>${d.name}</b>
+
+        <span style="float:right;
+          background:${active ? '#00ff88' : '#ff4d4d'};
+          padding:3px 8px;
+          border-radius:6px;">
+          ${d.status}
+        </span>
+
+        <br><br>
+
+        Coin: ${d.coin}<br>
+        <a href="${d.url}" target="_blank">Visit</a>
+
+        <br><br>
+
+        <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
+        <button onclick="deleteFaucet('${d.id}')">Delete</button>
+      </div>
+    `;
+  });
+
+  listDiv.innerHTML = html;
+}
+
+// ADD
+window.addFaucet = async function(){
+
+  const name = document.getElementById("name").value;
+  const url = document.getElementById("url").value;
+  const coin = document.getElementById("coin").value;
+
+  await addDoc(collection(db, "faucets"), {
+    name,
+    url,
+    coin,
+    status: "active"
+  });
+
+  loadFaucets();
+};
+
+// DELETE
+window.deleteFaucet = async function(id){
+  await deleteDoc(doc(db, "faucets", id));
+  loadFaucets();
+};
+
+// TOGGLE
+window.toggleStatus = async function(id, status){
+
+  const newStatus = status === "active" ? "inactive" : "active";
+
+  await updateDoc(doc(db, "faucets", id), {
+    status: newStatus
+  });
+
+  loadFaucets();
+};
+
+// SEARCH
+window.searchFaucet = function(){
+
+  const v = document.getElementById("search").value.toLowerCase();
+
+  const filtered = allFaucets.filter(f =>
+    f.name.toLowerCase().includes(v) ||
+    f.coin.toLowerCase().includes(v)
+  );
+
+  render(filtered);
+};
+
+// LOGOUT
+window.logout = function(){
+  signOut(auth).then(() => {
+    window.location.href = "login.html";
+  });
+};
+
+// INIT
+loadFaucets();
