@@ -1,8 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>LTList Faucet</title>
+
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -10,23 +12,24 @@
 
 <div class="container">
 
-<h1>LTList Faucet</h1>
+  <h1>LTList Faucet</h1>
 
-<input id="search" placeholder="Search faucet..." onkeyup="searchPublic()">
+  <input
+    id="search"
+    placeholder="Search faucet..."
+    onkeyup="searchPublic()"
+  >
 
-<div id="coinStats"></div>
+  <div id="coinStats"></div>
 
-<select id="coinFilter" onchange="filterCoin()">
-  <option value="all">All Coins</option>
-</select>
+  <select
+    id="coinFilter"
+    onchange="filterCoin()"
+  >
+    <option value="all">All Coins</option>
+  </select>
 
-<div id="list"></div>
-
-<!-- FILTER COIN AUTO -->
-  <option value="all">All Coin</option>
-</select>
-
-<div id="list"></div>
+  <div id="list"></div>
 
 </div>
 
