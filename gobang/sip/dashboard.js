@@ -31,9 +31,7 @@ const listDiv = document.getElementById("list");
 
 let allFaucets = [];
 
-// =====================
 // LOAD
-// =====================
 async function loadFaucets(){
 
   const snap = await getDocs(collection(db, "faucets"));
@@ -47,9 +45,7 @@ async function loadFaucets(){
   render(allFaucets);
 }
 
-// =====================
-// RENDER
-// =====================
+// RENDER ADMIN
 function render(data){
 
   let html = "";
@@ -85,9 +81,7 @@ function render(data){
   listDiv.innerHTML = html;
 }
 
-// =====================
 // ADD
-// =====================
 window.addFaucet = async function(){
 
   const name = document.getElementById("name").value;
@@ -104,17 +98,13 @@ window.addFaucet = async function(){
   loadFaucets();
 };
 
-// =====================
 // DELETE
-// =====================
 window.deleteFaucet = async function(id){
   await deleteDoc(doc(db, "faucets", id));
   loadFaucets();
 };
 
-// =====================
-// TOGGLE STATUS
-// =====================
+// TOGGLE
 window.toggleStatus = async function(id, status){
 
   const newStatus = status === "active" ? "inactive" : "active";
@@ -126,9 +116,7 @@ window.toggleStatus = async function(id, status){
   loadFaucets();
 };
 
-// =====================
-// SEARCH ADMIN
-// =====================
+// SEARCH
 window.searchFaucet = function(){
 
   const v = document.getElementById("search").value.toLowerCase();
@@ -141,9 +129,7 @@ window.searchFaucet = function(){
   render(filtered);
 };
 
-// =====================
 // LOGOUT
-// =====================
 window.logout = function(){
   signOut(auth).then(() => {
     window.location.href = "login.html";
