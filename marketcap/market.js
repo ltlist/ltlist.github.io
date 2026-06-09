@@ -1,9 +1,10 @@
 let coins = [];
+let filteredCoins = [];
+
 let currentCoin = null;
-let currentName = "";
 let currentDays = 7;
 
-/* PAGE SWITCH */
+/* PAGE */
 function showPage(page){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById(page).classList.add("active");
@@ -17,15 +18,17 @@ async function loadMarket(){
   );
 
   coins = await res.json();
+  filteredCoins = coins;
+
   renderCoins();
 }
 
-/* RENDER MARKET */
+/* RENDER */
 function renderCoins(){
 
   let html = "";
 
-  coins.forEach(c=>{
+  filteredCoins.forEach(c=>{
 
     html += `
       <div class="coin-item" onclick="openChart('${c.id}','${c.name}')">
@@ -49,13 +52,29 @@ function renderCoins(){
   document.getElementById("coinList").innerHTML = html;
 }
 
+/* SEARCH */
+function filterCoins(){
+
+  let val = document.getElementById("searchBox").value.toLowerCase();
+
+  filteredCoins = coins.filter(c =>
+    c.name.toLowerCase().includes(val)
+  );
+
+  renderCoins();
+}
+
 /* OPEN CHART */
+let currentCoin = null;
+let currentName = "";
+
 async function openChart(id,name){
 
   currentCoin = id;
   currentName = name;
 
-  document.getElementById("chartModal").style.display="block";
+  document.getElementById("chartTitle").innerText = name;
+  document.getElementById("chartModal").style.display = "block";
 
   loadChart();
 }
@@ -80,11 +99,11 @@ async function loadChart(){
   drawChart(candles);
 }
 
-/* OHLC */
+/* CREATE CANDLE */
 function createCandles(prices){
 
   let candles = [];
-  let chunk = Math.max(1, Math.floor(prices.length/20));
+  let chunk = Math.max(1, Math.floor(prices.length/25));
 
   for(let i=0;i<prices.length;i+=chunk){
 
@@ -102,7 +121,7 @@ function createCandles(prices){
   return candles;
 }
 
-/* DRAW */
+/* DRAW CHART */
 function drawChart(candles){
 
   let canvas = document.getElementById("candleChart");
@@ -135,7 +154,12 @@ function drawChart(candles){
 
     ctx.fillStyle = c.close>=c.open ? "#00ff88" : "#ff4d4d";
 
-    ctx.fillRect(x-4,Math.min(openY,closeY),8,Math.abs(closeY-openY));
+    ctx.fillRect(
+      x-4,
+      Math.min(openY,closeY),
+      8,
+      Math.abs(closeY-openY)
+    );
   });
 }
 
