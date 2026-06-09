@@ -38,6 +38,11 @@ async function loadFaucets() {
   // ranking
   allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
 
+// TOTAL FAUCETS
+
+document.getElementById("totalFaucets").innerHTML =
+  `📊 ${allFaucets.length} Active Faucets`;
+
   render(allFaucets);
   renderCoinStats();
   loadCoinFilter();
