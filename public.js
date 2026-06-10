@@ -12,7 +12,7 @@ import {
    FIREBASE
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokJ_Wl3aITEhj6UPetF-MGQXKdv75S8",
+  apiKey: "AIzaSyAVokJ_Wl3aITEhj6UPetF-MGQXKDV75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -24,20 +24,28 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const listDiv = document.getElementById("list");
-const trendingDiv = document.getElementById("trending");
-const coinStatsDiv = document.getElementById("coinStats");
-const coinFilter = document.getElementById("coinFilter");
-const totalEl = document.getElementById("totalFaucets");
 
 let allFaucets = [];
+
+/* =====================
+   HELPERS
+===================== */
+function getLocal(id) {
+  return allFaucets.find(f => f.id === id) || {};
+}
+
+function updateLocal(id, data) {
+  const i = allFaucets.findIndex(f => f.id === id);
+  if (i !== -1) {
+    allFaucets[i] = { ...allFaucets[i], ...data };
+  }
+}
 
 /* =====================
    SCORE
 ===================== */
 function calcScore(f) {
-  const likes = f.likes || 0;
-  const dislikes = f.dislikes || 0;
-  return likes * 3 - dislikes * 2;
+  return (f.likes || 0) * 3 - (f.dislikes || 0) * 2;
 }
 
 /* =====================
@@ -58,200 +66,173 @@ async function loadFaucets() {
 
   allFaucets.sort((a, b) => calcScore(b) - calcScore(a));
 
-  refreshUI();
-}
-
-/* =====================
-   UI
-===================== */
-function refreshUI() {
   render(allFaucets);
-  renderTrending();
-  renderCoinStats();
-  loadCoinFilter();
-
-  if (totalEl) {
-    totalEl.innerText = `📊 ${allFaucets.length} Faucets`;
-  }
 }
 
 /* =====================
-   CLICK
+   RENDER CARD HTML
 ===================== */
-function canClick(id) {
-  const key = "click_" + id;
-  const now = Date.now();
-  const last = localStorage.getItem(key);
+function cardHTML(d) {
+  return `
+    <div class="top-row">
+      <div class="rank">#${d.rank || "-"}</div>
+      <div class="coin">${d.coin || "-"}</div>
+      <div class="score">⭐ ${calcScore(d)}</div>
+    </div>
 
-  if (last && now - last < 5000) return false;
-  localStorage.setItem(key, now);
-  return true;
+    <div class="name">${d.name}</div>
+
+    <div class="bottom-row">
+      <div class="vote">
+        👍 ${d.likes || 0} 👎 ${d.dislikes || 0}
+      </div>
+
+      <a class="visit-btn"
+         href="#"
+         onclick="visitFaucet('${d.id}','${d.url}')">
+        Claim
+      </a>
+    </div>
+  `;
 }
 
-window.visitFaucet = async function (id, url) {
+/* =====================
+   MAIN RENDER
+===================== */
+function render(data) {
 
-  if (!canClick(id)) return;
+  listDiv.innerHTML = data.map(d => `
+    <div class="card" id="card-${d.id}">
+      ${cardHTML(d)}
+    </div>
+  `).join("");
+}
+
+/* =====================
+   VISIT
+===================== */
+window.visitFaucet = async function (id, url) {
 
   try {
     await updateDoc(doc(db, "faucets", id), {
       clicks: increment(1)
     });
-  } catch {}
+  } catch (e) {}
 
   window.open(url, "_blank");
 };
 
 /* =====================
-   LIKE / DISLIKE
+   LIKE (REALTIME)
 ===================== */
 window.likeFaucet = async function (id) {
+
   const key = "vote_" + id;
   const current = localStorage.getItem(key);
 
   const ref = doc(db, "faucets", id);
+
+  let updateData = {};
 
   if (current === "like") return;
 
   if (current === "dislike") {
-    await updateDoc(ref, {
-      dislikes: increment(-1),
-      likes: increment(1)
-    });
+    updateData = {
+      likes: increment(1),
+      dislikes: increment(-1)
+    };
   } else {
-    await updateDoc(ref, {
+    updateData = {
       likes: increment(1)
-    });
+    };
   }
 
-  localStorage.setItem(key, "like");
-  loadFaucets();
+  try {
+    await updateDoc(ref, updateData);
+
+    const local = getLocal(id);
+
+    if (current === "dislike") {
+      updateLocal(id, {
+        likes: (local.likes || 0) + 1,
+        dislikes: (local.dislikes || 0) - 1
+      });
+    } else {
+      updateLocal(id, {
+        likes: (local.likes || 0) + 1
+      });
+    }
+
+    localStorage.setItem(key, "like");
+
+    rerenderCard(id);
+
+  } catch (e) {
+    console.log(e);
+  }
 };
 
+/* =====================
+   DISLIKE (REALTIME)
+===================== */
 window.dislikeFaucet = async function (id) {
+
   const key = "vote_" + id;
   const current = localStorage.getItem(key);
 
   const ref = doc(db, "faucets", id);
 
+  let updateData = {};
+
   if (current === "dislike") return;
 
   if (current === "like") {
-    await updateDoc(ref, {
+    updateData = {
       likes: increment(-1),
       dislikes: increment(1)
-    });
+    };
   } else {
-    await updateDoc(ref, {
+    updateData = {
       dislikes: increment(1)
-    });
+    };
   }
 
-  localStorage.setItem(key, "dislike");
-  loadFaucets();
+  try {
+    await updateDoc(ref, updateData);
+
+    const local = getLocal(id);
+
+    if (current === "like") {
+      updateLocal(id, {
+        likes: (local.likes || 0) - 1,
+        dislikes: (local.dislikes || 0) + 1
+      });
+    } else {
+      updateLocal(id, {
+        dislikes: (local.dislikes || 0) + 1
+      });
+    }
+
+    localStorage.setItem(key, "dislike");
+
+    rerenderCard(id);
+
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 /* =====================
-   RENDER CARD (NEW STYLE FIX MOBILE)
+   RERENDER 1 CARD ONLY
 ===================== */
-function render(data) {
+function rerenderCard(id) {
 
-  listDiv.innerHTML = data.map(d => `
-    <div class="card">
+  const d = getLocal(id);
+  const el = document.getElementById("card-" + id);
 
-      <div class="top-row">
-        <div class="rank">#${d.rank || "-"}</div>
-        <div class="coin">${d.coin || "-"}</div>
-        <div class="score">⭐ ${calcScore(d)}</div>
-      </div>
+  if (!el) return;
 
-      <div class="name">${d.name}</div>
-
-      <div class="bottom-row">
-        <div class="vote">👍 ${d.likes || 0} 👎 ${d.dislikes || 0}</div>
-
-        <a class="visit-btn"
-           href="#"
-           onclick="visitFaucet('${d.id}','${d.url}')">
-          Claim
-        </a>
-      </div>
-
-    </div>
-  `).join("");
-}
-
-/* =====================
-   TRENDING
-===================== */
-function renderTrending() {
-
-  if (!trendingDiv) return;
-
-  const top = [...allFaucets]
-    .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
-    .slice(0, 5);
-
-  trendingDiv.innerHTML = top.map((d, i) => `
-    <div class="trend-row">
-
-      <div class="t-col rank">
-        ${i + 1}
-      </div>
-
-      <div class="t-col coin">
-        ${d.coin}
-      </div>
-
-      <div class="t-col name">
-        ${d.name}
-      </div>
-
-      <div class="t-col action">
-        <a href="#" onclick="visitFaucet('${d.id}','${d.url}')">
-          Claim
-        </a>
-      </div>
-
-    </div>
-  `).join("");
-}
-
-/* =====================
-   COIN FILTER
-===================== */
-function loadCoinFilter() {
-
-  if (!coinFilter) return;
-
-  coinFilter.innerHTML = `<option value="all">All Coins</option>`;
-
-  const coins = [...new Set(allFaucets.map(f => f.coin))];
-
-  coins.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c;
-    opt.textContent = c;
-    coinFilter.appendChild(opt);
-  });
-}
-
-/* =====================
-   STATS
-===================== */
-function renderCoinStats() {
-
-  if (!coinStatsDiv) return;
-
-  const count = {};
-
-  allFaucets.forEach(f => {
-    count[f.coin] = (count[f.coin] || 0) + 1;
-  });
-
-  coinStatsDiv.innerHTML =
-    Object.keys(count)
-      .map(c => `<span class="badge">${c} (${count[c]})</span>`)
-      .join("");
+  el.innerHTML = cardHTML(d);
 }
 
 /* =====================
