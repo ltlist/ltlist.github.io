@@ -281,9 +281,12 @@ window.saveEdit = async function () {
     status: document.getElementById("editStatus").value
   });
 
-  showToast("Data diupdate!");
+  await loadFaucets();
+  await autoReRank();
+  await loadFaucets();
+
   closeModal();
-  loadFaucets();
+  showToast("Data diupdate!");
 };
 
 /* =====================
@@ -358,10 +361,11 @@ window.scanDeadFaucets = async function () {
       showToast("Dead: " + f.name, "error");
     }
   }
-
+  await loadFaucets();
+  await autoReRank();
+  await loadFaucets();
   showToast("Scan selesai. Dead: " + deadCount);
 
-  loadFaucets();
 };
 
 /* =====================
