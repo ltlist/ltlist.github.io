@@ -5,8 +5,7 @@ import {
   doc,
   updateDoc,
   increment,
-  onSnapshot,
-  serverTimestamp
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =====================
@@ -34,55 +33,14 @@ const totalEl = document.getElementById("totalFaucets");
 let allFaucets = [];
 
 /* =====================
-   DEVICE ID (ANTI MULTI ACCOUNT BASIC)
+   SCORE SYSTEM
 ===================== */
-function getDeviceId() {
-  let id = localStorage.getItem("device_id");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("device_id", id);
-  }
-  return id;
+function calcScore(f) {
+  return (f.likes || 0) * 3 - (f.dislikes || 0) * 4 + (f.clicks || 0);
 }
 
 /* =====================
-   PRO ANTI SPAM ENGINE
-===================== */
-const clickCache = {};
-let globalClickCount = 0;
-let resetTime = Date.now();
-
-/* reset global tiap 1 menit */
-setInterval(() => {
-  globalClickCount = 0;
-  resetTime = Date.now();
-}, 60000);
-
-/* =====================
-   CHECK CLICK VALID
-===================== */
-function canClick(id) {
-
-  const now = Date.now();
-
-  // per faucet cooldown
-  if (clickCache[id] && now - clickCache[id] < 15000) {
-    return false;
-  }
-
-  // global limit per minute
-  if (globalClickCount >= 20) {
-    return false;
-  }
-
-  clickCache[id] = now;
-  globalClickCount++;
-
-  return true;
-}
-
-/* =====================
-   REALTIME FIRESTORE
+   REALTIME DATA
 ===================== */
 function startRealtime() {
   onSnapshot(collection(db, "faucets"), (snap) => {
@@ -103,27 +61,21 @@ function startRealtime() {
 }
 
 /* =====================
-   SCORE
-===================== */
-function calcScore(f) {
-  return (f.likes || 0) * 3 - (f.dislikes || 0) * 4 + (f.clicks || 0);
-}
-
-/* =====================
-   VISIT (ANTI SPAM PRO)
+   CLICK / CLAIM
 ===================== */
 window.visitFaucet = async function (id, url) {
 
-  if (!canClick(id)) {
-    alert("Terlalu cepat klik, tunggu sebentar!");
-    return;
-  }
+  const key = "click_" + id;
+  const now = Date.now();
+  const last = localStorage.getItem(key);
+
+  if (last && now - last < 5000) return;
+
+  localStorage.setItem(key, now);
 
   try {
     await updateDoc(doc(db, "faucets", id), {
-      clicks: increment(1),
-      lastClick: serverTimestamp(),
-      device: getDeviceId()
+      clicks: increment(1)
     });
   } catch (e) {}
 
@@ -131,7 +83,7 @@ window.visitFaucet = async function (id, url) {
 };
 
 /* =====================
-   LIKE (SAFE)
+   LIKE
 ===================== */
 window.likeFaucet = async function (id) {
   try {
@@ -142,7 +94,7 @@ window.likeFaucet = async function (id) {
 };
 
 /* =====================
-   DISLIKE (SAFE)
+   DISLIKE
 ===================== */
 window.dislikeFaucet = async function (id) {
   try {
@@ -153,7 +105,7 @@ window.dislikeFaucet = async function (id) {
 };
 
 /* =====================
-   RENDER LIST
+   MAIN LIST
 ===================== */
 function render() {
 
@@ -171,7 +123,8 @@ function render() {
       <div class="score">⭐ ${calcScore(d)}</div>
 
       <div class="vote">
-        👍 ${d.likes || 0} 👎 ${d.dislikes || 0}
+        👍 ${d.likes || 0}
+        👎 ${d.dislikes || 0}
       </div>
 
       <a class="visit-btn"
@@ -179,12 +132,15 @@ function render() {
         Claim
       </a>
 
+      <button onclick="likeFaucet('${d.id}')">👍</button>
+      <button onclick="dislikeFaucet('${d.id}')">👎</button>
+
     </div>
   `).join("");
 }
 
 /* =====================
-   TRENDING
+   TRENDING + CLAIM BUTTON (FIXED)
 ===================== */
 function renderTrending() {
 
@@ -194,10 +150,20 @@ function renderTrending() {
 
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
-      <div>🔥 ${i + 1}</div>
-      <div>${d.name}</div>
-      <div>${d.coin}</div>
-      <div>⭐ ${calcScore(d)}</div>
+
+      <div class="rank">🔥 ${i + 1}</div>
+
+      <div class="name">${d.name}</div>
+
+      <div class="coin">${d.coin}</div>
+
+      <div class="score">⭐ ${calcScore(d)}</div>
+
+      <a class="visit-btn"
+         onclick="visitFaucet('${d.id}','${d.url}')">
+        Claim
+      </a>
+
     </div>
   `).join("");
 }
@@ -212,6 +178,6 @@ function renderTotal() {
 }
 
 /* =====================
-   START
+   START APP
 ===================== */
 startRealtime();
