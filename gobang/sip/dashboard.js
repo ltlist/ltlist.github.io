@@ -1,4 +1,3 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
   getFirestore,
   collection,
@@ -6,7 +5,8 @@ import {
   addDoc,
   deleteDoc,
   doc,
-  updateDoc
+  updateDoc,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 import {
@@ -103,6 +103,35 @@ async function loadFaucets() {
   );
 
   render(allFaucets);
+}
+
+/* =====================
+   AUTO RE-RANK
+===================== */
+async function autoReRank(){
+
+  const activeFaucets = allFaucets
+    .filter(f => f.status === "active")
+    .sort(
+      (a,b) =>
+      (a.rank || 9999) -
+      (b.rank || 9999)
+    );
+
+  const batch = writeBatch(db);
+
+  activeFaucets.forEach((f,index)=>{
+
+    batch.update(
+      doc(db,"faucets",f.id),
+      {
+        rank:index + 1
+      }
+    );
+
+  });
+
+  await batch.commit();
 }
 
 /* =====================
@@ -260,6 +289,10 @@ window.saveEdit = async function () {
 window.deleteFaucet = async function (id) {
 
   await deleteDoc(doc(db, "faucets", id));
+
+await loadFaucets();
+await autoReRank();
+await loadFaucets();
 
   showToast("Faucet dihapus", "error");
   loadFaucets();
