@@ -5,41 +5,26 @@ body{
   color:#fff;
 }
 
-/* =====================
-   NAVBAR
-===================== */
+/* NAVBAR */
 .navbar{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:15px 20px;
+  padding:15px;
   background:#111827;
-  color:#fff;
-  position:sticky;
-  top:0;
-  z-index:1000;
 }
 
 .navbar .logo{
-  font-size:20px;
-  font-weight:bold;
   color:#00ffcc;
+  font-weight:bold;
 }
 
 .navbar a{
   color:#fff;
   text-decoration:none;
-  margin-left:14px;
-  font-size:16px;
 }
 
-.navbar a:hover{
-  color:#00ffcc;
-}
-
-/* =====================
-   CONTAINER
-===================== */
+/* CONTAINER */
 .container{
   max-width:900px;
   margin:auto;
@@ -48,173 +33,89 @@ body{
 
 h1{
   color:#5eead4;
-  font-size:2rem;
-  margin-bottom:10px;
 }
 
-#totalFaucets{
-  color:#94a3b8;
-  font-size:14px;
-  margin:0 0 15px 0;
-}
-
-/* =====================
-   INPUT & SELECT
-===================== */
-input,
-select{
+input, select{
   width:100%;
-  padding:12px;
-  margin-bottom:12px;
+  padding:10px;
+  margin:6px 0;
+  border-radius:8px;
   border:none;
-  border-radius:10px;
-  box-sizing:border-box;
   background:#1f2937;
   color:#fff;
 }
 
-input::placeholder{
-  color:#94a3b8;
+button{
+  padding:10px 15px;
+  background:#0f766e;
+  border:none;
+  color:#fff;
+  border-radius:8px;
+  cursor:pointer;
 }
 
-/* =====================
-   CARD
-===================== */
+/* CARD */
 .card{
   background:#111827;
   border:1px solid #334155;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:15px;
+  padding:12px;
+  margin-top:10px;
+  border-radius:10px;
 }
 
 .rank-badge{
-  display:inline-block;
   background:#134e4a;
-  color:#99f6e4;
-  padding:6px 12px;
-  border-radius:8px;
-  font-weight:bold;
-  font-size:14px;
-  margin-bottom:10px;
-}
-
-.card-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-}
-
-.card-header h3{
-  margin:0;
-  font-size:18px;
-}
-
-.badge{
+  padding:4px 8px;
+  border-radius:6px;
   display:inline-block;
-  background:#1f2937;
-  border:1px solid #134e4a;
-  color:#5eead4;
-  padding:6px 12px;
-  border-radius:8px;
-  margin:3px;
   font-size:12px;
 }
 
 .visit-btn{
   display:inline-block;
-  padding:8px 14px;
-  background:#0f766e;
-  color:#fff;
-  border-radius:8px;
-  text-decoration:none;
-  font-weight:bold;
-  white-space:nowrap;
-  transition:.2s;
+  margin-top:5px;
+  color:#00ffcc;
 }
 
-.visit-btn:hover{
-  background:#115e59;
+/* MODAL */
+.modal{
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
 }
 
-button{
-  padding:10px 15px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  background:#0f766e;
-  color:#fff;
-  font-weight:bold;
+.modal-box{
+  background:#111827;
+  padding:20px;
+  width:90%;
+  max-width:400px;
+  border-radius:10px;
 }
 
-button:hover{
-  background:#115e59;
+.modal-actions{
+  display:flex;
+  justify-content:space-between;
+  margin-top:10px;
 }
 
-/* =====================
-   FOOTER
-===================== */
-.footer{
-  width:100%;
-  text-align:center;
-  color:#94a3b8;
-  font-size:15px;
-  padding:20px 0;
-  margin-top:30px;
-  border-top:1px solid #334155;
-}
-
-/* =====================
-   TOAST NOTIFICATION
-===================== */
+/* TOAST */
 #toast{
   position:fixed;
   top:20px;
   right:20px;
   background:#0f766e;
-  color:#fff;
   padding:10px 14px;
   border-radius:8px;
-  font-size:14px;
-  z-index:9999;
-
   opacity:0;
   transform:translateY(-10px);
-  transition:0.3s ease;
-  pointer-events:none;
+  transition:.3s;
 }
 
 #toast.show{
   opacity:1;
   transform:translateY(0);
-}
-
-/* =====================
-   MOBILE
-===================== */
-@media(max-width:600px){
-
-  .container{
-    padding:15px;
-  }
-
-  h1{
-    font-size:1.8rem;
-  }
-
-  .card-header{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-
-  .visit-btn{
-    width:40%;
-    text-align:center;
-    box-sizing:border-box;
-  }
-
-  button{
-    width:40%;
-  }
 }
