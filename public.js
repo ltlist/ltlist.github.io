@@ -5,15 +5,14 @@ import {
   getDocs,
   doc,
   updateDoc,
-  increment,
-  writeBatch
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =====================
    FIREBASE
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_Wj3aITEhj6UPetF-MGQXKdv75S8",
+  apiKey: "AIzaSyAVokWJ_Wj3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -32,16 +31,23 @@ let allFaucets = [];
    DEVICE ID
 ===================== */
 function getDeviceId() {
-  let id = localStorage.getItem("deviceId");
+  let id = localStorage.getItem("device_id");
   if (!id) {
     id = crypto.randomUUID();
-    localStorage.setItem("deviceId", id);
+    localStorage.setItem("device_id", id);
   }
   return id;
 }
 
 /* =====================
-   LOAD FAUCETS
+   SCORE SYSTEM
+===================== */
+function calcScore(f) {
+  return (f.clicks || 0) + (f.likes || 0) * 2 - (f.dislikes || 0) * 2;
+}
+
+/* =====================
+   LOAD DATA
 ===================== */
 async function loadFaucets() {
 
@@ -50,75 +56,56 @@ async function loadFaucets() {
   allFaucets = [];
 
   snap.forEach((d) => {
-    allFaucets.push({
-      id: d.id,
-      ...d.data()
-    });
+    allFaucets.push({ id: d.id, ...d.data() });
   });
 
-  calculateScore();
-  sortByScore();
+  // SORT BY SCORE
+  allFaucets.sort((a, b) => calcScore(b) - calcScore(a));
 
+  refreshUI();
+}
+
+/* =====================
+   REFRESH UI (CENTER CONTROL)
+===================== */
+function refreshUI() {
   render(allFaucets);
   renderTrending();
+  renderStats();
 }
 
 /* =====================
-   SCORE SYSTEM
-===================== */
-function calculateScore() {
-
-  allFaucets = allFaucets.map(f => {
-
-    const likes = f.likes || 0;
-    const dislikes = f.dislikes || 0;
-    const clicks = f.clicks || 0;
-
-    const score = (likes * 2) - (dislikes * 2) + clicks;
-
-    return { ...f, score };
-  });
-}
-
-function sortByScore() {
-  allFaucets.sort((a, b) => (b.score || 0) - (a.score || 0));
-}
-
-/* =====================
-   CLICK TRACKING
+   ANTI SPAM CLICK + VISIT
 ===================== */
 window.visitFaucet = async function (id, url) {
+
+  const key = "click_" + id;
+  const now = Date.now();
+  const last = localStorage.getItem(key);
+
+  // 5 detik cooldown
+  if (last && now - last < 5000) return;
+
+  localStorage.setItem(key, now);
 
   await updateDoc(doc(db, "faucets", id), {
     clicks: increment(1)
   });
 
-  loadFaucets();
   window.open(url, "_blank");
 };
 
 /* =====================
-   VOTE SYSTEM (LIKE / DISLIKE)
+   LIKE (ANTI DOUBLE VOTE)
 ===================== */
-function getVoteKey(id) {
-  return "vote_" + id;
-}
-
-function getVote(id) {
-  return localStorage.getItem(getVoteKey(id));
-}
-
-function setVote(id, type) {
-  localStorage.setItem(getVoteKey(id), type);
-}
-
-/* LIKE */
 window.likeFaucet = async function (id) {
 
-  const current = getVote(id);
-  const ref = doc(db, "faucets", id);
+  const key = "vote_" + id;
+  const current = localStorage.getItem(key);
 
   if (current === "like") return alert("Sudah like!");
+
+  const ref = doc(db, "faucets", id);
 
   if (current === "dislike") {
     await updateDoc(ref, {
@@ -131,18 +118,21 @@ window.likeFaucet = async function (id) {
     });
   }
 
-  setVote(id, "like");
-
-  await loadFaucets();
+  localStorage.setItem(key, "like");
+  loadFaucets();
 };
 
-/* DISLIKE */
+/* =====================
+   DISLIKE (ANTI DOUBLE VOTE)
+===================== */
 window.dislikeFaucet = async function (id) {
 
-  const current = getVote(id);
-  const ref = doc(db, "faucets", id);
+  const key = "vote_" + id;
+  const current = localStorage.getItem(key);
 
   if (current === "dislike") return alert("Sudah dislike!");
+
+  const ref = doc(db, "faucets", id);
 
   if (current === "like") {
     await updateDoc(ref, {
@@ -155,90 +145,77 @@ window.dislikeFaucet = async function (id) {
     });
   }
 
-  setVote(id, "dislike");
-
-  await loadFaucets();
+  localStorage.setItem(key, "dislike");
+  loadFaucets();
 };
 
 /* =====================
-   RENDER MAIN LIST
+   RENDER LIST
 ===================== */
 function render(data) {
 
-  let html = "";
+  listDiv.innerHTML = data.map(d => `
+    <div class="card">
 
-  data.forEach((d) => {
+      <div class="rank-badge">#${d.rank || "-"}</div>
 
-    html += `
-      <div class="card">
+      <div class="name">${d.name}</div>
 
-        <div class="rank-badge">
-          #${d.rank || "-"}
-        </div>
+      <div class="coin">${d.coin}</div>
 
-        <div class="name">${d.name}</div>
+      <div class="clicks">👁 ${d.clicks || 0}</div>
 
-        <div class="coin">${d.coin}</div>
+      <div class="clicks">⭐ ${calcScore(d)}</div>
 
-        <div class="clicks">
-          👁 ${d.clicks || 0}
-        </div>
+      <a class="visit-btn"
+         href="#"
+         onclick="visitFaucet('${d.id}','${d.url}')">
+        Claim
+      </a>
 
-        <div class="clicks">
-          ⭐ ${d.score || 0}
-        </div>
+      <button onclick="likeFaucet('${d.id}')">👍</button>
+      <button onclick="dislikeFaucet('${d.id}')">👎</button>
 
-        <a href="#"
-           class="visit-btn"
-           onclick="visitFaucet('${d.id}','${d.url}')">
-          Claim
-        </a>
-
-        <button onclick="likeFaucet('${d.id}')">👍</button>
-        <button onclick="dislikeFaucet('${d.id}')">👎</button>
-
-      </div>
-    `;
-  });
-
-  listDiv.innerHTML = html;
+    </div>
+  `).join("");
 }
 
 /* =====================
-   TRENDING (BY SCORE)
+   TRENDING
 ===================== */
 function renderTrending() {
 
   const top = [...allFaucets]
-    .sort((a, b) => (b.score || 0) - (a.score || 0))
+    .sort((a, b) => calcScore(b) - calcScore(a))
     .slice(0, 5);
 
-  let html = "";
-
-  top.forEach((d, i) => {
-
-    html += `
+  document.getElementById("trending").innerHTML =
+    top.map((d, i) => `
       <div class="card">
-
         <div class="rank-badge">🔥 ${i + 1}</div>
-
         <div class="name">${d.name}</div>
-
         <div class="coin">${d.coin}</div>
+        <div class="clicks">⭐ ${calcScore(d)}</div>
 
-        <div class="clicks">⭐ ${d.score || 0}</div>
-
-        <a href="#"
-           class="visit-btn"
+        <a class="visit-btn"
+           href="#"
            onclick="visitFaucet('${d.id}','${d.url}')">
           Claim
         </a>
 
       </div>
-    `;
-  });
+    `).join("");
+}
 
-  document.getElementById("trending").innerHTML = html;
+/* =====================
+   STATS (OPTIONAL SIMPLE)
+===================== */
+function renderStats() {
+
+  const total = allFaucets.length;
+
+  const el = document.getElementById("totalFaucets");
+  if (el) el.innerText = `📊 ${total} Faucets`;
 }
 
 /* =====================
