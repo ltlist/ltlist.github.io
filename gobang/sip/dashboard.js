@@ -156,13 +156,33 @@ function render(data) {
 ===================== */
 window.addFaucet = async function () {
 
-  const name = document.getElementById("name").value;
-  const url = document.getElementById("url").value;
-  const coin = document.getElementById("coin").value;
+  const name = document.getElementById("name").value.trim();
+  const url = document.getElementById("url").value.trim();
+  const coin = document.getElementById("coin").value.trim();
   const rank = Number(document.getElementById("rank").value);
 
   if (!name || !url || !coin) {
     showToast("Lengkapi data!", "warning");
+    return;
+  }
+
+  // ANTI DUPLICATE NAME
+  const sameName = allFaucets.find(
+    f => (f.name || "").toLowerCase() === name.toLowerCase()
+  );
+
+  if (sameName) {
+    showToast("Nama faucet sudah ada!", "error");
+    return;
+  }
+
+  // ANTI DUPLICATE URL
+  const sameUrl = allFaucets.find(
+    f => (f.url || "").toLowerCase() === url.toLowerCase()
+  );
+
+  if (sameUrl) {
+    showToast("URL faucet sudah ada!", "error");
     return;
   }
 
@@ -171,10 +191,22 @@ window.addFaucet = async function () {
     url,
     coin,
     rank,
-    status: "active"
+    status: "active",
+
+    clicks: 0,
+    likes: 0,
+    dislikes: 0,
+    uptime: 100,
+    createdAt: new Date()
   });
 
+  document.getElementById("name").value = "";
+  document.getElementById("url").value = "";
+  document.getElementById("coin").value = "";
+  document.getElementById("rank").value = "";
+
   showToast("Faucet ditambahkan!");
+
   loadFaucets();
 };
 
