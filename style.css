@@ -1,8 +1,9 @@
 body{
   margin:0;
-  font-family:Arial,sans-serif;
-  background:#0f172a;
+  font-family:Arial, sans-serif;
+  background:#0b1220;
   color:#fff;
+  -webkit-font-smoothing:antialiased;
 }
 
 /* =====================
@@ -12,28 +13,30 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:15px 20px;
-  background:#111827;
+  padding:14px 20px;
+  background:#0f172a;
   position:sticky;
   top:0;
   z-index:1000;
+  border-bottom:1px solid #1f2937;
 }
 
 .navbar .logo{
   font-size:20px;
-  font-weight:bold;
-  color:#00ffcc;
+  font-weight:700;
+  color:#00ffd5;
 }
 
 .navbar a{
-  color:#fff;
+  color:#cbd5e1;
   text-decoration:none;
   margin-left:14px;
-  font-size:16px;
+  font-size:14px;
+  transition:0.2s;
 }
 
 .navbar a:hover{
-  color:#00ffcc;
+  color:#00ffd5;
 }
 
 /* =====================
@@ -46,74 +49,84 @@ body{
 }
 
 h1{
+  font-size:1.7rem;
   color:#5eead4;
-  font-size:1.8rem;
-  margin-bottom:10px;
+  margin-bottom:6px;
 }
 
 #totalFaucets{
+  font-size:13px;
   color:#94a3b8;
-  font-size:14px;
-  margin:0 0 15px 0;
+  margin-bottom:14px;
 }
 
 /* =====================
-   INPUT
+   INPUT STYLE
 ===================== */
 input,
 select{
   width:100%;
   padding:12px;
-  margin-bottom:12px;
+  margin-bottom:10px;
   border:none;
   border-radius:10px;
-  box-sizing:border-box;
-  background:#1f2937;
+  background:#111827;
   color:#fff;
   font-size:14px;
+  outline:none;
+  transition:0.2s;
+}
+
+input:focus,
+select:focus{
+  box-shadow:0 0 0 2px #0f766e55;
 }
 
 input::placeholder{
-  color:#94a3b8;
+  color:#64748b;
 }
 
 /* =====================
-   BADGES
+   BADGE
 ===================== */
 .badge{
   display:inline-block;
-  background:#1f2937;
+  padding:4px 8px;
+  margin:2px;
+  font-size:11px;
+  border-radius:6px;
+  background:#111827;
   border:1px solid #134e4a;
   color:#5eead4;
-  padding:4px 8px;
-  border-radius:6px;
-  font-size:11px;
-  margin:2px;
 }
 
 /* =====================
-   CARD
+   CARD (MAIN LIST)
 ===================== */
 .card{
-  background:#111827;
-  border:1px solid #334155;
-  border-radius:10px;
+  background:linear-gradient(180deg,#111827,#0f172a);
+  border:1px solid #1f2937;
+  border-radius:12px;
   padding:10px 12px;
   margin-bottom:8px;
 
   display:grid;
-  grid-template-columns:
-    60px
-    1fr
-    70px
-    70px
-    90px;
-
+  grid-template-columns:60px 1fr 70px 90px 90px;
   align-items:center;
   gap:10px;
+
+  transition:0.2s;
 }
 
-/* RANK */
+.card:hover{
+  transform:translateY(-2px);
+  border-color:#0f766e;
+  box-shadow:0 6px 18px rgba(0,0,0,0.4);
+}
+
+/* =====================
+   RANK
+===================== */
 .rank-badge{
   background:#134e4a;
   color:#99f6e4;
@@ -122,32 +135,35 @@ input::placeholder{
   font-weight:bold;
   font-size:12px;
   text-align:center;
-  justify-self:start;
 }
 
-/* NAME */
+/* =====================
+   NAME
+===================== */
 .name{
-  font-size:15px;
+  font-size:14px;
   font-weight:600;
-
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
-/* COIN */
+/* =====================
+   COIN
+===================== */
 .coin{
-  background:#1f2937;
+  background:#111827;
   border:1px solid #134e4a;
   color:#5eead4;
   padding:4px 8px;
   border-radius:6px;
   font-size:11px;
   text-align:center;
-  justify-self:center;
 }
 
-/* CLICKS */
+/* =====================
+   CLICK INFO
+===================== */
 .clicks{
   font-size:11px;
   color:#94a3b8;
@@ -155,7 +171,9 @@ input::placeholder{
   white-space:nowrap;
 }
 
-/* CLAIM BUTTON */
+/* =====================
+   CLAIM BUTTON
+===================== */
 .visit-btn{
   display:inline-block;
   padding:6px 10px;
@@ -163,16 +181,15 @@ input::placeholder{
   color:#fff;
   border-radius:6px;
   text-decoration:none;
+  font-size:12px;
   font-weight:bold;
-  font-size:13px;
   text-align:center;
-  justify-self:end;
-  transition:.2s;
-  white-space:nowrap;
+  transition:0.2s;
 }
 
 .visit-btn:hover{
   background:#115e59;
+  transform:scale(1.05);
 }
 
 /* =====================
@@ -184,7 +201,7 @@ input::placeholder{
   font-size:13px;
   padding:15px 0;
   margin-top:25px;
-  border-top:1px solid #334155;
+  border-top:1px solid #1f2937;
 }
 
 /* =====================
@@ -197,17 +214,11 @@ input::placeholder{
   }
 
   h1{
-    font-size:1.6rem;
+    font-size:1.5rem;
   }
 
   .card{
-    grid-template-columns:
-      55px
-      1fr
-      60px
-      60px
-      75px;
-
+    grid-template-columns:50px 1fr 60px 60px 75px;
     gap:6px;
   }
 
@@ -228,5 +239,4 @@ input::placeholder{
     font-size:11px;
     padding:5px 8px;
   }
-
 }
