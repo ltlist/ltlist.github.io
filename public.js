@@ -5,14 +5,15 @@ import {
   getDocs,
   doc,
   updateDoc,
-  increment
+  increment,
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =====================
-   FIREBASE CONFIG
+   FIREBASE
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKDV75S8",
+  apiKey: "AIzaSyAVokWj_Wj3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -40,21 +41,6 @@ function getDeviceId() {
 }
 
 /* =====================
-   ANTI CLICK SPAM (LOCAL)
-===================== */
-function canClick(id) {
-  const last = localStorage.getItem("click_" + id);
-  if (!last) return true;
-
-  const diff = Date.now() - Number(last);
-  return diff > 5000; // 5 detik cooldown
-}
-
-function setClick(id) {
-  localStorage.setItem("click_" + id, Date.now());
-}
-
-/* =====================
    LOAD FAUCETS
 ===================== */
 async function loadFaucets() {
@@ -63,52 +49,115 @@ async function loadFaucets() {
 
   allFaucets = [];
 
-  snap.forEach((docSnap) => {
-    const data = docSnap.data();
-
-    if (data.status === "active") {
-      allFaucets.push({
-        id: docSnap.id,
-        ...data
-      });
-    }
+  snap.forEach((d) => {
+    allFaucets.push({
+      id: d.id,
+      ...d.data()
+    });
   });
 
-  allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
-
-  document.getElementById("totalFaucets").innerHTML =
-    `📊 ${allFaucets.length} Active Faucets`;
+  calculateScore();
+  sortByScore();
 
   render(allFaucets);
-  renderCoinStats();
-  loadCoinFilter();
   renderTrending();
 }
 
 /* =====================
-   CLICK TRACKING + OPEN
+   SCORE SYSTEM
+===================== */
+function calculateScore() {
+
+  allFaucets = allFaucets.map(f => {
+
+    const likes = f.likes || 0;
+    const dislikes = f.dislikes || 0;
+    const clicks = f.clicks || 0;
+
+    const score = (likes * 2) - (dislikes * 2) + clicks;
+
+    return { ...f, score };
+  });
+}
+
+function sortByScore() {
+  allFaucets.sort((a, b) => (b.score || 0) - (a.score || 0));
+}
+
+/* =====================
+   CLICK TRACKING
 ===================== */
 window.visitFaucet = async function (id, url) {
 
-  // ANTI BOT CHECK
-  if (!canClick(id)) {
-    alert("Tunggu beberapa detik sebelum klik lagi!");
-    return;
-  }
+  await updateDoc(doc(db, "faucets", id), {
+    clicks: increment(1)
+  });
 
-  setClick(id);
-
-  try {
-    await updateDoc(doc(db, "faucets", id), {
-      clicks: increment(1),
-      lastClickAt: Date.now(),
-      deviceId: getDeviceId()
-    });
-  } catch (err) {
-    console.log(err);
-  }
-
+  loadFaucets();
   window.open(url, "_blank");
+};
+
+/* =====================
+   VOTE SYSTEM (LIKE / DISLIKE)
+===================== */
+function getVoteKey(id) {
+  return "vote_" + id;
+}
+
+function getVote(id) {
+  return localStorage.getItem(getVoteKey(id));
+}
+
+function setVote(id, type) {
+  localStorage.setItem(getVoteKey(id), type);
+}
+
+/* LIKE */
+window.likeFaucet = async function (id) {
+
+  const current = getVote(id);
+  const ref = doc(db, "faucets", id);
+
+  if (current === "like") return alert("Sudah like!");
+
+  if (current === "dislike") {
+    await updateDoc(ref, {
+      dislikes: increment(-1),
+      likes: increment(1)
+    });
+  } else {
+    await updateDoc(ref, {
+      likes: increment(1)
+    });
+  }
+
+  setVote(id, "like");
+
+  await loadFaucets();
+};
+
+/* DISLIKE */
+window.dislikeFaucet = async function (id) {
+
+  const current = getVote(id);
+  const ref = doc(db, "faucets", id);
+
+  if (current === "dislike") return alert("Sudah dislike!");
+
+  if (current === "like") {
+    await updateDoc(ref, {
+      likes: increment(-1),
+      dislikes: increment(1)
+    });
+  } else {
+    await updateDoc(ref, {
+      dislikes: increment(1)
+    });
+  }
+
+  setVote(id, "dislike");
+
+  await loadFaucets();
 };
 
 /* =====================
@@ -123,19 +172,30 @@ function render(data) {
     html += `
       <div class="card">
 
-        <div class="rank-badge">#${d.rank || "-"}</div>
+        <div class="rank-badge">
+          #${d.rank || "-"}
+        </div>
 
         <div class="name">${d.name}</div>
 
         <div class="coin">${d.coin}</div>
 
-        <div class="clicks">👁 ${d.clicks || 0}</div>
+        <div class="clicks">
+          👁 ${d.clicks || 0}
+        </div>
+
+        <div class="clicks">
+          ⭐ ${d.score || 0}
+        </div>
 
         <a href="#"
            class="visit-btn"
            onclick="visitFaucet('${d.id}','${d.url}')">
           Claim
         </a>
+
+        <button onclick="likeFaucet('${d.id}')">👍</button>
+        <button onclick="dislikeFaucet('${d.id}')">👎</button>
 
       </div>
     `;
@@ -145,12 +205,12 @@ function render(data) {
 }
 
 /* =====================
-   TRENDING
+   TRENDING (BY SCORE)
 ===================== */
 function renderTrending() {
 
   const top = [...allFaucets]
-    .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
+    .sort((a, b) => (b.score || 0) - (a.score || 0))
     .slice(0, 5);
 
   let html = "";
@@ -166,7 +226,7 @@ function renderTrending() {
 
         <div class="coin">${d.coin}</div>
 
-        <div class="clicks">👁 ${d.clicks || 0}</div>
+        <div class="clicks">⭐ ${d.score || 0}</div>
 
         <a href="#"
            class="visit-btn"
@@ -180,77 +240,6 @@ function renderTrending() {
 
   document.getElementById("trending").innerHTML = html;
 }
-
-/* =====================
-   COIN FILTER
-===================== */
-function loadCoinFilter() {
-
-  const select = document.getElementById("coinFilter");
-  if (!select) return;
-
-  select.innerHTML = `<option value="all">All Coins</option>`;
-
-  const coins = [...new Set(allFaucets.map(f => f.coin))];
-
-  coins.sort();
-
-  coins.forEach((coin) => {
-    const option = document.createElement("option");
-    option.value = coin;
-    option.textContent = coin;
-    select.appendChild(option);
-  });
-}
-
-/* =====================
-   COIN STATS
-===================== */
-function renderCoinStats() {
-
-  const count = {};
-
-  allFaucets.forEach(f => {
-    count[f.coin] = (count[f.coin] || 0) + 1;
-  });
-
-  let html = "";
-
-  Object.keys(count).sort().forEach(coin => {
-    html += `<span class="badge">${coin} (${count[coin]})</span>`;
-  });
-
-  document.getElementById("coinStats").innerHTML = html;
-}
-
-/* =====================
-   SEARCH
-===================== */
-window.searchPublic = function () {
-
-  const q = document.getElementById("search").value.toLowerCase();
-
-  const filtered = allFaucets.filter(f =>
-    (f.name || "").toLowerCase().includes(q)
-  );
-
-  render(filtered);
-};
-
-/* =====================
-   FILTER COIN
-===================== */
-window.filterCoin = function () {
-
-  const coin = document.getElementById("coinFilter").value;
-
-  if (coin === "all") {
-    render(allFaucets);
-    return;
-  }
-
-  render(allFaucets.filter(f => f.coin === coin));
-};
 
 /* =====================
    INIT
