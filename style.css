@@ -32,7 +32,6 @@ body{
   text-decoration:none;
   margin-left:14px;
   font-size:14px;
-  transition:0.2s;
 }
 
 .navbar a:hover{
@@ -61,7 +60,7 @@ h1{
 }
 
 /* =====================
-   INPUT STYLE
+   INPUT
 ===================== */
 input,
 select{
@@ -74,16 +73,11 @@ select{
   color:#fff;
   font-size:14px;
   outline:none;
-  transition:0.2s;
 }
 
 input:focus,
 select:focus{
   box-shadow:0 0 0 2px #0f766e55;
-}
-
-input::placeholder{
-  color:#64748b;
 }
 
 /* =====================
@@ -98,15 +92,12 @@ input::placeholder{
   background:#111827;
   border:1px solid #134e4a;
   color:#5eead4;
-
-  /* FIX */
   cursor:default;
 }
 
 /* =====================
-   CARD (MAIN LIST)
+   CARD (MAIN FIXED)
 ===================== */
-
 .card{
   background:linear-gradient(180deg,#111827,#0f172a);
   border:1px solid #1f2937;
@@ -116,12 +107,20 @@ input::placeholder{
 
   display:flex;
   flex-direction:column;
-  gap:6px;
+  gap:8px;
 
-  cursor:pointer;
+  transition:0.2s;
 }
 
-/* TOP */
+.card:hover{
+  transform:translateY(-2px);
+  border-color:#0f766e;
+  box-shadow:0 6px 18px rgba(0,0,0,0.4);
+}
+
+/* =====================
+   TOP ROW (RANK + COIN + SCORE)
+===================== */
 .top-row{
   display:flex;
   justify-content:space-between;
@@ -130,45 +129,56 @@ input::placeholder{
   color:#94a3b8;
 }
 
-/* NAME */
+.rank{
+  font-weight:bold;
+  color:#99f6e4;
+}
+
+.coin{
+  background:#111827;
+  border:1px solid #134e4a;
+  color:#5eead4;
+  padding:3px 7px;
+  border-radius:6px;
+  font-size:11px;
+}
+
+.score{
+  color:#facc15;
+  font-size:12px;
+  font-weight:bold;
+}
+
+/* =====================
+   NAME
+===================== */
 .name{
   font-size:14px;
   font-weight:600;
   color:#fff;
+
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
-/* BOTTOM */
+/* =====================
+   BOTTOM ROW (VOTE + CLAIM)
+===================== */
 .bottom-row{
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
 
-/* SCORE / COIN */
-.coin{
-  background:#111827;
-  border:1px solid #134e4a;
-  color:#5eead4;
-  padding:3px 6px;
-  border-radius:6px;
-  font-size:11px;
-}
-
-.score{
-  font-size:12px;
-  color:#facc15;
-}
-
-/* VOTE */
 .vote{
   font-size:11px;
   color:#94a3b8;
 }
 
-/* CLAIM BUTTON */
+/* =====================
+   CLAIM BUTTON
+===================== */
 .visit-btn{
   padding:6px 10px;
   background:#0f766e;
@@ -176,15 +186,57 @@ input::placeholder{
   border-radius:6px;
   text-decoration:none;
   font-size:12px;
+  font-weight:bold;
+  transition:0.2s;
 }
 
-/* MOBILE FIX */
+.visit-btn:hover{
+  background:#115e59;
+  transform:scale(1.05);
+}
+
+/* =====================
+   TRENDING CARD
+===================== */
+#trending .card{
+  padding:12px;
+}
+
+/* =====================
+   FOOTER
+===================== */
+.footer{
+  text-align:center;
+  color:#94a3b8;
+  font-size:13px;
+  padding:15px 0;
+  margin-top:25px;
+  border-top:1px solid #1f2937;
+}
+
+/* =====================
+   MOBILE FIX
+===================== */
 @media(max-width:600px){
+
+  .container{
+    padding:15px;
+  }
+
+  h1{
+    font-size:1.5rem;
+  }
+
   .name{
     font-size:13px;
   }
 
+  .top-row{
+    font-size:11px;
+  }
+
   .visit-btn{
     font-size:11px;
+    padding:5px 8px;
   }
 }
