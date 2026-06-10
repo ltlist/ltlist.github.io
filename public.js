@@ -1,5 +1,4 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-
 import {
   getFirestore,
   collection,
@@ -13,7 +12,7 @@ import {
    FIREBASE
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
+  apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -33,9 +32,7 @@ let allFaucets = [];
 ===================== */
 async function loadFaucets() {
 
-  const snap = await getDocs(
-    collection(db, "faucets")
-  );
+  const snap = await getDocs(collection(db, "faucets"));
 
   allFaucets = [];
 
@@ -44,51 +41,38 @@ async function loadFaucets() {
     const data = docSnap.data();
 
     if (data.status === "active") {
-
       allFaucets.push({
         id: docSnap.id,
         ...data
       });
-
     }
 
   });
 
   allFaucets.sort(
-    (a, b) =>
-      (a.rank || 9999) -
-      (b.rank || 9999)
+    (a, b) => (a.rank || 9999) - (b.rank || 9999)
   );
 
-  document.getElementById(
-    "totalFaucets"
-  ).innerHTML =
+  document.getElementById("totalFaucets").innerHTML =
     `📊 ${allFaucets.length} Active Faucets`;
 
   render(allFaucets);
   renderCoinStats();
   loadCoinFilter();
+  renderTrending();
 }
 
 /* =====================
    CLICK TRACKING
 ===================== */
-window.visitFaucet =
-async function(id, url) {
+window.visitFaucet = async function (id, url) {
 
   try {
-
-    await updateDoc(
-      doc(db, "faucets", id),
-      {
-        clicks: increment(1)
-      }
-    );
-
-  } catch(err) {
-
+    await updateDoc(doc(db, "faucets", id), {
+      clicks: increment(1)
+    });
+  } catch (err) {
     console.log(err);
-
   }
 
   window.open(url, "_blank");
@@ -119,14 +103,12 @@ function render(data) {
         </div>
 
         <div class="clicks">
-          👁 ${d.clicks || 0} Clicks
+          👁 ${d.clicks || 0}
         </div>
 
-        <a
-          href="#"
-          class="visit-btn"
-          onclick="visitFaucet('${d.id}','${d.url}')"
-        >
+        <a href="#"
+           class="visit-btn"
+           onclick="visitFaucet('${d.id}','${d.url}')">
           Claim
         </a>
 
@@ -138,35 +120,58 @@ function render(data) {
 }
 
 /* =====================
+   TRENDING FAUCETS
+===================== */
+function renderTrending() {
+
+  const top = [...allFaucets]
+    .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
+    .slice(0, 5);
+
+  let html = "";
+
+  top.forEach((d, i) => {
+
+    html += `
+      <div class="card">
+
+        <div class="rank-badge">🔥 ${i + 1}</div>
+
+        <div class="name">
+          ${d.name}
+        </div>
+
+        <div class="coin">
+          ${d.coin}
+        </div>
+
+        <div class="clicks">
+          👁 ${d.clicks || 0}
+        </div>
+
+      </div>
+    `;
+  });
+
+  document.getElementById("trending").innerHTML = html;
+}
+
+/* =====================
    COIN FILTER
 ===================== */
 function loadCoinFilter() {
 
-  const select =
-    document.getElementById(
-      "coinFilter"
-    );
+  const select = document.getElementById("coinFilter");
 
-  select.innerHTML =
-    `<option value="all">All Coins</option>`;
+  select.innerHTML = `<option value="all">All Coins</option>`;
 
-  const coins = [
-    ...new Set(
-      allFaucets.map(
-        f => f.coin
-      )
-    )
-  ];
+  const coins = [...new Set(allFaucets.map(f => f.coin))];
 
   coins.sort();
 
   coins.forEach((coin) => {
 
-    const option =
-      document.createElement(
-        "option"
-      );
-
+    const option = document.createElement("option");
     option.value = coin;
     option.textContent = coin;
 
@@ -183,50 +188,33 @@ function renderCoinStats() {
   const count = {};
 
   allFaucets.forEach((f) => {
-
-    count[f.coin] =
-      (count[f.coin] || 0) + 1;
-
+    count[f.coin] = (count[f.coin] || 0) + 1;
   });
 
   let html = "";
 
-  Object.keys(count)
-    .sort()
-    .forEach((coin) => {
+  Object.keys(count).sort().forEach((coin) => {
 
-      html += `
-        <span class="badge">
-          ${coin} (${count[coin]})
-        </span>
-      `;
+    html += `
+      <span class="badge">
+        ${coin} (${count[coin]})
+      </span>
+    `;
+  });
 
-    });
-
-  document.getElementById(
-    "coinStats"
-  ).innerHTML = html;
+  document.getElementById("coinStats").innerHTML = html;
 }
 
 /* =====================
    SEARCH
 ===================== */
-window.searchPublic =
-function() {
+window.searchPublic = function () {
 
-  const q =
-    document
-      .getElementById("search")
-      .value
-      .toLowerCase();
+  const q = document.getElementById("search").value.toLowerCase();
 
-  const filtered =
-    allFaucets.filter(
-      f =>
-        f.name
-          .toLowerCase()
-          .includes(q)
-    );
+  const filtered = allFaucets.filter(f =>
+    f.name.toLowerCase().includes(q)
+  );
 
   render(filtered);
 };
@@ -234,27 +222,16 @@ function() {
 /* =====================
    FILTER COIN
 ===================== */
-window.filterCoin =
-function() {
+window.filterCoin = function () {
 
-  const coin =
-    document.getElementById(
-      "coinFilter"
-    ).value;
+  const coin = document.getElementById("coinFilter").value;
 
   if (coin === "all") {
-
     render(allFaucets);
     return;
-
   }
 
-  const filtered =
-    allFaucets.filter(
-      f => f.coin === coin
-    );
-
-  render(filtered);
+  render(allFaucets.filter(f => f.coin === coin));
 };
 
 /* =====================
