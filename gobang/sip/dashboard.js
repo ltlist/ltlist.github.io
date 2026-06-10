@@ -1,5 +1,4 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-
 import {
   getFirestore,
   collection,
@@ -15,6 +14,9 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+/* =====================
+   FIREBASE
+===================== */
 const firebaseConfig = {
   apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
@@ -31,95 +33,116 @@ const auth = getAuth(app);
 const listDiv = document.getElementById("list");
 
 let allFaucets = [];
+let editId = null;
 
-// ======================
-// LOAD FAUCETS
-// ======================
-async function loadFaucets(){
+/* =====================
+   TOAST
+===================== */
+function showToast(msg, type = "success") {
+  const t = document.getElementById("toast");
+  if (!t) return;
+
+  t.innerText = msg;
+
+  t.style.background =
+    type === "error"
+      ? "#dc2626"
+      : type === "warning"
+      ? "#f59e0b"
+      : "#0f766e";
+
+  t.classList.add("show");
+
+  setTimeout(() => {
+    t.classList.remove("show");
+  }, 2500);
+}
+
+/* =====================
+   CHECK URL ALIVE
+===================== */
+async function checkUrlAlive(url) {
+  try {
+    const controller = new AbortController();
+
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 5000);
+
+    await fetch(url, {
+      method: "HEAD",
+      mode: "no-cors",
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    return true;
+
+  } catch (e) {
+    return false;
+  }
+}
+
+/* =====================
+   LOAD DATA
+===================== */
+async function loadFaucets() {
 
   const snap = await getDocs(collection(db, "faucets"));
 
   allFaucets = [];
 
   snap.forEach((d) => {
-    allFaucets.push({
-      id: d.id,
-      ...d.data()
-    });
+    allFaucets.push({ id: d.id, ...d.data() });
   });
 
-  // urut berdasarkan rank
-  allFaucets.sort((a,b) =>
+  // rank sorting (inactive otomatis turun)
+  allFaucets.sort((a, b) =>
     (a.rank || 9999) - (b.rank || 9999)
   );
 
   render(allFaucets);
 }
 
-// ======================
-// RENDER
-// ======================
-function render(data){
+/* =====================
+   RENDER
+===================== */
+function render(data) {
 
   let html = "";
 
   data.forEach((d) => {
 
-    const active = d.status === "active";
+    const status = d.status || "inactive";
 
     html += `
       <div class="card">
 
-        <div class="rank-badge">
-          #${d.rank || "-"}
-        </div>
+        <div class="rank-badge">#${d.rank || "-"}</div>
 
-        <b>${d.name}</b>
+        <b>${d.name}</b> (${d.coin})
 
         <span style="
           float:right;
-          background:${active ? '#00ff88' : '#ff4d4d'};
+          background:${status === "active" ? "#00ff88" : "#ff4d4d"};
           color:#000;
-          padding:4px 8px;
+          padding:3px 8px;
           border-radius:6px;
           font-size:12px;
-          font-weight:bold;
         ">
-          ${d.status}
+          ${status}
         </span>
 
         <br><br>
 
-        Coin: ${d.coin}<br>
-
-        <a href="${d.url}" target="_blank">
-          Visit
-        </a>
+        <a href="${d.url}" target="_blank">Visit</a>
 
         <br><br>
 
-        <button onclick="editFaucet(
-          '${d.id}',
-          '${d.name}',
-          '${d.url}',
-          '${d.coin}',
-          '${d.rank || 0}'
-        )">
-          Edit
-        </button>
-
-        <button onclick="toggleStatus(
-          '${d.id}',
-          '${d.status}'
-        )">
-          Toggle
-        </button>
-
-        <button onclick="deleteFaucet(
-          '${d.id}'
-        )">
-          Delete
-        </button>
+        <button onclick="openEdit('${d.id}')">Edit</button>
+        <button onclick="toggleStatus('${d.id}','${status}')">Toggle</button>
+        <button onclick="deleteFaucet('${d.id}')">Delete</button>
 
       </div>
     `;
@@ -128,20 +151,18 @@ function render(data){
   listDiv.innerHTML = html;
 }
 
-// ======================
-// ADD
-// ======================
-window.addFaucet = async function(){
+/* =====================
+   ADD FAUCET
+===================== */
+window.addFaucet = async function () {
 
   const name = document.getElementById("name").value;
   const url = document.getElementById("url").value;
   const coin = document.getElementById("coin").value;
-  const rank = Number(
-    document.getElementById("rank").value
-  );
+  const rank = Number(document.getElementById("rank").value);
 
-  if(!name || !url || !coin){
-    alert("Lengkapi data");
+  if (!name || !url || !coin) {
+    showToast("Lengkapi data!", "warning");
     return;
   }
 
@@ -153,143 +174,135 @@ window.addFaucet = async function(){
     status: "active"
   });
 
-  document.getElementById("name").value = "";
-  document.getElementById("url").value = "";
-  document.getElementById("coin").value = "";
-  document.getElementById("rank").value = "";
-
+  showToast("Faucet ditambahkan!");
   loadFaucets();
 };
 
-// ======================
-// EDIT
-// ======================
-window.editFaucet = async function(
-  id,
-  name,
-  url,
-  coin,
-  rank
-){
+/* =====================
+   OPEN EDIT
+===================== */
+window.openEdit = function (id) {
 
-  const newName = prompt(
-    "Name",
-    name
-  );
+  const f = allFaucets.find(x => x.id === id);
+  if (!f) return;
 
-  if(newName === null) return;
+  editId = id;
 
-  const newUrl = prompt(
-    "URL",
-    url
-  );
+  document.getElementById("editName").value = f.name;
+  document.getElementById("editUrl").value = f.url;
+  document.getElementById("editCoin").value = f.coin;
+  document.getElementById("editRank").value = f.rank;
+  document.getElementById("editStatus").value = f.status;
 
-  if(newUrl === null) return;
+  document.getElementById("editModal").style.display = "flex";
+};
 
-  const newCoin = prompt(
-    "Coin",
-    coin
-  );
+/* =====================
+   CLOSE MODAL
+===================== */
+window.closeModal = function () {
+  document.getElementById("editModal").style.display = "none";
+};
 
-  if(newCoin === null) return;
+/* =====================
+   SAVE EDIT
+===================== */
+window.saveEdit = async function () {
 
-  const newRank = prompt(
-    "Rank",
-    rank
-  );
+  await updateDoc(doc(db, "faucets", editId), {
+    name: document.getElementById("editName").value,
+    url: document.getElementById("editUrl").value,
+    coin: document.getElementById("editCoin").value,
+    rank: Number(document.getElementById("editRank").value),
+    status: document.getElementById("editStatus").value
+  });
 
-  if(newRank === null) return;
-
-  await updateDoc(
-    doc(db, "faucets", id),
-    {
-      name: newName,
-      url: newUrl,
-      coin: newCoin,
-      rank: Number(newRank)
-    }
-  );
-
+  showToast("Data diupdate!");
+  closeModal();
   loadFaucets();
 };
 
-// ======================
-// DELETE
-// ======================
-window.deleteFaucet = async function(id){
+/* =====================
+   DELETE
+===================== */
+window.deleteFaucet = async function (id) {
 
-  if(!confirm("Delete faucet?")){
-    return;
-  }
+  await deleteDoc(doc(db, "faucets", id));
 
-  await deleteDoc(
-    doc(db, "faucets", id)
-  );
-
+  showToast("Faucet dihapus", "error");
   loadFaucets();
 };
 
-// ======================
-// TOGGLE STATUS
-// ======================
-window.toggleStatus = async function(
-  id,
-  status
-){
+/* =====================
+   TOGGLE STATUS
+===================== */
+window.toggleStatus = async function (id, status) {
 
-  const newStatus =
-    status === "active"
-    ? "inactive"
-    : "active";
+  const newStatus = status === "active" ? "inactive" : "active";
 
-  await updateDoc(
-    doc(db, "faucets", id),
-    {
-      status: newStatus
-    }
-  );
+  await updateDoc(doc(db, "faucets", id), {
+    status: newStatus
+  });
 
+  showToast("Status: " + newStatus);
   loadFaucets();
 };
 
-// ======================
-// SEARCH
-// ======================
-window.searchFaucet = function(){
+/* =====================
+   SEARCH
+===================== */
+window.searchFaucet = function () {
 
-  const q = document
-    .getElementById("search")
-    .value
-    .toLowerCase();
+  const q = document.getElementById("search").value.toLowerCase();
 
-  const filtered =
-    allFaucets.filter(f =>
-
-      f.name.toLowerCase().includes(q) ||
-
-      f.coin.toLowerCase().includes(q)
-
-    );
+  const filtered = allFaucets.filter(f =>
+    (f.name || "").toLowerCase().includes(q) ||
+    (f.coin || "").toLowerCase().includes(q)
+  );
 
   render(filtered);
 };
 
-// ======================
-// LOGOUT
-// ======================
-window.logout = function(){
+/* =====================
+   AUTO SCAN DEAD FAUCETS
+===================== */
+window.scanDeadFaucets = async function () {
 
-  signOut(auth)
-  .then(() => {
+  let deadCount = 0;
 
-    window.location.href =
-      "login.html";
+  for (let f of allFaucets) {
 
-  });
+    if (f.status !== "active") continue;
 
+    const alive = await checkUrlAlive(f.url);
+
+    if (!alive) {
+
+      await updateDoc(doc(db, "faucets", f.id), {
+        status: "inactive",
+        rank: 9999
+      });
+
+      deadCount++;
+
+      showToast("Dead: " + f.name, "error");
+    }
+  }
+
+  showToast("Scan selesai. Dead: " + deadCount);
+
+  loadFaucets();
 };
 
-// ======================
-// INIT
-// ======================
+/* =====================
+   LOGOUT
+===================== */
+window.logout = async function () {
+  await signOut(auth);
+  location.href = "login.html";
+};
+
+/* =====================
+   INIT
+===================== */
 loadFaucets();
