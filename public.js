@@ -12,7 +12,7 @@ import {
    FIREBASE CONFIG
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
+  apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -26,6 +26,55 @@ const db = getFirestore(app);
 const listDiv = document.getElementById("list");
 
 let allFaucets = [];
+
+/* =====================
+   ANTI BOT SYSTEM
+===================== */
+let clickLock = false;
+let globalClicks = 0;
+let resetTime = Date.now();
+let lastActivity = Date.now();
+
+/* detect human activity */
+document.addEventListener("mousemove", () => lastActivity = Date.now());
+document.addEventListener("keydown", () => lastActivity = Date.now());
+document.addEventListener("touchstart", () => lastActivity = Date.now());
+
+function isBot() {
+  return Date.now() - lastActivity > 15000;
+}
+
+function canClick(id) {
+  const data = JSON.parse(localStorage.getItem("click_limit") || "{}");
+
+  if (!data[id]) return true;
+
+  const now = Date.now();
+  return (now - data[id]) > 30000; // 30 detik
+}
+
+function saveClick(id) {
+  const data = JSON.parse(localStorage.getItem("click_limit") || "{}");
+  data[id] = Date.now();
+  localStorage.setItem("click_limit", JSON.stringify(data));
+}
+
+function checkGlobalLimit() {
+
+  const now = Date.now();
+
+  if (now - resetTime > 60000) {
+    globalClicks = 0;
+    resetTime = now;
+  }
+
+  if (globalClicks >= 25) {
+    return false;
+  }
+
+  globalClicks++;
+  return true;
+}
 
 /* =====================
    LOAD FAUCETS
@@ -49,7 +98,6 @@ async function loadFaucets() {
 
   });
 
-  // sort by rank
   allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
 
   document.getElementById("totalFaucets").innerHTML =
@@ -62,9 +110,32 @@ async function loadFaucets() {
 }
 
 /* =====================
-   CLICK TRACKING + OPEN
+   CLICK TRACKING + OPEN (ANTI BOT)
 ===================== */
 window.visitFaucet = async function (id, url) {
+
+  // lock double click
+  if (clickLock) return;
+  clickLock = true;
+
+  setTimeout(() => clickLock = false, 2000);
+
+  // bot check
+  if (isBot()) {
+    return;
+  }
+
+  // global limit
+  if (!checkGlobalLimit()) {
+    return;
+  }
+
+  // cooldown per faucet
+  if (!canClick(id)) {
+    return;
+  }
+
+  saveClick(id);
 
   try {
     await updateDoc(doc(db, "faucets", id), {
