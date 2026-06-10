@@ -23,27 +23,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* =====================
+   DOM
+===================== */
 const listDiv = document.getElementById("list");
+const trendingDiv = document.getElementById("trending");
+const coinStatsDiv = document.getElementById("coinStats");
+const coinFilter = document.getElementById("coinFilter");
+const totalEl = document.getElementById("totalFaucets");
 
 let allFaucets = [];
 
 /* =====================
-   DEVICE ID
-===================== */
-function getDeviceId() {
-  let id = localStorage.getItem("device_id");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("device_id", id);
-  }
-  return id;
-}
-
-/* =====================
-   SCORE SYSTEM
+   SCORE SYSTEM (REAL PRO)
 ===================== */
 function calcScore(f) {
-  return (f.clicks || 0) + (f.likes || 0) * 2 - (f.dislikes || 0) * 2;
+  return (f.clicks || 0) + (f.likes || 0) * 3 - (f.dislikes || 0) * 4;
 }
 
 /* =====================
@@ -56,12 +51,22 @@ async function loadFaucets() {
   allFaucets = [];
 
   snap.forEach((d) => {
-    allFaucets.push({ id: d.id, ...d.data() });
+    const data = d.data();
+    if (data.status === "active") {
+      allFaucets.push({ id: d.id, ...data });
+    }
   });
 
-  // SORT BY SCORE (AUTO RANK)
+  // AUTO RANK BY SCORE
   allFaucets.sort((a, b) => calcScore(b) - calcScore(a));
 
+  refreshUI();
+}
+
+/* =====================
+   UI CONTROLLER (IMPORTANT)
+===================== */
+function refreshUI() {
   render(allFaucets);
   renderTrending();
   renderCoinStats();
@@ -70,38 +75,46 @@ async function loadFaucets() {
 }
 
 /* =====================
-   TOTAL FAUCET
+   TOTAL FAUCETS
 ===================== */
 function renderTotal() {
-  const el = document.getElementById("totalFaucets");
-  if (el) el.innerText = `📊 ${allFaucets.length} Faucets`;
+  if (!totalEl) return;
+  totalEl.innerText = `📊 ${allFaucets.length} Faucets`;
 }
 
 /* =====================
-   CLICK ANTI SPAM
+   ANTI SPAM CLICK
+===================== */
+function canClick(id) {
+  const key = "click_" + id;
+  const last = localStorage.getItem(key);
+  const now = Date.now();
+
+  if (last && now - last < 7000) return false;
+  localStorage.setItem(key, now);
+  return true;
+}
+
+/* =====================
+   VISIT + CLICK TRACK
 ===================== */
 window.visitFaucet = async function (id, url) {
 
-  const key = "click_" + id;
-  const now = Date.now();
-  const last = localStorage.getItem(key);
+  if (!canClick(id)) return;
 
-  if (last && now - last < 5000) return; // anti spam 5 detik
-
-  localStorage.setItem(key, now);
-
-  await updateDoc(doc(db, "faucets", id), {
-    clicks: increment(1)
-  });
+  try {
+    await updateDoc(doc(db, "faucets", id), {
+      clicks: increment(1)
+    });
+  } catch (e) {}
 
   window.open(url, "_blank");
 };
 
 /* =====================
-   LIKE / DISLIKE (ANTI DUPLICATE)
+   LIKE / DISLIKE (SAFE)
 ===================== */
 window.likeFaucet = async function (id) {
-
   const key = "vote_" + id;
   const current = localStorage.getItem(key);
   const ref = doc(db, "faucets", id);
@@ -124,7 +137,6 @@ window.likeFaucet = async function (id) {
 };
 
 window.dislikeFaucet = async function (id) {
-
   const key = "vote_" + id;
   const current = localStorage.getItem(key);
   const ref = doc(db, "faucets", id);
@@ -147,9 +159,11 @@ window.dislikeFaucet = async function (id) {
 };
 
 /* =====================
-   RENDER LIST (MAIN)
+   RENDER MAIN LIST
 ===================== */
 function render(data) {
+
+  if (!listDiv) return;
 
   listDiv.innerHTML = data.map(d => `
     <div class="card">
@@ -178,18 +192,17 @@ function render(data) {
 }
 
 /* =====================
-   TRENDING (TOP SCORE)
+   TRENDING
 ===================== */
 function renderTrending() {
+
+  if (!trendingDiv) return;
 
   const top = [...allFaucets]
     .sort((a, b) => calcScore(b) - calcScore(a))
     .slice(0, 5);
 
-  const el = document.getElementById("trending");
-  if (!el) return;
-
-  el.innerHTML = top.map((d, i) => `
+  trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
       <div class="rank-badge">🔥 ${i + 1}</div>
       <div class="name">${d.name}</div>
@@ -206,16 +219,35 @@ function renderTrending() {
 }
 
 /* =====================
-   COIN FILTER (FIX ALL COIN)
+   COIN STATS (FIXED)
+===================== */
+function renderCoinStats() {
+
+  if (!coinStatsDiv) return;
+
+  const count = {};
+
+  allFaucets.forEach(f => {
+    const coin = (f.coin || "UNKNOWN").trim();
+    count[coin] = (count[coin] || 0) + 1;
+  });
+
+  coinStatsDiv.innerHTML =
+    Object.keys(count).sort().map(c =>
+      `<span class="badge">${c} (${count[c]})</span>`
+    ).join("");
+}
+
+/* =====================
+   COIN FILTER (FIXED)
 ===================== */
 function loadCoinFilter() {
 
-  const el = document.getElementById("coinFilter");
-  if (!el) return;
+  if (!coinFilter) return;
 
-  el.innerHTML = `<option value="all">All Coins</option>`;
+  coinFilter.innerHTML = `<option value="all">All Coins</option>`;
 
-  const coins = [...new Set(allFaucets.map(f => f.coin).filter(Boolean))];
+  const coins = [...new Set(allFaucets.map(f => (f.coin || "UNKNOWN").trim()))];
 
   coins.sort();
 
@@ -223,32 +255,24 @@ function loadCoinFilter() {
     const opt = document.createElement("option");
     opt.value = c;
     opt.textContent = c;
-    el.appendChild(opt);
+    coinFilter.appendChild(opt);
   });
 }
 
 /* =====================
-   COIN STATS (ZER / BTC FIX)
+   FILTER
 ===================== */
-function renderCoinStats() {
+window.filterCoin = function () {
 
-  const el = document.getElementById("coinStats");
-  if (!el) return;
+  const val = coinFilter?.value;
 
-  const count = {};
+  if (!val || val === "all") return render(allFaucets);
 
-  allFaucets.forEach(f => {
-    if (!f.coin) return;
-    count[f.coin] = (count[f.coin] || 0) + 1;
-  });
-
-  el.innerHTML = Object.keys(count).sort().map(c =>
-    `<span class="badge">${c} (${count[c]})</span>`
-  ).join("");
-}
+  render(allFaucets.filter(f => f.coin === val));
+};
 
 /* =====================
-   SEARCH + FILTER SUPPORT
+   SEARCH
 ===================== */
 window.searchPublic = function () {
 
@@ -258,15 +282,6 @@ window.searchPublic = function () {
     (f.name || "").toLowerCase().includes(q) ||
     (f.coin || "").toLowerCase().includes(q)
   ));
-};
-
-window.filterCoin = function () {
-
-  const c = document.getElementById("coinFilter")?.value;
-
-  if (!c || c === "all") return render(allFaucets);
-
-  render(allFaucets.filter(f => f.coin === c));
 };
 
 /* =====================
