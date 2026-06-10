@@ -121,27 +121,32 @@ function render(data) {
   listDiv.innerHTML = data.map(d => `
     <div class="card">
 
-      <div class="top">
-        <div class="name">${d.name || "-"}</div>
-        <div class="coin">${d.coin || "UNKNOWN"}</div>
+      <!-- BARIS ATAS -->
+      <div class="top-row">
+        <div class="rank">#${d.rank || "-"}</div>
+        <div class="coin">${d.coin || "-"}</div>
+        <div class="stat">👁 ${d.clicks || 0}</div>
+        <div class="stat">⭐ ${calcScore(d)}</div>
       </div>
 
-      <div class="stats">
-        <span>👁 ${d.clicks || 0}</span>
-      </div>
+      <!-- BARIS BAWAH -->
+      <div class="bottom-row">
 
-      <div class="action">
+        <div class="name">
+          ${d.name}
+        </div>
+
         <a class="visit-btn"
            href="#"
            onclick="visitFaucet('${d.id}','${d.url}')">
           Claim
         </a>
+
       </div>
 
     </div>
   `).join("");
 }
-
 /* =====================
    TRENDING
 ===================== */
