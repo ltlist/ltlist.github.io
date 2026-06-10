@@ -5,14 +5,15 @@ import {
   doc,
   updateDoc,
   increment,
-  onSnapshot
+  onSnapshot,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =====================
    FIREBASE
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokJ_Wl3aITEhj6UPetF-MGQDV75S8",
+  apiKey: "YOUR_KEY",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -33,30 +34,67 @@ const totalEl = document.getElementById("totalFaucets");
 let allFaucets = [];
 
 /* =====================
-   SCORE
+   DEVICE ID (ANTI MULTI ACCOUNT BASIC)
 ===================== */
-function calcScore(f) {
-  return (f.likes || 0) * 3 - (f.dislikes || 0) * 4 + (f.clicks || 0);
+function getDeviceId() {
+  let id = localStorage.getItem("device_id");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("device_id", id);
+  }
+  return id;
 }
 
 /* =====================
-   REALTIME LISTENER
+   PRO ANTI SPAM ENGINE
+===================== */
+const clickCache = {};
+let globalClickCount = 0;
+let resetTime = Date.now();
+
+/* reset global tiap 1 menit */
+setInterval(() => {
+  globalClickCount = 0;
+  resetTime = Date.now();
+}, 60000);
+
+/* =====================
+   CHECK CLICK VALID
+===================== */
+function canClick(id) {
+
+  const now = Date.now();
+
+  // per faucet cooldown
+  if (clickCache[id] && now - clickCache[id] < 15000) {
+    return false;
+  }
+
+  // global limit per minute
+  if (globalClickCount >= 20) {
+    return false;
+  }
+
+  clickCache[id] = now;
+  globalClickCount++;
+
+  return true;
+}
+
+/* =====================
+   REALTIME FIRESTORE
 ===================== */
 function startRealtime() {
-
   onSnapshot(collection(db, "faucets"), (snap) => {
 
-    const temp = [];
+    allFaucets = [];
 
     snap.forEach((d) => {
       const data = d.data();
-
       if (data.status === "active") {
-        temp.push({ id: d.id, ...data });
+        allFaucets.push({ id: d.id, ...data });
       }
     });
-
-    allFaucets = temp;
 
     render();
     renderTrending();
@@ -65,16 +103,66 @@ function startRealtime() {
 }
 
 /* =====================
-   RENDER MAIN
+   SCORE
+===================== */
+function calcScore(f) {
+  return (f.likes || 0) * 3 - (f.dislikes || 0) * 4 + (f.clicks || 0);
+}
+
+/* =====================
+   VISIT (ANTI SPAM PRO)
+===================== */
+window.visitFaucet = async function (id, url) {
+
+  if (!canClick(id)) {
+    alert("Terlalu cepat klik, tunggu sebentar!");
+    return;
+  }
+
+  try {
+    await updateDoc(doc(db, "faucets", id), {
+      clicks: increment(1),
+      lastClick: serverTimestamp(),
+      device: getDeviceId()
+    });
+  } catch (e) {}
+
+  window.open(url, "_blank");
+};
+
+/* =====================
+   LIKE (SAFE)
+===================== */
+window.likeFaucet = async function (id) {
+  try {
+    await updateDoc(doc(db, "faucets", id), {
+      likes: increment(1)
+    });
+  } catch (e) {}
+};
+
+/* =====================
+   DISLIKE (SAFE)
+===================== */
+window.dislikeFaucet = async function (id) {
+  try {
+    await updateDoc(doc(db, "faucets", id), {
+      dislikes: increment(1)
+    });
+  } catch (e) {}
+};
+
+/* =====================
+   RENDER LIST
 ===================== */
 function render() {
 
-  const sorted = [...allFaucets].sort((a, b) => calcScore(b) - calcScore(a));
+  allFaucets.sort((a, b) => calcScore(b) - calcScore(a));
 
-  listDiv.innerHTML = sorted.map((d, i) => `
+  listDiv.innerHTML = allFaucets.map((d, i) => `
     <div class="card">
 
-      <div class="rank-badge">#${i + 1}</div>
+      <div class="rank">#${i + 1}</div>
 
       <div class="name">${d.name}</div>
 
@@ -87,13 +175,9 @@ function render() {
       </div>
 
       <a class="visit-btn"
-         href="#"
          onclick="visitFaucet('${d.id}','${d.url}')">
         Claim
       </a>
-
-      <button onclick="likeFaucet('${d.id}')">👍</button>
-      <button onclick="dislikeFaucet('${d.id}')">👎</button>
 
     </div>
   `).join("");
@@ -110,10 +194,10 @@ function renderTrending() {
 
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
-      <div class="rank-badge">🔥 ${i + 1}</div>
-      <div class="name">${d.name}</div>
-      <div class="coin">${d.coin}</div>
-      <div class="score">⭐ ${calcScore(d)}</div>
+      <div>🔥 ${i + 1}</div>
+      <div>${d.name}</div>
+      <div>${d.coin}</div>
+      <div>⭐ ${calcScore(d)}</div>
     </div>
   `).join("");
 }
@@ -126,55 +210,6 @@ function renderTotal() {
     totalEl.innerText = `📊 ${allFaucets.length} Faucets`;
   }
 }
-
-/* =====================
-   ANTI SPAM VOTE SIMPLE
-===================== */
-function canVote(id) {
-  const key = "vote_" + id;
-  const last = localStorage.getItem(key);
-
-  if (last && Date.now() - last < 5000) return false;
-
-  localStorage.setItem(key, Date.now());
-  return true;
-}
-
-/* =====================
-   CLICK
-===================== */
-window.visitFaucet = async function (id, url) {
-
-  await updateDoc(doc(db, "faucets", id), {
-    clicks: increment(1)
-  });
-
-  window.open(url, "_blank");
-};
-
-/* =====================
-   LIKE
-===================== */
-window.likeFaucet = async function (id) {
-
-  if (!canVote(id)) return;
-
-  await updateDoc(doc(db, "faucets", id), {
-    likes: increment(1)
-  });
-};
-
-/* =====================
-   DISLIKE
-===================== */
-window.dislikeFaucet = async function (id) {
-
-  if (!canVote(id)) return;
-
-  await updateDoc(doc(db, "faucets", id), {
-    dislikes: increment(1)
-  });
-};
 
 /* =====================
    START
