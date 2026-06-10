@@ -188,19 +188,30 @@ function renderTrending() {
   if (!trendingDiv) return;
 
   const top = [...allFaucets]
+    .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
     .slice(0, 5);
 
   trendingDiv.innerHTML = top.map((d, i) => `
-    <div class="card">
-      <div class="rank-badge">🔥 ${i + 1}</div>
-      <div class="name">${d.name}</div>
-      <div class="coin">${d.coin}</div>
+    <div class="trend-row">
 
-      <a class="visit-btn"
-         href="#"
-         onclick="visitFaucet('${d.id}','${d.url}')">
-        Claim
-      </a>
+      <div class="t-col rank">
+        ${i + 1}
+      </div>
+
+      <div class="t-col coin">
+        ${d.coin}
+      </div>
+
+      <div class="t-col name">
+        ${d.name}
+      </div>
+
+      <div class="t-col action">
+        <a href="#" onclick="visitFaucet('${d.id}','${d.url}')">
+          Claim
+        </a>
+      </div>
+
     </div>
   `).join("");
 }
