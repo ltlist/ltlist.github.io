@@ -58,7 +58,7 @@ h1{
 }
 
 /* =====================
-   INPUT & SELECT
+   INPUT
 ===================== */
 input,
 select{
@@ -78,7 +78,7 @@ input::placeholder{
 }
 
 /* =====================
-   COIN STATS BADGE
+   BADGES
 ===================== */
 .badge{
   display:inline-block;
@@ -92,7 +92,7 @@ input::placeholder{
 }
 
 /* =====================
-   TABLE CARD (FIXED LAYOUT)
+   CARD
 ===================== */
 .card{
   background:#111827;
@@ -102,7 +102,13 @@ input::placeholder{
   margin-bottom:8px;
 
   display:grid;
-  grid-template-columns: 60px 1fr 80px 90px;
+  grid-template-columns:
+    60px
+    1fr
+    70px
+    70px
+    90px;
+
   align-items:center;
   gap:10px;
 }
@@ -141,7 +147,15 @@ input::placeholder{
   justify-self:center;
 }
 
-/* BUTTON */
+/* CLICKS */
+.clicks{
+  font-size:11px;
+  color:#94a3b8;
+  text-align:center;
+  white-space:nowrap;
+}
+
+/* CLAIM BUTTON */
 .visit-btn{
   display:inline-block;
   padding:6px 10px;
@@ -174,9 +188,10 @@ input::placeholder{
 }
 
 /* =====================
-   MOBILE = SAME LAYOUT (NO CHANGE)
+   MOBILE
 ===================== */
 @media(max-width:600px){
+
   .container{
     padding:15px;
   }
@@ -185,8 +200,33 @@ input::placeholder{
     font-size:1.6rem;
   }
 
-  /* tetap sama biar HP & desktop identik */
   .card{
-    grid-template-columns: 60px 1fr 80px 90px;
+    grid-template-columns:
+      55px
+      1fr
+      60px
+      60px
+      75px;
+
+    gap:6px;
   }
+
+  .name{
+    font-size:13px;
+  }
+
+  .coin{
+    font-size:10px;
+    padding:3px 5px;
+  }
+
+  .clicks{
+    font-size:10px;
+  }
+
+  .visit-btn{
+    font-size:11px;
+    padding:5px 8px;
+  }
+
 }
