@@ -35,10 +35,10 @@ const totalEl = document.getElementById("totalFaucets");
 let allFaucets = [];
 
 /* =====================
-   SCORE SYSTEM (REAL PRO)
+   SCORE SYSTEM (CLICK ONLY)
 ===================== */
 function calcScore(f) {
-  return (f.clicks || 0) + (f.likes || 0) * 3 - (f.dislikes || 0) * 4;
+  return (f.clicks || 0);
 }
 
 /* =====================
@@ -52,19 +52,20 @@ async function loadFaucets() {
 
   snap.forEach((d) => {
     const data = d.data();
+
     if (data.status === "active") {
       allFaucets.push({ id: d.id, ...data });
     }
   });
 
-  // AUTO RANK BY SCORE
+  // AUTO RANK BY CLICK
   allFaucets.sort((a, b) => calcScore(b) - calcScore(a));
 
   refreshUI();
 }
 
 /* =====================
-   UI CONTROLLER (IMPORTANT)
+   REFRESH UI
 ===================== */
 function refreshUI() {
   render(allFaucets);
@@ -75,20 +76,21 @@ function refreshUI() {
 }
 
 /* =====================
-   TOTAL FAUCETS
+   TOTAL
 ===================== */
 function renderTotal() {
-  if (!totalEl) return;
-  totalEl.innerText = `📊 ${allFaucets.length} Faucets`;
+  if (totalEl) {
+    totalEl.innerText = `📊 ${allFaucets.length} Faucets`;
+  }
 }
 
 /* =====================
-   ANTI SPAM CLICK
+   ANTI SPAM CLICK (PRO SIMPLE)
 ===================== */
 function canClick(id) {
   const key = "click_" + id;
-  const last = localStorage.getItem(key);
   const now = Date.now();
+  const last = localStorage.getItem(key);
 
   if (last && now - last < 7000) return false;
   localStorage.setItem(key, now);
@@ -96,7 +98,7 @@ function canClick(id) {
 }
 
 /* =====================
-   VISIT + CLICK TRACK
+   VISIT / CLICK TRACK
 ===================== */
 window.visitFaucet = async function (id, url) {
 
@@ -112,54 +114,7 @@ window.visitFaucet = async function (id, url) {
 };
 
 /* =====================
-   LIKE / DISLIKE (SAFE)
-===================== */
-window.likeFaucet = async function (id) {
-  const key = "vote_" + id;
-  const current = localStorage.getItem(key);
-  const ref = doc(db, "faucets", id);
-
-  if (current === "like") return;
-
-  if (current === "dislike") {
-    await updateDoc(ref, {
-      dislikes: increment(-1),
-      likes: increment(1)
-    });
-  } else {
-    await updateDoc(ref, {
-      likes: increment(1)
-    });
-  }
-
-  localStorage.setItem(key, "like");
-  loadFaucets();
-};
-
-window.dislikeFaucet = async function (id) {
-  const key = "vote_" + id;
-  const current = localStorage.getItem(key);
-  const ref = doc(db, "faucets", id);
-
-  if (current === "dislike") return;
-
-  if (current === "like") {
-    await updateDoc(ref, {
-      likes: increment(-1),
-      dislikes: increment(1)
-    });
-  } else {
-    await updateDoc(ref, {
-      dislikes: increment(1)
-    });
-  }
-
-  localStorage.setItem(key, "dislike");
-  loadFaucets();
-};
-
-/* =====================
-   RENDER MAIN LIST
+   MAIN LIST
 ===================== */
 function render(data) {
 
@@ -170,9 +125,9 @@ function render(data) {
 
       <div class="rank-badge">#${d.rank || "-"}</div>
 
-      <div class="name">${d.name}</div>
+      <div class="name">${d.name || "-"}</div>
 
-      <div class="coin">${d.coin}</div>
+      <div class="coin">${d.coin || "UNKNOWN"}</div>
 
       <div class="clicks">👁 ${d.clicks || 0}</div>
 
@@ -183,9 +138,6 @@ function render(data) {
          onclick="visitFaucet('${d.id}','${d.url}')">
         Claim
       </a>
-
-      <button onclick="likeFaucet('${d.id}')">👍</button>
-      <button onclick="dislikeFaucet('${d.id}')">👎</button>
 
     </div>
   `).join("");
@@ -228,18 +180,18 @@ function renderCoinStats() {
   const count = {};
 
   allFaucets.forEach(f => {
-    const coin = (f.coin || "UNKNOWN").trim();
-    count[coin] = (count[coin] || 0) + 1;
+    const c = (f.coin || "UNKNOWN").trim();
+    count[c] = (count[c] || 0) + 1;
   });
 
-  coinStatsDiv.innerHTML =
-    Object.keys(count).sort().map(c =>
-      `<span class="badge">${c} (${count[c]})</span>`
-    ).join("");
+  coinStatsDiv.innerHTML = Object.keys(count)
+    .sort()
+    .map(c => `<span class="badge">${c} (${count[c]})</span>`)
+    .join("");
 }
 
 /* =====================
-   COIN FILTER (FIXED)
+   COIN FILTER
 ===================== */
 function loadCoinFilter() {
 
@@ -264,11 +216,11 @@ function loadCoinFilter() {
 ===================== */
 window.filterCoin = function () {
 
-  const val = coinFilter?.value;
+  const v = coinFilter?.value;
 
-  if (!val || val === "all") return render(allFaucets);
+  if (!v || v === "all") return render(allFaucets);
 
-  render(allFaucets.filter(f => f.coin === val));
+  render(allFaucets.filter(f => f.coin === v));
 };
 
 /* =====================
