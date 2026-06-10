@@ -98,6 +98,9 @@ input::placeholder{
   background:#111827;
   border:1px solid #134e4a;
   color:#5eead4;
+
+  /* FIX */
+  cursor:default;
 }
 
 /* =====================
@@ -116,6 +119,9 @@ input::placeholder{
   gap:10px;
 
   transition:0.2s;
+
+  /* FIX */
+  cursor:pointer;
 }
 
 .card:hover{
@@ -184,7 +190,9 @@ input::placeholder{
   font-size:12px;
   font-weight:bold;
   text-align:center;
-  transition:0.2s;
+
+  /* FIX */
+  transition:0.2s ease;
 }
 
 .visit-btn:hover{
