@@ -198,8 +198,61 @@ select:focus{
 /* =====================
    TRENDING CARD
 ===================== */
-#trending .card{
-  padding:12px;
+.trend-row{
+  display:grid;
+  grid-template-columns:40px 80px 1fr 70px;
+  align-items:center;
+
+  padding:8px 10px;
+  margin-bottom:6px;
+
+  background:#0f172a;
+  border:1px solid #1f2937;
+  border-radius:10px;
+}
+
+/* kolom */
+.t-col{
+  font-size:13px;
+  color:#fff;
+}
+
+/* rank */
+.t-col.rank{
+  color:#5eead4;
+  font-weight:bold;
+  text-align:center;
+}
+
+/* coin */
+.t-col.coin{
+  color:#94a3b8;
+  font-size:12px;
+}
+
+/* name biar tidak rusak */
+.t-col.name{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* claim kanan */
+.t-col.action{
+  text-align:right;
+}
+
+.t-col.action a{
+  background:#0f766e;
+  color:#fff;
+  padding:4px 8px;
+  border-radius:6px;
+  text-decoration:none;
+  font-size:12px;
+}
+
+.t-col.action a:hover{
+  background:#115e59;
 }
 
 /* =====================
