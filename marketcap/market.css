@@ -205,25 +205,6 @@ body{
 }
 
 /* =====================
-   FOOTER
-===================== */
-.footer{
-  margin-top:20px;
-  padding:15px;
-  text-align:center;
-  background:#0f172a;
-  border-top:1px solid #1f2937;
-  color:#94a3b8;
-  font-size:12px;
-}
-
-.footer .sub{
-  font-size:11px;
-  color:#64748b;
-  margin-top:5px;
-}
-
-/* =====================
    NAV RIGHT LINKS
 ===================== */
 .nav-right{
@@ -250,3 +231,23 @@ body{
   background:#1f2937;
   color:#fff;
 }
+
+/* =====================
+   FOOTER
+===================== */
+.footer{
+  margin-top:20px;
+  padding:15px;
+  text-align:center;
+  background:#0f172a;
+  border-top:1px solid #1f2937;
+  color:#94a3b8;
+  font-size:12px;
+}
+
+.footer .sub{
+  font-size:11px;
+  color:#64748b;
+  margin-top:5px;
+}
+
