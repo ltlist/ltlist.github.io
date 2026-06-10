@@ -58,7 +58,7 @@ h1{
 }
 
 /* =====================
-   INPUT + SELECT
+   INPUT & SELECT
 ===================== */
 input,
 select{
@@ -78,7 +78,7 @@ input::placeholder{
 }
 
 /* =====================
-   CARD (ROW LIST STYLE)
+   CARD = TABLE ROW STYLE
 ===================== */
 .card{
   background:#111827;
@@ -87,27 +87,15 @@ input::placeholder{
   padding:10px 12px;
   margin-bottom:8px;
 
-  display:flex;
-  justify-content:space-between;
+  display:grid;
+  grid-template-columns: 60px 1fr 80px 90px;
   align-items:center;
   gap:10px;
 }
 
-/* LEFT SIDE */
-.card-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-wrap:wrap;
-}
-
-.card-left h3{
-  margin:0;
-  font-size:15px;
-  font-weight:600;
-}
-
-/* RANK */
+/* =====================
+   RANK
+===================== */
 .rank-badge{
   display:inline-block;
   background:#134e4a;
@@ -116,9 +104,24 @@ input::placeholder{
   border-radius:6px;
   font-weight:bold;
   font-size:12px;
+  text-align:center;
 }
 
-/* COIN BADGE */
+/* =====================
+   NAME
+===================== */
+.card-left h3{
+  margin:0;
+  font-size:15px;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* =====================
+   COIN BADGE
+===================== */
 .badge{
   display:inline-block;
   background:#1f2937;
@@ -127,16 +130,12 @@ input::placeholder{
   padding:4px 8px;
   border-radius:6px;
   font-size:11px;
+  text-align:center;
 }
 
-/* RIGHT SIDE */
-.card-right{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-/* BUTTON */
+/* =====================
+   ACTION BUTTON
+===================== */
 .visit-btn{
   display:inline-block;
   padding:6px 10px;
@@ -146,6 +145,7 @@ input::placeholder{
   text-decoration:none;
   font-weight:bold;
   font-size:13px;
+  text-align:center;
   white-space:nowrap;
   transition:.2s;
 }
@@ -154,7 +154,9 @@ input::placeholder{
   background:#115e59;
 }
 
-/* GENERAL BUTTON */
+/* =====================
+   GENERAL BUTTON
+===================== */
 button{
   padding:8px 12px;
   border:none;
@@ -183,21 +185,21 @@ button:hover{
 }
 
 /* =====================
-   MOBILE
+   MOBILE RESPONSIVE
 ===================== */
 @media(max-width:600px){
 
   .card{
-    flex-direction:column;
-    align-items:flex-start;
+    grid-template-columns: 50px 1fr;
+    grid-template-rows: auto auto;
   }
 
-  .card-right{
-    width:100%;
+  .badge{
+    grid-column:2;
   }
 
   .visit-btn{
+    grid-column:1 / -1;
     width:100%;
-    text-align:center;
   }
 }
