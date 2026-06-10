@@ -1,11 +1,17 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+
 import {
   getFirestore,
   collection,
-  getDocs
+  getDocs,
+  doc,
+  updateDoc,
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// FIREBASE
+/* =====================
+   FIREBASE
+===================== */
 const firebaseConfig = {
   apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
@@ -22,9 +28,9 @@ const listDiv = document.getElementById("list");
 
 let allFaucets = [];
 
-// =====================
-// LOAD DATA
-// =====================
+/* =====================
+   LOAD DATA
+===================== */
 async function loadFaucets() {
 
   const snap = await getDocs(
@@ -33,15 +39,14 @@ async function loadFaucets() {
 
   allFaucets = [];
 
-  snap.forEach((doc) => {
+  snap.forEach((docSnap) => {
 
-    const data = doc.data();
+    const data = docSnap.data();
 
-    // hanya tampilkan active
     if (data.status === "active") {
 
       allFaucets.push({
-        id: doc.id,
+        id: docSnap.id,
         ...data
       });
 
@@ -49,14 +54,12 @@ async function loadFaucets() {
 
   });
 
-  // SORT RANK
   allFaucets.sort(
     (a, b) =>
       (a.rank || 9999) -
       (b.rank || 9999)
   );
 
-  // TOTAL
   document.getElementById(
     "totalFaucets"
   ).innerHTML =
@@ -67,9 +70,33 @@ async function loadFaucets() {
   loadCoinFilter();
 }
 
-// =====================
-// RENDER LIST
-// =====================
+/* =====================
+   CLICK TRACKING
+===================== */
+window.visitFaucet =
+async function(id, url) {
+
+  try {
+
+    await updateDoc(
+      doc(db, "faucets", id),
+      {
+        clicks: increment(1)
+      }
+    );
+
+  } catch(err) {
+
+    console.log(err);
+
+  }
+
+  window.open(url, "_blank");
+};
+
+/* =====================
+   RENDER LIST
+===================== */
 function render(data) {
 
   let html = "";
@@ -91,7 +118,15 @@ function render(data) {
           ${d.coin}
         </div>
 
-        <a href="${d.url}" target="_blank" class="visit-btn">
+        <div class="clicks">
+          👁 ${d.clicks || 0} Clicks
+        </div>
+
+        <a
+          href="#"
+          class="visit-btn"
+          onclick="visitFaucet('${d.id}','${d.url}')"
+        >
           Claim
         </a>
 
@@ -102,9 +137,9 @@ function render(data) {
   listDiv.innerHTML = html;
 }
 
-// =====================
-// COIN FILTER AUTO
-// =====================
+/* =====================
+   COIN FILTER
+===================== */
 function loadCoinFilter() {
 
   const select =
@@ -140,9 +175,9 @@ function loadCoinFilter() {
   });
 }
 
-// =====================
-// COIN COUNTER
-// =====================
+/* =====================
+   COIN STATS
+===================== */
 function renderCoinStats() {
 
   const count = {};
@@ -173,11 +208,11 @@ function renderCoinStats() {
   ).innerHTML = html;
 }
 
-// =====================
-// SEARCH
-// =====================
+/* =====================
+   SEARCH
+===================== */
 window.searchPublic =
-function () {
+function() {
 
   const q =
     document
@@ -196,11 +231,11 @@ function () {
   render(filtered);
 };
 
-// =====================
-// FILTER COIN
-// =====================
+/* =====================
+   FILTER COIN
+===================== */
 window.filterCoin =
-function () {
+function() {
 
   const coin =
     document.getElementById(
@@ -222,7 +257,7 @@ function () {
   render(filtered);
 };
 
-// =====================
-// INIT
-// =====================
+/* =====================
+   INIT
+===================== */
 loadFaucets();
