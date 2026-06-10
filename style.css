@@ -5,7 +5,9 @@ body{
   color:#fff;
 }
 
-/* NAVBAR */
+/* =====================
+   NAVBAR
+===================== */
 .navbar{
   display:flex;
   justify-content:space-between;
@@ -34,7 +36,9 @@ body{
   color:#00ffcc;
 }
 
-/* CONTAINER */
+/* =====================
+   CONTAINER
+===================== */
 .container{
   max-width:900px;
   margin:auto;
@@ -53,7 +57,9 @@ h1{
   margin:0 0 15px 0;
 }
 
-/* INPUT */
+/* =====================
+   INPUT & SELECT
+===================== */
 input,
 select{
   width:100%;
@@ -64,10 +70,29 @@ select{
   box-sizing:border-box;
   background:#1f2937;
   color:#fff;
+  font-size:14px;
+}
+
+input::placeholder{
+  color:#94a3b8;
 }
 
 /* =====================
-   CARD FIX (LIST STYLE FIX)
+   COIN STATS BADGE
+===================== */
+.badge{
+  display:inline-block;
+  background:#1f2937;
+  border:1px solid #134e4a;
+  color:#5eead4;
+  padding:4px 8px;
+  border-radius:6px;
+  font-size:11px;
+  margin:2px;
+}
+
+/* =====================
+   TABLE CARD (FIXED LAYOUT)
 ===================== */
 .card{
   background:#111827;
@@ -77,7 +102,7 @@ select{
   margin-bottom:8px;
 
   display:grid;
-  grid-template-columns: 70px 1fr 90px;
+  grid-template-columns: 60px 1fr 80px 90px;
   align-items:center;
   gap:10px;
 }
@@ -91,12 +116,17 @@ select{
   font-weight:bold;
   font-size:12px;
   text-align:center;
+  justify-self:center;
 }
 
 /* NAME */
 .name{
   font-size:15px;
   font-weight:600;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 /* COIN */
@@ -108,6 +138,7 @@ select{
   border-radius:6px;
   font-size:11px;
   text-align:center;
+  justify-self:center;
 }
 
 /* BUTTON */
@@ -121,26 +152,18 @@ select{
   font-weight:bold;
   font-size:13px;
   text-align:center;
+  justify-self:end;
   transition:.2s;
+  white-space:nowrap;
 }
 
 .visit-btn:hover{
   background:#115e59;
 }
 
-/* BADGE STATS */
-.badge{
-  display:inline-block;
-  background:#1f2937;
-  border:1px solid #134e4a;
-  color:#5eead4;
-  padding:4px 8px;
-  border-radius:6px;
-  font-size:11px;
-  margin:2px;
-}
-
-/* FOOTER */
+/* =====================
+   FOOTER
+===================== */
 .footer{
   text-align:center;
   color:#94a3b8;
@@ -150,15 +173,20 @@ select{
   border-top:1px solid #334155;
 }
 
-/* MOBILE */
+/* =====================
+   MOBILE = SAME LAYOUT (NO CHANGE)
+===================== */
 @media(max-width:600px){
-  .card{
-    grid-template-columns: 60px 1fr;
-    grid-template-rows:auto auto;
+  .container{
+    padding:15px;
   }
 
-  .visit-btn{
-    grid-column:1 / -1;
-    width:100%;
+  h1{
+    font-size:1.6rem;
+  }
+
+  /* tetap sama biar HP & desktop identik */
+  .card{
+    grid-template-columns: 60px 1fr 80px 90px;
   }
 }
