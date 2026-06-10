@@ -12,7 +12,7 @@ import {
    FIREBASE CONFIG
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKdv75S8",
+  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKDV75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -28,52 +28,30 @@ const listDiv = document.getElementById("list");
 let allFaucets = [];
 
 /* =====================
-   ANTI BOT SYSTEM
+   DEVICE ID
 ===================== */
-let clickLock = false;
-let globalClicks = 0;
-let resetTime = Date.now();
-let lastActivity = Date.now();
-
-/* detect human activity */
-document.addEventListener("mousemove", () => lastActivity = Date.now());
-document.addEventListener("keydown", () => lastActivity = Date.now());
-document.addEventListener("touchstart", () => lastActivity = Date.now());
-
-function isBot() {
-  return Date.now() - lastActivity > 15000;
+function getDeviceId() {
+  let id = localStorage.getItem("deviceId");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("deviceId", id);
+  }
+  return id;
 }
 
+/* =====================
+   ANTI CLICK SPAM (LOCAL)
+===================== */
 function canClick(id) {
-  const data = JSON.parse(localStorage.getItem("click_limit") || "{}");
+  const last = localStorage.getItem("click_" + id);
+  if (!last) return true;
 
-  if (!data[id]) return true;
-
-  const now = Date.now();
-  return (now - data[id]) > 30000; // 30 detik
+  const diff = Date.now() - Number(last);
+  return diff > 5000; // 5 detik cooldown
 }
 
-function saveClick(id) {
-  const data = JSON.parse(localStorage.getItem("click_limit") || "{}");
-  data[id] = Date.now();
-  localStorage.setItem("click_limit", JSON.stringify(data));
-}
-
-function checkGlobalLimit() {
-
-  const now = Date.now();
-
-  if (now - resetTime > 60000) {
-    globalClicks = 0;
-    resetTime = now;
-  }
-
-  if (globalClicks >= 25) {
-    return false;
-  }
-
-  globalClicks++;
-  return true;
+function setClick(id) {
+  localStorage.setItem("click_" + id, Date.now());
 }
 
 /* =====================
@@ -86,7 +64,6 @@ async function loadFaucets() {
   allFaucets = [];
 
   snap.forEach((docSnap) => {
-
     const data = docSnap.data();
 
     if (data.status === "active") {
@@ -95,7 +72,6 @@ async function loadFaucets() {
         ...data
       });
     }
-
   });
 
   allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
@@ -110,36 +86,23 @@ async function loadFaucets() {
 }
 
 /* =====================
-   CLICK TRACKING + OPEN (ANTI BOT)
+   CLICK TRACKING + OPEN
 ===================== */
 window.visitFaucet = async function (id, url) {
 
-  // lock double click
-  if (clickLock) return;
-  clickLock = true;
-
-  setTimeout(() => clickLock = false, 2000);
-
-  // bot check
-  if (isBot()) {
-    return;
-  }
-
-  // global limit
-  if (!checkGlobalLimit()) {
-    return;
-  }
-
-  // cooldown per faucet
+  // ANTI BOT CHECK
   if (!canClick(id)) {
+    alert("Tunggu beberapa detik sebelum klik lagi!");
     return;
   }
 
-  saveClick(id);
+  setClick(id);
 
   try {
     await updateDoc(doc(db, "faucets", id), {
-      clicks: increment(1)
+      clicks: increment(1),
+      lastClickAt: Date.now(),
+      deviceId: getDeviceId()
     });
   } catch (err) {
     console.log(err);
@@ -149,7 +112,7 @@ window.visitFaucet = async function (id, url) {
 };
 
 /* =====================
-   MAIN LIST RENDER
+   RENDER MAIN LIST
 ===================== */
 function render(data) {
 
@@ -160,21 +123,13 @@ function render(data) {
     html += `
       <div class="card">
 
-        <div class="rank-badge">
-          #${d.rank || "-"}
-        </div>
+        <div class="rank-badge">#${d.rank || "-"}</div>
 
-        <div class="name">
-          ${d.name}
-        </div>
+        <div class="name">${d.name}</div>
 
-        <div class="coin">
-          ${d.coin}
-        </div>
+        <div class="coin">${d.coin}</div>
 
-        <div class="clicks">
-          👁 ${d.clicks || 0}
-        </div>
+        <div class="clicks">👁 ${d.clicks || 0}</div>
 
         <a href="#"
            class="visit-btn"
@@ -190,7 +145,7 @@ function render(data) {
 }
 
 /* =====================
-   TRENDING FAUCETS
+   TRENDING
 ===================== */
 function renderTrending() {
 
@@ -205,21 +160,13 @@ function renderTrending() {
     html += `
       <div class="card">
 
-        <div class="rank-badge">
-          🔥 ${i + 1}
-        </div>
+        <div class="rank-badge">🔥 ${i + 1}</div>
 
-        <div class="name">
-          ${d.name}
-        </div>
+        <div class="name">${d.name}</div>
 
-        <div class="coin">
-          ${d.coin}
-        </div>
+        <div class="coin">${d.coin}</div>
 
-        <div class="clicks">
-          👁 ${d.clicks || 0}
-        </div>
+        <div class="clicks">👁 ${d.clicks || 0}</div>
 
         <a href="#"
            class="visit-btn"
@@ -240,7 +187,6 @@ function renderTrending() {
 function loadCoinFilter() {
 
   const select = document.getElementById("coinFilter");
-
   if (!select) return;
 
   select.innerHTML = `<option value="all">All Coins</option>`;
@@ -250,13 +196,10 @@ function loadCoinFilter() {
   coins.sort();
 
   coins.forEach((coin) => {
-
     const option = document.createElement("option");
     option.value = coin;
     option.textContent = coin;
-
     select.appendChild(option);
-
   });
 }
 
@@ -267,19 +210,14 @@ function renderCoinStats() {
 
   const count = {};
 
-  allFaucets.forEach((f) => {
+  allFaucets.forEach(f => {
     count[f.coin] = (count[f.coin] || 0) + 1;
   });
 
   let html = "";
 
-  Object.keys(count).sort().forEach((coin) => {
-
-    html += `
-      <span class="badge">
-        ${coin} (${count[coin]})
-      </span>
-    `;
+  Object.keys(count).sort().forEach(coin => {
+    html += `<span class="badge">${coin} (${count[coin]})</span>`;
   });
 
   document.getElementById("coinStats").innerHTML = html;
