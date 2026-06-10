@@ -112,11 +112,11 @@ input::placeholder{
   background:#134e4a;
   color:#99f6e4;
   padding:5px 8px;
-  border-radius:3px;
+  border-radius:6px;
   font-weight:bold;
   font-size:12px;
   text-align:center;
-  justify-self:center;
+  justify-self:start;
 }
 
 /* NAME */
