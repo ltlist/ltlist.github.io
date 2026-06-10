@@ -9,10 +9,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =====================
-   FIREBASE
+   FIREBASE CONFIG
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKdv75S8",
+  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -28,7 +28,7 @@ const listDiv = document.getElementById("list");
 let allFaucets = [];
 
 /* =====================
-   LOAD DATA
+   LOAD FAUCETS
 ===================== */
 async function loadFaucets() {
 
@@ -49,9 +49,8 @@ async function loadFaucets() {
 
   });
 
-  allFaucets.sort(
-    (a, b) => (a.rank || 9999) - (b.rank || 9999)
-  );
+  // sort by rank
+  allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
 
   document.getElementById("totalFaucets").innerHTML =
     `📊 ${allFaucets.length} Active Faucets`;
@@ -63,7 +62,7 @@ async function loadFaucets() {
 }
 
 /* =====================
-   CLICK TRACKING
+   CLICK TRACKING + OPEN
 ===================== */
 window.visitFaucet = async function (id, url) {
 
@@ -79,7 +78,7 @@ window.visitFaucet = async function (id, url) {
 };
 
 /* =====================
-   RENDER LIST
+   MAIN LIST RENDER
 ===================== */
 function render(data) {
 
@@ -135,7 +134,9 @@ function renderTrending() {
     html += `
       <div class="card">
 
-        <div class="rank-badge">🔥 ${i + 1}</div>
+        <div class="rank-badge">
+          🔥 ${i + 1}
+        </div>
 
         <div class="name">
           ${d.name}
@@ -148,6 +149,12 @@ function renderTrending() {
         <div class="clicks">
           👁 ${d.clicks || 0}
         </div>
+
+        <a href="#"
+           class="visit-btn"
+           onclick="visitFaucet('${d.id}','${d.url}')">
+          Claim
+        </a>
 
       </div>
     `;
@@ -162,6 +169,8 @@ function renderTrending() {
 function loadCoinFilter() {
 
   const select = document.getElementById("coinFilter");
+
+  if (!select) return;
 
   select.innerHTML = `<option value="all">All Coins</option>`;
 
@@ -213,7 +222,7 @@ window.searchPublic = function () {
   const q = document.getElementById("search").value.toLowerCase();
 
   const filtered = allFaucets.filter(f =>
-    f.name.toLowerCase().includes(q)
+    (f.name || "").toLowerCase().includes(q)
   );
 
   render(filtered);
