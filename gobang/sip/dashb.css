@@ -37,7 +37,9 @@ body{
   color:#00ffcc;
 }
 
-
+/* =====================
+   CONTAINER
+===================== */
 .container{
   max-width:900px;
   margin:auto;
@@ -56,6 +58,9 @@ h1{
   margin:0 0 15px 0;
 }
 
+/* =====================
+   INPUT & SELECT
+===================== */
 input,
 select{
   width:100%;
@@ -72,6 +77,9 @@ input::placeholder{
   color:#94a3b8;
 }
 
+/* =====================
+   CARD
+===================== */
 .card{
   background:#111827;
   border:1px solid #334155;
@@ -144,6 +152,9 @@ button:hover{
   background:#115e59;
 }
 
+/* =====================
+   FOOTER
+===================== */
 .footer{
   width:100%;
   text-align:center;
@@ -154,6 +165,34 @@ button:hover{
   border-top:1px solid #334155;
 }
 
+/* =====================
+   TOAST NOTIFICATION
+===================== */
+#toast{
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:#0f766e;
+  color:#fff;
+  padding:10px 14px;
+  border-radius:8px;
+  font-size:14px;
+  z-index:9999;
+
+  opacity:0;
+  transform:translateY(-10px);
+  transition:0.3s ease;
+  pointer-events:none;
+}
+
+#toast.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+/* =====================
+   MOBILE
+===================== */
 @media(max-width:600px){
 
   .container{
@@ -178,5 +217,4 @@ button:hover{
   button{
     width:40%;
   }
-
 }
