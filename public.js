@@ -116,32 +116,50 @@ window.visitFaucet = async function (id, url) {
 ===================== */
 function render(data) {
 
-  let html = "";
+  if (!listDiv) return;
 
-  data.forEach((d) => {
+  listDiv.innerHTML = data.map(d => `
+    <div class="card">
 
-    html += `
-      <div class="card">
+      <!-- TOP -->
+      <div class="top-row">
 
-        <div class="rank-badge">#${d.rank || "-"}</div>
+        <div class="rank">
+          #${d.rank || "-"}
+        </div>
 
-        <div class="name">${d.name}</div>
+        <div class="coin">
+          ${d.coin || "-"}
+        </div>
 
-        <div class="coin">${d.coin}</div>
+        <div class="score">
+          ⭐ ${calcScore(d)}
+        </div>
 
-        <div class="clicks">👁 ${d.clicks || 0}</div>
+      </div>
 
-        <a href="#"
-           class="visit-btn"
+      <!-- NAME -->
+      <div class="name">
+        ${d.name}
+      </div>
+
+      <!-- ACTION -->
+      <div class="bottom-row">
+
+        <div class="vote">
+          👍 ${d.likes || 0} | 👎 ${d.dislikes || 0}
+        </div>
+
+        <a class="visit-btn"
+           href="#"
            onclick="visitFaucet('${d.id}','${d.url}')">
           Claim
         </a>
 
       </div>
-    `;
-  });
 
-  listDiv.innerHTML = html;
+    </div>
+  `).join("");
 }
 
 /* =====================
