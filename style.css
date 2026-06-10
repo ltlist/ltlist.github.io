@@ -5,16 +5,13 @@ body{
   color:#fff;
 }
 
-/* =====================
-   NAVBAR
-===================== */
+/* NAVBAR */
 .navbar{
   display:flex;
   justify-content:space-between;
   align-items:center;
   padding:15px 20px;
   background:#111827;
-  color:#fff;
   position:sticky;
   top:0;
   z-index:1000;
@@ -37,7 +34,7 @@ body{
   color:#00ffcc;
 }
 
-
+/* CONTAINER */
 .container{
   max-width:900px;
   margin:auto;
@@ -46,7 +43,7 @@ body{
 
 h1{
   color:#5eead4;
-  font-size:2rem;
+  font-size:1.8rem;
   margin-bottom:10px;
 }
 
@@ -56,6 +53,7 @@ h1{
   margin:0 0 15px 0;
 }
 
+/* INPUT */
 input,
 select{
   width:100%;
@@ -68,61 +66,61 @@ select{
   color:#fff;
 }
 
-input::placeholder{
-  color:#94a3b8;
-}
-
+/* =====================
+   CARD FIX (LIST STYLE FIX)
+===================== */
 .card{
   background:#111827;
   border:1px solid #334155;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:15px;
-}
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:8px;
 
-.rank-badge{
-  display:inline-block;
-  background:#134e4a;
-  color:#99f6e4;
-  padding:6px 12px;
-  border-radius:8px;
-  font-weight:bold;
-  font-size:14px;
-  margin-bottom:10px;
-}
-
-.card-header{
-  display:flex;
-  justify-content:space-between;
+  display:grid;
+  grid-template-columns: 70px 1fr 90px;
   align-items:center;
   gap:10px;
 }
 
-.card-header h3{
-  margin:0;
-  font-size:18px;
+/* RANK */
+.rank-badge{
+  background:#134e4a;
+  color:#99f6e4;
+  padding:5px 8px;
+  border-radius:6px;
+  font-weight:bold;
+  font-size:12px;
+  text-align:center;
 }
 
-.badge{
-  display:inline-block;
+/* NAME */
+.name{
+  font-size:15px;
+  font-weight:600;
+}
+
+/* COIN */
+.coin{
   background:#1f2937;
   border:1px solid #134e4a;
   color:#5eead4;
-  padding:6px 12px;
-  border-radius:8px;
-  margin:3px;
-  font-size:12px;
+  padding:4px 8px;
+  border-radius:6px;
+  font-size:11px;
+  text-align:center;
 }
 
+/* BUTTON */
 .visit-btn{
   display:inline-block;
-  padding:8px 14px;
+  padding:6px 10px;
   background:#0f766e;
   color:#fff;
-  border-radius:8px;
+  border-radius:6px;
   text-decoration:none;
   font-weight:bold;
-  white-space:nowrap;
+  font-size:13px;
+  text-align:center;
   transition:.2s;
 }
 
@@ -130,53 +128,37 @@ input::placeholder{
   background:#115e59;
 }
 
-button{
-  padding:10px 15px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  background:#0f766e;
-  color:#fff;
-  font-weight:bold;
+/* BADGE STATS */
+.badge{
+  display:inline-block;
+  background:#1f2937;
+  border:1px solid #134e4a;
+  color:#5eead4;
+  padding:4px 8px;
+  border-radius:6px;
+  font-size:11px;
+  margin:2px;
 }
 
-button:hover{
-  background:#115e59;
-}
-
+/* FOOTER */
 .footer{
-  width:100%;
   text-align:center;
   color:#94a3b8;
-  font-size:15px;
-  padding:20px 0;
-  margin-top:30px;
+  font-size:13px;
+  padding:15px 0;
+  margin-top:25px;
   border-top:1px solid #334155;
 }
 
+/* MOBILE */
 @media(max-width:600px){
-
-  .container{
-    padding:15px;
-  }
-
-  h1{
-    font-size:1.8rem;
-  }
-
-  .card-header{
-    flex-direction:column;
-    align-items:flex-start;
+  .card{
+    grid-template-columns: 60px 1fr;
+    grid-template-rows:auto auto;
   }
 
   .visit-btn{
-    width:40%;
-    text-align:center;
-    box-sizing:border-box;
+    grid-column:1 / -1;
+    width:100%;
   }
-
-  button{
-    width:40%;
-  }
-
 }
