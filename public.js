@@ -12,7 +12,7 @@ import {
    FIREBASE
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokJ_Wl3aITEhj6UPetF-MGQXKDV75S8",
+  apiKey: "AIzaSyAVokWJ_Wj3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -23,29 +23,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+/* =====================
+   DOM SAFE
+===================== */
 const listDiv = document.getElementById("list");
+const trendingDiv = document.getElementById("trending");
+const coinStatsDiv = document.getElementById("coinStats");
+const coinFilter = document.getElementById("coinFilter");
+const totalEl = document.getElementById("totalFaucets");
 
 let allFaucets = [];
 
 /* =====================
-   HELPERS
-===================== */
-function getLocal(id) {
-  return allFaucets.find(f => f.id === id) || {};
-}
-
-function updateLocal(id, data) {
-  const i = allFaucets.findIndex(f => f.id === id);
-  if (i !== -1) {
-    allFaucets[i] = { ...allFaucets[i], ...data };
-  }
-}
-
-/* =====================
-   SCORE
+   SCORE SYSTEM
 ===================== */
 function calcScore(f) {
-  return (f.likes || 0) * 3 - (f.dislikes || 0) * 2;
+  return (f.clicks || 0) + (f.likes || 0) * 3 - (f.dislikes || 0) * 4;
 }
 
 /* =====================
@@ -66,52 +59,49 @@ async function loadFaucets() {
 
   allFaucets.sort((a, b) => calcScore(b) - calcScore(a));
 
+  refreshUI();
+}
+
+/* =====================
+   UI CONTROLLER
+===================== */
+function refreshUI() {
   render(allFaucets);
+  renderTrending();
+  renderCoinStats();
+  loadCoinFilter();
+  renderTotal();
 }
 
 /* =====================
-   RENDER CARD HTML
+   TOTAL
 ===================== */
-function cardHTML(d) {
-  return `
-    <div class="top-row">
-      <div class="rank">#${d.rank || "-"}</div>
-      <div class="coin">${d.coin || "-"}</div>
-      <div class="score">⭐ ${calcScore(d)}</div>
-    </div>
-
-    <div class="name">${d.name}</div>
-
-    <div class="bottom-row">
-      <div class="vote">
-        👍 ${d.likes || 0} 👎 ${d.dislikes || 0}
-      </div>
-
-      <a class="visit-btn"
-         href="#"
-         onclick="visitFaucet('${d.id}','${d.url}')">
-        Claim
-      </a>
-    </div>
-  `;
+function renderTotal() {
+  if (totalEl) {
+    totalEl.innerText = `📊 ${allFaucets.length} Faucets`;
+  }
 }
 
 /* =====================
-   MAIN RENDER
+   ANTI SPAM CLICK (STABLE)
 ===================== */
-function render(data) {
+function canClick(id) {
+  const key = "click_" + id;
+  const now = Date.now();
+  const last = localStorage.getItem(key);
 
-  listDiv.innerHTML = data.map(d => `
-    <div class="card" id="card-${d.id}">
-      ${cardHTML(d)}
-    </div>
-  `).join("");
+  if (last && now - last < 7000) return false;
+
+  localStorage.setItem(key, now);
+  return true;
 }
 
 /* =====================
    VISIT
 ===================== */
 window.visitFaucet = async function (id, url) {
+
+  if (!canClick(id)) return;
 
   try {
     await updateDoc(doc(db, "faucets", id), {
@@ -123,117 +113,170 @@ window.visitFaucet = async function (id, url) {
 };
 
 /* =====================
-   LIKE (REALTIME)
+   LIKE / DISLIKE (SAFE)
 ===================== */
 window.likeFaucet = async function (id) {
 
   const key = "vote_" + id;
   const current = localStorage.getItem(key);
-
   const ref = doc(db, "faucets", id);
-
-  let updateData = {};
 
   if (current === "like") return;
 
   if (current === "dislike") {
-    updateData = {
-      likes: increment(1),
-      dislikes: increment(-1)
-    };
-  } else {
-    updateData = {
+    await updateDoc(ref, {
+      dislikes: increment(-1),
       likes: increment(1)
-    };
+    });
+  } else {
+    await updateDoc(ref, {
+      likes: increment(1)
+    });
   }
 
-  try {
-    await updateDoc(ref, updateData);
-
-    const local = getLocal(id);
-
-    if (current === "dislike") {
-      updateLocal(id, {
-        likes: (local.likes || 0) + 1,
-        dislikes: (local.dislikes || 0) - 1
-      });
-    } else {
-      updateLocal(id, {
-        likes: (local.likes || 0) + 1
-      });
-    }
-
-    localStorage.setItem(key, "like");
-
-    rerenderCard(id);
-
-  } catch (e) {
-    console.log(e);
-  }
+  localStorage.setItem(key, "like");
+  loadFaucets();
 };
 
-/* =====================
-   DISLIKE (REALTIME)
-===================== */
 window.dislikeFaucet = async function (id) {
 
   const key = "vote_" + id;
   const current = localStorage.getItem(key);
-
   const ref = doc(db, "faucets", id);
-
-  let updateData = {};
 
   if (current === "dislike") return;
 
   if (current === "like") {
-    updateData = {
+    await updateDoc(ref, {
       likes: increment(-1),
       dislikes: increment(1)
-    };
+    });
   } else {
-    updateData = {
+    await updateDoc(ref, {
       dislikes: increment(1)
-    };
+    });
   }
 
-  try {
-    await updateDoc(ref, updateData);
-
-    const local = getLocal(id);
-
-    if (current === "like") {
-      updateLocal(id, {
-        likes: (local.likes || 0) - 1,
-        dislikes: (local.dislikes || 0) + 1
-      });
-    } else {
-      updateLocal(id, {
-        dislikes: (local.dislikes || 0) + 1
-      });
-    }
-
-    localStorage.setItem(key, "dislike");
-
-    rerenderCard(id);
-
-  } catch (e) {
-    console.log(e);
-  }
+  localStorage.setItem(key, "dislike");
+  loadFaucets();
 };
 
 /* =====================
-   RERENDER 1 CARD ONLY
+   RENDER LIST
 ===================== */
-function rerenderCard(id) {
+function render(data) {
+  if (!listDiv) return;
 
-  const d = getLocal(id);
-  const el = document.getElementById("card-" + id);
+  listDiv.innerHTML = data.map(d => `
+    <div class="card">
 
-  if (!el) return;
+      <div class="rank-badge">#${d.rank || "-"}</div>
 
-  el.innerHTML = cardHTML(d);
+      <div class="name">${d.name || "-"}</div>
+
+      <div class="coin">${d.coin || "UNKNOWN"}</div>
+      <div class="clicks">⭐ ${calcScore(d)}</div>
+
+      <a class="visit-btn"
+         href="#"
+         onclick="visitFaucet('${d.id}','${d.url}')">
+        Claim
+      </a>
+
+      <button onclick="likeFaucet('${d.id}')">👍</button>
+      <button onclick="dislikeFaucet('${d.id}')">👎</button>
+
+    </div>
+  `).join("");
 }
+
+/* =====================
+   TRENDING
+===================== */
+function renderTrending() {
+
+  if (!trendingDiv) return;
+
+  const top = [...allFaucets]
+    .sort((a, b) => calcScore(b) - calcScore(a))
+    .slice(0, 5);
+
+  trendingDiv.innerHTML = top.map((d, i) => `
+    <div class="card">
+      <div class="rank-badge">🔥 ${i + 1}</div>
+      <div class="name">${d.name}</div>
+      <div class="coin">${d.coin}</div>
+      <div class="clicks">⭐ ${calcScore(d)}</div>
+
+      <a class="visit-btn"
+         href="#"
+         onclick="visitFaucet('${d.id}','${d.url}')">
+        Claim
+      </a>
+    </div>
+  `).join("");
+}
+
+/* =====================
+   COIN STATS (FIXED CLEAN)
+===================== */
+function renderCoinStats() {
+
+  if (!coinStatsDiv) return;
+
+  const count = {};
+
+  allFaucets.forEach(f => {
+    const c = (f.coin || "UNKNOWN").trim();
+    count[c] = (count[c] || 0) + 1;
+  });
+
+  coinStatsDiv.innerHTML = Object.keys(count)
+    .sort()
+    .map(c => `<span class="badge">${c} (${count[c]})</span>`)
+    .join("");
+}
+
+/* =====================
+   COIN FILTER
+===================== */
+function loadCoinFilter() {
+
+  if (!coinFilter) return;
+
+  coinFilter.innerHTML = `<option value="all">All Coins</option>`;
+
+  const coins = [...new Set(allFaucets.map(f => (f.coin || "UNKNOWN").trim()))];
+
+  coins.sort();
+
+  coins.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    coinFilter.appendChild(opt);
+  });
+}
+
+/* =====================
+   FILTER
+===================== */
+window.filterCoin = function () {
+  const v = coinFilter?.value;
+  if (!v || v === "all") return render(allFaucets);
+  render(allFaucets.filter(f => f.coin === v));
+};
+
+/* =====================
+   SEARCH
+===================== */
+window.searchPublic = function () {
+  const q = document.getElementById("search")?.value.toLowerCase() || "";
+  render(allFaucets.filter(f =>
+    (f.name || "").toLowerCase().includes(q) ||
+    (f.coin || "").toLowerCase().includes(q)
+  ));
+};
 
 /* =====================
    INIT
