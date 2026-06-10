@@ -137,13 +137,13 @@ button:hover{
   }
 
   .visit-btn{
-    width:30%;
+    width:40%;
     text-align:center;
     box-sizing:border-box;
   }
 
   button{
-    width:100%;
+    width:40%;
   }
 
 }
