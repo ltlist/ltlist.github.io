@@ -5,8 +5,7 @@ import {
   getDocs,
   doc,
   updateDoc,
-  increment,
-  writeBatch
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =====================
@@ -25,23 +24,15 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const listDiv = document.getElementById("list");
+const trendingDiv = document.getElementById("trending");
+const coinStatsDiv = document.getElementById("coinStats");
+const coinFilter = document.getElementById("coinFilter");
+const totalDiv = document.getElementById("totalFaucets");
 
 let allFaucets = [];
 
 /* =====================
-   DEVICE ID
-===================== */
-function getDeviceId() {
-  let id = localStorage.getItem("deviceId");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("deviceId", id);
-  }
-  return id;
-}
-
-/* =====================
-   LOAD FAUCETS
+   LOAD DATA
 ===================== */
 async function loadFaucets() {
 
@@ -50,38 +41,28 @@ async function loadFaucets() {
   allFaucets = [];
 
   snap.forEach((d) => {
-    allFaucets.push({
-      id: d.id,
-      ...d.data()
-    });
+    const data = d.data();
+
+    if (data.status === "active") {
+      allFaucets.push({
+        id: d.id,
+        ...data
+      });
+    }
   });
 
-  calculateScore();
-  sortByScore();
+  // sort rank
+  allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
+
+  // UI update
+  if (totalDiv) {
+    totalDiv.innerHTML = `📊 ${allFaucets.length} Active Faucets`;
+  }
 
   render(allFaucets);
   renderTrending();
-}
-
-/* =====================
-   SCORE SYSTEM
-===================== */
-function calculateScore() {
-
-  allFaucets = allFaucets.map(f => {
-
-    const likes = f.likes || 0;
-    const dislikes = f.dislikes || 0;
-    const clicks = f.clicks || 0;
-
-    const score = (likes * 2) - (dislikes * 2) + clicks;
-
-    return { ...f, score };
-  });
-}
-
-function sortByScore() {
-  allFaucets.sort((a, b) => (b.score || 0) - (a.score || 0));
+  renderCoinStats();
+  loadCoinFilter();
 }
 
 /* =====================
@@ -89,81 +70,21 @@ function sortByScore() {
 ===================== */
 window.visitFaucet = async function (id, url) {
 
-  await updateDoc(doc(db, "faucets", id), {
-    clicks: increment(1)
-  });
+  try {
+    await updateDoc(doc(db, "faucets", id), {
+      clicks: increment(1)
+    });
+  } catch (e) {}
 
-  loadFaucets();
   window.open(url, "_blank");
 };
 
 /* =====================
-   VOTE SYSTEM (LIKE / DISLIKE)
-===================== */
-function getVoteKey(id) {
-  return "vote_" + id;
-}
-
-function getVote(id) {
-  return localStorage.getItem(getVoteKey(id));
-}
-
-function setVote(id, type) {
-  localStorage.setItem(getVoteKey(id), type);
-}
-
-/* LIKE */
-window.likeFaucet = async function (id) {
-
-  const current = getVote(id);
-  const ref = doc(db, "faucets", id);
-
-  if (current === "like") return alert("Sudah like!");
-
-  if (current === "dislike") {
-    await updateDoc(ref, {
-      dislikes: increment(-1),
-      likes: increment(1)
-    });
-  } else {
-    await updateDoc(ref, {
-      likes: increment(1)
-    });
-  }
-
-  setVote(id, "like");
-
-  await loadFaucets();
-};
-
-/* DISLIKE */
-window.dislikeFaucet = async function (id) {
-
-  const current = getVote(id);
-  const ref = doc(db, "faucets", id);
-
-  if (current === "dislike") return alert("Sudah dislike!");
-
-  if (current === "like") {
-    await updateDoc(ref, {
-      likes: increment(-1),
-      dislikes: increment(1)
-    });
-  } else {
-    await updateDoc(ref, {
-      dislikes: increment(1)
-    });
-  }
-
-  setVote(id, "dislike");
-
-  await loadFaucets();
-};
-
-/* =====================
-   RENDER MAIN LIST
+   MAIN LIST
 ===================== */
 function render(data) {
+
+  if (!listDiv) return;
 
   let html = "";
 
@@ -172,30 +93,19 @@ function render(data) {
     html += `
       <div class="card">
 
-        <div class="rank-badge">
-          #${d.rank || "-"}
-        </div>
+        <div class="rank-badge">#${d.rank || "-"}</div>
 
         <div class="name">${d.name}</div>
 
         <div class="coin">${d.coin}</div>
 
-        <div class="clicks">
-          👁 ${d.clicks || 0}
-        </div>
-
-        <div class="clicks">
-          ⭐ ${d.score || 0}
-        </div>
+        <div class="clicks">👁 ${d.clicks || 0}</div>
 
         <a href="#"
            class="visit-btn"
            onclick="visitFaucet('${d.id}','${d.url}')">
           Claim
         </a>
-
-        <button onclick="likeFaucet('${d.id}')">👍</button>
-        <button onclick="dislikeFaucet('${d.id}')">👎</button>
 
       </div>
     `;
@@ -205,12 +115,14 @@ function render(data) {
 }
 
 /* =====================
-   TRENDING (BY SCORE)
+   TRENDING (TOP CLICK)
 ===================== */
 function renderTrending() {
 
+  if (!trendingDiv) return;
+
   const top = [...allFaucets]
-    .sort((a, b) => (b.score || 0) - (a.score || 0))
+    .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
     .slice(0, 5);
 
   let html = "";
@@ -226,7 +138,7 @@ function renderTrending() {
 
         <div class="coin">${d.coin}</div>
 
-        <div class="clicks">⭐ ${d.score || 0}</div>
+        <div class="clicks">👁 ${d.clicks || 0}</div>
 
         <a href="#"
            class="visit-btn"
@@ -238,8 +150,81 @@ function renderTrending() {
     `;
   });
 
-  document.getElementById("trending").innerHTML = html;
+  trendingDiv.innerHTML = html;
 }
+
+/* =====================
+   COIN STATS (FIX ALL COIN)
+===================== */
+function renderCoinStats() {
+
+  if (!coinStatsDiv) return;
+
+  const count = {};
+
+  allFaucets.forEach(f => {
+    const c = (f.coin || "UNKNOWN").trim();
+    count[c] = (count[c] || 0) + 1;
+  });
+
+  let html = "";
+
+  Object.keys(count)
+    .sort()
+    .forEach(coin => {
+      html += `<span class="badge">${coin} (${count[coin]})</span>`;
+    });
+
+  coinStatsDiv.innerHTML = html;
+}
+
+/* =====================
+   COIN FILTER (FIX BUG)
+===================== */
+function loadCoinFilter() {
+
+  if (!coinFilter) return;
+
+  coinFilter.innerHTML = `<option value="all">All Coins</option>`;
+
+  const coins = [...new Set(allFaucets.map(f => (f.coin || "UNKNOWN").trim()))];
+
+  coins.sort();
+
+  coins.forEach(coin => {
+    const opt = document.createElement("option");
+    opt.value = coin;
+    opt.textContent = coin;
+    coinFilter.appendChild(opt);
+  });
+}
+
+/* =====================
+   SEARCH
+===================== */
+window.searchPublic = function () {
+
+  const q = (document.getElementById("search")?.value || "").toLowerCase();
+
+  render(allFaucets.filter(f =>
+    (f.name || "").toLowerCase().includes(q)
+  ));
+};
+
+/* =====================
+   FILTER COIN
+===================== */
+window.filterCoin = function () {
+
+  const val = coinFilter?.value;
+
+  if (!val || val === "all") {
+    render(allFaucets);
+    return;
+  }
+
+  render(allFaucets.filter(f => f.coin === val));
+};
 
 /* =====================
    INIT
