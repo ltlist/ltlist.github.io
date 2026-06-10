@@ -2,17 +2,17 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import {
   getFirestore,
   collection,
-  getDocs,
   doc,
   updateDoc,
-  increment
+  increment,
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =====================
    FIREBASE
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWJ_Wj3aITEhj6UPetF-MGQXKdv75S8",
+  apiKey: "AIzaSyAVokJ_Wl3aITEhj6UPetF-MGQXDV75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -24,158 +24,65 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 /* =====================
-   DOM SAFE
+   DOM
 ===================== */
 const listDiv = document.getElementById("list");
 const trendingDiv = document.getElementById("trending");
-const coinStatsDiv = document.getElementById("coinStats");
-const coinFilter = document.getElementById("coinFilter");
 const totalEl = document.getElementById("totalFaucets");
 
 let allFaucets = [];
 
 /* =====================
-   SCORE SYSTEM
+   SCORE SYSTEM (REALTIME RANK)
 ===================== */
 function calcScore(f) {
-  return (f.clicks || 0) + (f.likes || 0) * 3 - (f.dislikes || 0) * 4;
+  return (f.likes || 0) * 3 - (f.dislikes || 0) * 4;
 }
 
 /* =====================
-   LOAD DATA
+   REALTIME LISTENER (AUTO UPDATE)
 ===================== */
-async function loadFaucets() {
+function startRealtime() {
 
-  const snap = await getDocs(collection(db, "faucets"));
+  onSnapshot(collection(db, "faucets"), (snap) => {
 
-  allFaucets = [];
+    allFaucets = [];
 
-  snap.forEach((d) => {
-    const data = d.data();
-    if (data.status === "active") {
-      allFaucets.push({ id: d.id, ...data });
-    }
+    snap.forEach((d) => {
+      const data = d.data();
+      if (data.status === "active") {
+        allFaucets.push({ id: d.id, ...data });
+      }
+    });
+
+    render();          // FULL AUTO UPDATE
+    renderTrending();
+    renderTotal();
   });
+}
 
+/* =====================
+   RENDER MAIN (AUTO SORT LIVE)
+===================== */
+function render() {
+
+  // AUTO SORT (REAL TIME RANKING)
   allFaucets.sort((a, b) => calcScore(b) - calcScore(a));
 
-  refreshUI();
-}
+  listDiv.innerHTML = allFaucets.map((d, i) => `
+    <div class="card" data-id="${d.id}">
 
-/* =====================
-   UI CONTROLLER
-===================== */
-function refreshUI() {
-  render(allFaucets);
-  renderTrending();
-  renderCoinStats();
-  loadCoinFilter();
-  renderTotal();
-}
+      <div class="rank-badge">#${i + 1}</div>
 
-/* =====================
-   TOTAL
-===================== */
-function renderTotal() {
-  if (totalEl) {
-    totalEl.innerText = `📊 ${allFaucets.length} Faucets`;
-  }
-}
+      <div class="name">${d.name}</div>
 
-/* =====================
-   ANTI SPAM CLICK (STABLE)
-===================== */
-function canClick(id) {
-  const key = "click_" + id;
-  const now = Date.now();
-  const last = localStorage.getItem(key);
+      <div class="coin">${d.coin}</div>
 
-  if (last && now - last < 7000) return false;
+      <div class="score">⭐ ${calcScore(d)}</div>
 
-  localStorage.setItem(key, now);
-  return true;
-}
-
-/* =====================
-   VISIT
-===================== */
-window.visitFaucet = async function (id, url) {
-
-  if (!canClick(id)) return;
-
-  try {
-    await updateDoc(doc(db, "faucets", id), {
-      clicks: increment(1)
-    });
-  } catch (e) {}
-
-  window.open(url, "_blank");
-};
-
-/* =====================
-   LIKE / DISLIKE (SAFE)
-===================== */
-window.likeFaucet = async function (id) {
-
-  const key = "vote_" + id;
-  const current = localStorage.getItem(key);
-  const ref = doc(db, "faucets", id);
-
-  if (current === "like") return;
-
-  if (current === "dislike") {
-    await updateDoc(ref, {
-      dislikes: increment(-1),
-      likes: increment(1)
-    });
-  } else {
-    await updateDoc(ref, {
-      likes: increment(1)
-    });
-  }
-
-  localStorage.setItem(key, "like");
-  loadFaucets();
-};
-
-window.dislikeFaucet = async function (id) {
-
-  const key = "vote_" + id;
-  const current = localStorage.getItem(key);
-  const ref = doc(db, "faucets", id);
-
-  if (current === "dislike") return;
-
-  if (current === "like") {
-    await updateDoc(ref, {
-      likes: increment(-1),
-      dislikes: increment(1)
-    });
-  } else {
-    await updateDoc(ref, {
-      dislikes: increment(1)
-    });
-  }
-
-  localStorage.setItem(key, "dislike");
-  loadFaucets();
-};
-
-/* =====================
-   RENDER LIST
-===================== */
-function render(data) {
-  if (!listDiv) return;
-
-  listDiv.innerHTML = data.map(d => `
-    <div class="card">
-
-      <div class="rank-badge">#${d.rank || "-"}</div>
-
-      <div class="name">${d.name || "-"}</div>
-
-      <div class="coin">${d.coin || "UNKNOWN"}</div>
-      <div class="clicks">⭐ ${calcScore(d)}</div>
+      <div class="vote">
+        👍 ${d.likes || 0} 👎 ${d.dislikes || 0}
+      </div>
 
       <a class="visit-btn"
          href="#"
@@ -191,14 +98,12 @@ function render(data) {
 }
 
 /* =====================
-   TRENDING
+   TRENDING TOP 5
 ===================== */
 function renderTrending() {
 
-  if (!trendingDiv) return;
-
   const top = [...allFaucets]
-    .sort((a, b) => calcScore(b) - calcScore(a))
+    .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
     .slice(0, 5);
 
   trendingDiv.innerHTML = top.map((d, i) => `
@@ -206,79 +111,62 @@ function renderTrending() {
       <div class="rank-badge">🔥 ${i + 1}</div>
       <div class="name">${d.name}</div>
       <div class="coin">${d.coin}</div>
-      <div class="clicks">⭐ ${calcScore(d)}</div>
-
-      <a class="visit-btn"
-         href="#"
-         onclick="visitFaucet('${d.id}','${d.url}')">
-        Claim
-      </a>
+      <div class="score">⭐ ${calcScore(d)}</div>
     </div>
   `).join("");
 }
 
 /* =====================
-   COIN STATS (FIXED CLEAN)
+   TOTAL FAUCETS
 ===================== */
-function renderCoinStats() {
-
-  if (!coinStatsDiv) return;
-
-  const count = {};
-
-  allFaucets.forEach(f => {
-    const c = (f.coin || "UNKNOWN").trim();
-    count[c] = (count[c] || 0) + 1;
-  });
-
-  coinStatsDiv.innerHTML = Object.keys(count)
-    .sort()
-    .map(c => `<span class="badge">${c} (${count[c]})</span>`)
-    .join("");
+function renderTotal() {
+  if (totalEl) {
+    totalEl.innerText = `📊 ${allFaucets.length} Faucets`;
+  }
 }
 
 /* =====================
-   COIN FILTER
+   VISIT CLICK
 ===================== */
-function loadCoinFilter() {
+window.visitFaucet = async function (id, url) {
+  try {
+    await updateDoc(doc(db, "faucets", id), {
+      clicks: increment(1)
+    });
+  } catch (e) {}
 
-  if (!coinFilter) return;
-
-  coinFilter.innerHTML = `<option value="all">All Coins</option>`;
-
-  const coins = [...new Set(allFaucets.map(f => (f.coin || "UNKNOWN").trim()))];
-
-  coins.sort();
-
-  coins.forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c;
-    opt.textContent = c;
-    coinFilter.appendChild(opt);
-  });
-}
-
-/* =====================
-   FILTER
-===================== */
-window.filterCoin = function () {
-  const v = coinFilter?.value;
-  if (!v || v === "all") return render(allFaucets);
-  render(allFaucets.filter(f => f.coin === v));
+  window.open(url, "_blank");
 };
 
 /* =====================
-   SEARCH
+   LIKE (LIVE UPDATE)
 ===================== */
-window.searchPublic = function () {
-  const q = document.getElementById("search")?.value.toLowerCase() || "";
-  render(allFaucets.filter(f =>
-    (f.name || "").toLowerCase().includes(q) ||
-    (f.coin || "").toLowerCase().includes(q)
-  ));
+window.likeFaucet = async function (id) {
+
+  const ref = doc(db, "faucets", id);
+
+  try {
+    await updateDoc(ref, {
+      likes: increment(1)
+    });
+  } catch (e) {}
 };
 
 /* =====================
-   INIT
+   DISLIKE (LIVE UPDATE)
 ===================== */
-loadFaucets();
+window.dislikeFaucet = async function (id) {
+
+  const ref = doc(db, "faucets", id);
+
+  try {
+    await updateDoc(ref, {
+      dislikes: increment(1)
+    });
+  } catch (e) {}
+};
+
+/* =====================
+   START APP
+===================== */
+startRealtime();
