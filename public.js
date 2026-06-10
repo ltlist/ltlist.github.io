@@ -35,10 +35,10 @@ const totalEl = document.getElementById("totalFaucets");
 let allFaucets = [];
 
 /* =====================
-   SCORE SYSTEM (CLICK ONLY)
+   SCORE = CLICK ONLY
 ===================== */
 function calcScore(f) {
-  return (f.clicks || 0);
+  return f.clicks || 0;
 }
 
 /* =====================
@@ -52,20 +52,18 @@ async function loadFaucets() {
 
   snap.forEach((d) => {
     const data = d.data();
-
     if (data.status === "active") {
       allFaucets.push({ id: d.id, ...data });
     }
   });
 
-  // AUTO RANK BY CLICK
   allFaucets.sort((a, b) => calcScore(b) - calcScore(a));
 
   refreshUI();
 }
 
 /* =====================
-   REFRESH UI
+   UI REFRESH
 ===================== */
 function refreshUI() {
   render(allFaucets);
@@ -85,7 +83,7 @@ function renderTotal() {
 }
 
 /* =====================
-   ANTI SPAM CLICK (PRO SIMPLE)
+   ANTI SPAM CLICK
 ===================== */
 function canClick(id) {
   const key = "click_" + id;
@@ -98,7 +96,7 @@ function canClick(id) {
 }
 
 /* =====================
-   VISIT / CLICK TRACK
+   CLICK + OPEN
 ===================== */
 window.visitFaucet = async function (id, url) {
 
@@ -114,7 +112,7 @@ window.visitFaucet = async function (id, url) {
 };
 
 /* =====================
-   MAIN LIST
+   RENDER MAIN LIST
 ===================== */
 function render(data) {
 
@@ -123,21 +121,22 @@ function render(data) {
   listDiv.innerHTML = data.map(d => `
     <div class="card">
 
-      <div class="rank-badge">#${d.rank || "-"}</div>
+      <div class="top">
+        <div class="name">${d.name || "-"}</div>
+        <div class="coin">${d.coin || "UNKNOWN"}</div>
+      </div>
 
-      <div class="name">${d.name || "-"}</div>
+      <div class="stats">
+        <span>👁 ${d.clicks || 0}</span>
+      </div>
 
-      <div class="coin">${d.coin || "UNKNOWN"}</div>
-
-      <div class="clicks">👁 ${d.clicks || 0}</div>
-
-      <div class="clicks">⭐ ${calcScore(d)}</div>
-
-      <a class="visit-btn"
-         href="#"
-         onclick="visitFaucet('${d.id}','${d.url}')">
-        Claim
-      </a>
+      <div class="action">
+        <a class="visit-btn"
+           href="#"
+           onclick="visitFaucet('${d.id}','${d.url}')">
+          Claim
+        </a>
+      </div>
 
     </div>
   `).join("");
@@ -159,7 +158,7 @@ function renderTrending() {
       <div class="rank-badge">🔥 ${i + 1}</div>
       <div class="name">${d.name}</div>
       <div class="coin">${d.coin}</div>
-      <div class="clicks">⭐ ${calcScore(d)}</div>
+      <div class="clicks">👁 ${d.clicks || 0}</div>
 
       <a class="visit-btn"
          href="#"
@@ -171,7 +170,7 @@ function renderTrending() {
 }
 
 /* =====================
-   COIN STATS (FIXED)
+   COIN STATS
 ===================== */
 function renderCoinStats() {
 
@@ -184,10 +183,10 @@ function renderCoinStats() {
     count[c] = (count[c] || 0) + 1;
   });
 
-  coinStatsDiv.innerHTML = Object.keys(count)
-    .sort()
-    .map(c => `<span class="badge">${c} (${count[c]})</span>`)
-    .join("");
+  coinStatsDiv.innerHTML =
+    Object.keys(count).sort()
+      .map(c => `<span class="badge">${c} (${count[c]})</span>`)
+      .join("");
 }
 
 /* =====================
