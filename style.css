@@ -12,7 +12,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:15px 20px;
+  padding:12px 16px;
   background:#111827;
   color:#fff;
   position:sticky;
@@ -21,7 +21,7 @@ body{
 }
 
 .navbar .logo{
-  font-size:20px;
+  font-size:18px;
   font-weight:bold;
   color:#00ffcc;
 }
@@ -29,99 +29,119 @@ body{
 .navbar a{
   color:#fff;
   text-decoration:none;
-  margin-left:14px;
-  font-size:16px;
+  margin-left:10px;
+  font-size:14px;
 }
 
 .navbar a:hover{
   color:#00ffcc;
 }
 
-
+/* =====================
+   CONTAINER
+===================== */
 .container{
   max-width:900px;
   margin:auto;
-  padding:20px;
+  padding:15px;
 }
 
 h1{
   color:#5eead4;
-  font-size:2rem;
-  margin-bottom:10px;
+  font-size:1.6rem;
+  margin-bottom:8px;
 }
 
+/* =====================
+   TEXT INFO
+===================== */
 #totalFaucets{
   color:#94a3b8;
-  font-size:14px;
-  margin:0 0 15px 0;
+  font-size:13px;
+  margin:0 0 10px 0;
 }
 
+/* =====================
+   INPUT + SELECT
+===================== */
 input,
 select{
   width:100%;
-  padding:12px;
-  margin-bottom:12px;
+  padding:10px;
+  margin-bottom:10px;
   border:none;
-  border-radius:10px;
+  border-radius:8px;
   box-sizing:border-box;
   background:#1f2937;
   color:#fff;
+  font-size:14px;
 }
 
 input::placeholder{
   color:#94a3b8;
 }
 
+/* =====================
+   LIST CARD (COMPACT)
+===================== */
 .card{
   background:#111827;
   border:1px solid #334155;
-  border-radius:14px;
-  padding:16px;
-  margin-bottom:15px;
+  border-radius:10px;
+  padding:10px 12px;
+  margin-bottom:8px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
 }
 
-.rank-badge{
-  display:inline-block;
-  background:#134e4a;
-  color:#99f6e4;
-  padding:6px 12px;
-  border-radius:8px;
-  font-weight:bold;
-  font-size:14px;
-  margin-bottom:10px;
-}
-
+/* HEADER CARD */
 .card-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:10px;
+  gap:8px;
 }
 
 .card-header h3{
   margin:0;
-  font-size:18px;
+  font-size:15px;
 }
 
+/* RANK */
+.rank-badge{
+  display:inline-block;
+  background:#134e4a;
+  color:#99f6e4;
+  padding:4px 8px;
+  border-radius:6px;
+  font-weight:bold;
+  font-size:12px;
+  margin-bottom:6px;
+}
+
+/* BADGE COIN */
 .badge{
   display:inline-block;
   background:#1f2937;
   border:1px solid #134e4a;
   color:#5eead4;
-  padding:6px 12px;
-  border-radius:8px;
-  margin:3px;
-  font-size:12px;
+  padding:4px 8px;
+  border-radius:6px;
+  margin:2px;
+  font-size:11px;
 }
 
+/* BUTTON VISIT */
 .visit-btn{
   display:inline-block;
-  padding:8px 14px;
+  padding:6px 10px;
   background:#0f766e;
   color:#fff;
-  border-radius:8px;
+  border-radius:6px;
   text-decoration:none;
   font-weight:bold;
+  font-size:13px;
   white-space:nowrap;
   transition:.2s;
 }
@@ -130,38 +150,46 @@ input::placeholder{
   background:#115e59;
 }
 
+/* GENERAL BUTTON */
 button{
-  padding:10px 15px;
+  padding:8px 12px;
   border:none;
-  border-radius:8px;
+  border-radius:6px;
   cursor:pointer;
   background:#0f766e;
   color:#fff;
   font-weight:bold;
+  font-size:13px;
 }
 
 button:hover{
   background:#115e59;
 }
 
+/* =====================
+   FOOTER
+===================== */
 .footer{
   width:100%;
   text-align:center;
   color:#94a3b8;
-  font-size:15px;
-  padding:20px 0;
-  margin-top:30px;
+  font-size:13px;
+  padding:15px 0;
+  margin-top:25px;
   border-top:1px solid #334155;
 }
 
+/* =====================
+   MOBILE
+===================== */
 @media(max-width:600px){
 
   .container{
-    padding:15px;
+    padding:12px;
   }
 
   h1{
-    font-size:1.8rem;
+    font-size:1.4rem;
   }
 
   .card-header{
@@ -170,13 +198,11 @@ button:hover{
   }
 
   .visit-btn{
-    width:40%;
+    width:100%;
     text-align:center;
-    box-sizing:border-box;
   }
 
   button{
-    width:40%;
+    width:100%;
   }
-
 }
