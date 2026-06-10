@@ -293,12 +293,12 @@ window.deleteFaucet = async function (id) {
 
   await deleteDoc(doc(db, "faucets", id));
 
-await loadFaucets();
-await autoReRank();
-await loadFaucets();
+  await loadFaucets();
+  await autoReRank();
+  await loadFaucets();
 
   showToast("Faucet dihapus", "error");
-  loadFaucets();
+  
 };
 
 /* =====================
@@ -311,9 +311,11 @@ window.toggleStatus = async function (id, status) {
   await updateDoc(doc(db, "faucets", id), {
     status: newStatus
   });
-
+  await loadFaucets();
+  await autoReRank();
+  await loadFaucets();
   showToast("Status: " + newStatus);
-  loadFaucets();
+  
 };
 
 /* =====================
