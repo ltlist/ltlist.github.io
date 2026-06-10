@@ -3,74 +3,63 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Dashboard LTList</title>
+<title>LTList Dashboard</title>
 
 <link rel="stylesheet" href="dashb.css">
 </head>
 
 <body>
 
+<!-- NAVBAR -->
+<div class="navbar">
+  <div class="logo">LTList Admin</div>
+  <a href="#" onclick="logout()">Logout</a>
+</div>
+
 <div class="container">
 
-  <div class="topbar">
-    <h1>Dashboard Admin</h1>
+  <h1>Dashboard Faucet</h1>
 
-    <button class="logout-btn" onclick="logout()">
-      Logout
-    </button>
-<a href="https://ltlist.github.io/" target="_blank">
-  <button class="btn-link">🌐 Open Website</button>
-</a>
-  </div>
+  <input id="search" placeholder="Search..." onkeyup="searchFaucet()">
 
-  <div class="card">
+  <input id="name" placeholder="Name">
+  <input id="url" placeholder="URL">
+  <input id="coin" placeholder="Coin">
+  <input id="rank" placeholder="Rank">
 
-    <h2>Faucet List</h2>
+  <button onclick="addFaucet()">Add Faucet</button>
 
-    <input
-      id="search"
-      placeholder="Search faucet..."
-      onkeyup="searchFaucet()"
-    >
-
-    <div id="list"></div>
-
-  </div>
-
-  <div class="card">
-
-    <h2>Add Faucet</h2>
-
-    <input
-      id="name"
-      placeholder="Faucet Name"
-    >
-
-    <input
-      id="url"
-      placeholder="https://..."
-    >
-
-    <input
-      id="coin"
-      placeholder="Coin (LTC/BTC/DOGE/MULTI)"
-    >
-
-    <input
-      id="rank"
-      type="number"
-      placeholder="Rank (1,2,3...)"
-    >
-
-    <button onclick="addFaucet()">
-      Add Faucet
-    </button>
-
-  </div>
+  <div id="list"></div>
 
 </div>
+
+<!-- MODAL EDIT -->
+<div id="editModal" class="modal">
+  <div class="modal-box">
+
+    <h3>Edit Faucet</h3>
+
+    <input id="editName" placeholder="Name">
+    <input id="editUrl" placeholder="URL">
+    <input id="editCoin" placeholder="Coin">
+    <input id="editRank" placeholder="Rank">
+
+    <select id="editStatus">
+      <option value="active">active</option>
+      <option value="inactive">inactive</option>
+    </select>
+
+    <div class="modal-actions">
+      <button onclick="saveEdit()">Save</button>
+      <button onclick="closeModal()">Cancel</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
 <div id="toast"></div>
+
 <script type="module" src="dashboard.js"></script>
 
 </body>
