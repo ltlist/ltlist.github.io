@@ -234,9 +234,12 @@ window.addFaucet = async function () {
   document.getElementById("coin").value = "";
   document.getElementById("rank").value = "";
 
+  await loadFaucets();
+  await autoReRank();
+  await loadFaucets();
+
   showToast("Faucet ditambahkan!");
 
-  loadFaucets();
 };
 
 /* =====================
