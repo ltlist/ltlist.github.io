@@ -83,23 +83,17 @@ function render(data) {
           #${d.rank || "-"}
         </div>
 
-        <div class="card-header">
-
-          <h3>${d.name}</h3>
-
-          <a
-            href="${d.url}"
-            target="_blank"
-            class="visit-btn"
-          >
-            Visit
-          </a>
-
+        <div class="name">
+          ${d.name}
         </div>
 
-        <p>
-          Coin: <b>${d.coin}</b>
-        </p>
+        <div class="coin">
+          ${d.coin}
+        </div>
+
+        <a href="${d.url}" target="_blank" class="visit-btn">
+          Claim
+        </a>
 
       </div>
     `;
