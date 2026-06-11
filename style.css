@@ -75,11 +75,6 @@ select{
   outline:none;
 }
 
-input:focus,
-select:focus{
-  box-shadow:0 0 0 2px #0f766e55;
-}
-
 /* =====================
    BADGE
 ===================== */
@@ -92,24 +87,30 @@ select:focus{
   background:#111827;
   border:1px solid #134e4a;
   color:#5eead4;
-  cursor:default;
 }
 
 /* =====================
-   CARD (MAIN FIXED)
+   CARD PRO FIX (IMPORTANT)
 ===================== */
 .card{
   background:linear-gradient(180deg,#111827,#0f172a);
   border:1px solid #1f2937;
   border-radius:12px;
   padding:10px 12px;
-  margin-bottom:10px;
+  margin-bottom:8px;
 
-  display:flex;
-  flex-direction:column;
-  gap:8px;
+  display:grid;
+  grid-template-columns:60px 1fr 120px;
+  grid-template-rows:auto auto;
+  grid-template-areas:
+    "rank name claim"
+    "coin stats claim";
+
+  gap:6px 10px;
+  align-items:center;
 
   transition:0.2s;
+  cursor:pointer;
 }
 
 .card:hover{
@@ -119,34 +120,44 @@ select:focus{
 }
 
 /* =====================
-   TOP ROW (RANK + COIN + SCORE)
+   GRID AREAS
 ===================== */
-.top-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:12px;
-  color:#94a3b8;
-}
+.rank-badge{ grid-area:rank; }
+.name{ grid-area:name; }
+.coin{ grid-area:coin; }
 
-.rank{
-  font-weight:bold;
-  color:#99f6e4;
-}
-
-.coin{
-  background:#111827;
-  border:1px solid #134e4a;
-  color:#5eead4;
-  padding:3px 7px;
-  border-radius:6px;
+.clicks{
+  grid-area:stats;
   font-size:11px;
+  color:#94a3b8;
+  white-space:nowrap;
 }
 
-.score{
-  color:#facc15;
+/* CLAIM BUTTON FIX RIGHT */
+.visit-btn{
+  grid-area:claim;
+  justify-self:end;
+
+  padding:7px 12px;
+  background:#0f766e;
+  color:#fff;
+  border-radius:8px;
+  text-decoration:none;
   font-size:12px;
   font-weight:bold;
+}
+
+/* =====================
+   RANK
+===================== */
+.rank-badge{
+  background:#134e4a;
+  color:#99f6e4;
+  padding:5px 8px;
+  border-radius:6px;
+  font-weight:bold;
+  font-size:12px;
+  text-align:center;
 }
 
 /* =====================
@@ -155,104 +166,17 @@ select:focus{
 .name{
   font-size:14px;
   font-weight:600;
-  color:#fff;
-
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
 }
 
 /* =====================
-   BOTTOM ROW (VOTE + CLAIM)
+   COIN
 ===================== */
-.bottom-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.vote{
+.coin{
   font-size:11px;
-  color:#94a3b8;
-}
-
-/* =====================
-   CLAIM BUTTON
-===================== */
-.visit-btn{
-  padding:6px 10px;
-  background:#0f766e;
-  color:#fff;
-  border-radius:6px;
-  text-decoration:none;
-  font-size:12px;
-  font-weight:bold;
-  transition:0.2s;
-}
-
-.visit-btn:hover{
-  background:#115e59;
-  transform:scale(1.05);
-}
-
-/* =====================
-   TRENDING CARD
-===================== */
-.trend-row{
-  display:grid;
-  grid-template-columns:40px 80px 1fr 70px;
-  align-items:center;
-
-  padding:8px 10px;
-  margin-bottom:6px;
-
-  background:#0f172a;
-  border:1px solid #1f2937;
-  border-radius:10px;
-}
-
-/* kolom */
-.t-col{
-  font-size:13px;
-  color:#fff;
-}
-
-/* rank */
-.t-col.rank{
   color:#5eead4;
-  font-weight:bold;
-  text-align:center;
-}
-
-/* coin */
-.t-col.coin{
-  color:#94a3b8;
-  font-size:12px;
-}
-
-/* name biar tidak rusak */
-.t-col.name{
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-/* claim kanan */
-.t-col.action{
-  text-align:right;
-}
-
-.t-col.action a{
-  background:#0f766e;
-  color:#fff;
-  padding:4px 8px;
-  border-radius:6px;
-  text-decoration:none;
-  font-size:12px;
-}
-
-.t-col.action a:hover{
-  background:#115e59;
 }
 
 /* =====================
@@ -268,28 +192,32 @@ select:focus{
 }
 
 /* =====================
-   MOBILE FIX
+   MOBILE FIX PRO
 ===================== */
 @media(max-width:600px){
 
-  .container{
-    padding:15px;
-  }
-
-  h1{
-    font-size:1.5rem;
+  .card{
+    grid-template-columns:50px 1fr 90px;
+    grid-template-areas:
+      "rank name claim"
+      "coin stats claim";
+    gap:5px 8px;
   }
 
   .name{
     font-size:13px;
   }
 
-  .top-row{
-    font-size:11px;
+  .coin{
+    font-size:10px;
+  }
+
+  .clicks{
+    font-size:10px;
   }
 
   .visit-btn{
     font-size:11px;
-    padding:5px 8px;
+    padding:6px 8px;
   }
 }
