@@ -29,21 +29,15 @@ const showToast = (msg) => {
 };
 
 async function loadFaucets(){
-  try {
-    const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
-    const snap = await getDocs(q);
-    allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    render(allFaucets);
-  } catch (err) {
-    console.error("Gagal load:", err);
-    listDiv.innerHTML = "Error load data. Cek Console F12 + Rules Firestore";
-  }
+  const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
+  const snap = await getDocs(q);
+  allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  render(allFaucets);
 }
 
-// RENDER VERSI RAPI PAKAI GRID
 function render(data){
   if(data.length === 0){
-    listDiv.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:var(--muted);'>Belum ada data faucet.</p>";
+    listDiv.innerHTML = "<p style='text-align:center; color:var(--muted); padding:20px;'>Belum ada data faucet.</p>";
     return;
   }
 
@@ -51,21 +45,17 @@ function render(data){
     const uptimeColor = d.uptime >= 90 ? 'var(--green)' : d.uptime >= 50 ? 'var(--yellow)' : 'var(--red)';
     return `
       <div class="card">
-        <div class="card-head">
+        <div class="card-left">
           <span class="rank-badge">#${d.rank ?? '-'}</span>
           <span class="status-badge ${d.status}">${d.status}</span>
         </div>
-        
-        <div class="card-title">${d.name}</div>
-        <div class="card-sub">Coin: ${d.coin}</div>
-        
-        <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
-
-        <div class="stat-line">
-          ${d.clicks ?? 0} Claims | Uptime: <span style="color:${uptimeColor}; font-weight:bold;">${d.uptime ?? 0}%</span>
+        <div class="card-mid">
+          <div class="card-title" title="${d.name}">${d.name}</div>
+          <div class="card-sub">${d.coin}</div>
+          <div class="card-stats">${d.clicks ?? 0} claims | <span style="color:${uptimeColor}">${d.uptime ?? 0}%</span></div>
         </div>
-
-        <div class="card-actions">
+        <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
+        <div class="card-right">
           <button class="btn-edit" onclick='openEdit(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button>
           <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
           <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button>
@@ -75,7 +65,6 @@ function render(data){
   }).join("");
 }
 
-// LOGIKA CRUD TETAP SAMA
 window.addClick = async function(id){
   await updateDoc(doc(db, "faucets", id), { clicks: increment(1) });
 };
@@ -87,29 +76,30 @@ window.addFaucet = async function(){
   if(!name || !url || !coin) return showToast("Isi Nama, URL, Coin dulu");
 
   const snap = await getDocs(collection(db, "faucets"));
-  const nextRank = snap.size + 1;
+  const nextRank = snap.size + 1; // Auto paling buncit
   await addDoc(collection(db, "faucets"), { 
     name, url, coin, status: "active", rank: nextRank, uptime: 100, clicks: 0
   });
   document.getElementById("name").value = "";
   document.getElementById("url").value = "";
   document.getElementById("coin").value = "";
-  showToast(`Faucet ditambah. Rank auto: #${nextRank}`);
+  showToast(`Ditambah. Rank: #${nextRank}`);
   loadFaucets();
 };
 
+// KUNCINYA ADA DI SINI: AUTO RERANK HABIS HAPUS
 window.deleteFaucet = async function(id){
   if(!confirm("Yakin hapus?")) return;
   await deleteDoc(doc(db, "faucets", id));
-  showToast("Faucet dihapus");
-  loadFaucets();
+  showToast("Faucet dihapus. Merapikan rank...");
+  await rerank(true); // Auto panggil, tanpa confirm
 };
 
 window.toggleStatus = async function(id, status){
   const newStatus = status === "active" ? "inactive" : "active";
   const newUptime = newStatus === "active" ? 100 : 0;
   await updateDoc(doc(db, "faucets", id), { status: newStatus, uptime: newUptime });
-  showToast(`Status: ${newStatus} | Uptime: ${newUptime}%`);
+  showToast(`Status: ${newStatus}`);
   loadFaucets();
 };
 
@@ -136,19 +126,24 @@ window.saveEdit = async function(){
   };
   await updateDoc(doc(db, "faucets", id), data);
   closeModal();
-  showToast("Data diupdate");
+  showToast("Diupdate");
   loadFaucets();
 };
 
-window.rerank = async function(){
-  if(!confirm("Yakin urutkan ulang rank jadi 1,2,3...?")) return;
-  const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
-  const snap = await getDocs(q);
-  let i = 1;
-  for(const d of snap.docs){
-    await updateDoc(doc(db, "faucets", d.id), { rank: i++ });
+// FUNGSI RERANK AUTO
+window.rerank = async function(auto = false){
+  if(!auto){ // Kalau manual
+    if(!confirm("Urutkan ulang rank 1,2,3...?")) return;
   }
-  showToast("Rank sudah diurutkan ulang");
+  
+  const snap = await getDocs(query(collection(db, "faucets"), orderBy("rank", "asc")));
+  if(snap.empty) return loadFaucets();
+
+  let i = 1;
+  const updates = snap.docs.map(d => updateDoc(doc(db, "faucets", d.id), { rank: i++ }));
+  await Promise.all(updates); // Update barengan biar cepet
+  
+  showToast(auto ? "Rank auto dirapikan" : "Rank sudah diurutkan ulang");
   loadFaucets();
 };
 
@@ -165,8 +160,6 @@ window.searchFaucet = function(){
 window.logout = () => signOut(auth).then(() => window.location.href = "login.html");
 
 modalDiv.onclick = (e) => { if(e.target === modalDiv) closeModal(); }
-
-// NAVBAR SHADOW PAS SCROLL
 window.addEventListener('scroll', () => {
   document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 10);
 });
