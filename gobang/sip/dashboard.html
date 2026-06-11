@@ -4,83 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard LTList</title>
-  <style>
-    :root{--bg:#0f172a;--card:#111827;--border:#334155;--text:#e2e8f0;--muted:#94a3b8;--accent:#00ffcc;--green:#00ff88;--red:#ef4444;--blue:#2563eb}
-    *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--text);font-size:14px}
-    .navbar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:rgba(17,24,39,.7);backdrop-filter:blur(12px);border-bottom:1px solid rgba(51,65,85,.5);position:sticky;top:0;z-index:50}
-    .navbar .logo{color:var(--accent);font-weight:800;font-size:20px;display:flex;align-items:center;gap:8px}
-    .navbar .logo::before{content:'';width:10px;height:10px;background:var(--green);border-radius:50%}
-    .nav-actions{display:flex;gap:8px;align-items:center}
-    .btn{background:var(--card);border:1px solid var(--border);color:var(--text);font-weight:600;padding:8px 14px;border-radius:8px;cursor:pointer;transition:.2s;font-size:13px;text-decoration:none;display:inline-block}
-    .btn:hover{background:var(--red);border-color:var(--red);color:#fff}
-    .btn-site{background:var(--blue);border-color:var(--blue);color:#fff}
-    .btn-site:hover{background:#1d4ed8;border-color:#1d4ed8}
-    .container{max-width:1200px;margin:auto;padding:20px}
-    h1,h2{color:var(--accent);margin:0 0 16px 0;font-size:18px}
-    input,select{width:100%;padding:8px 12px;margin-bottom:12px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);outline:none;font-size:14px}
-    input:focus,select:focus{border-color:var(--accent)}
-    .btn-add{padding:8px 12px;background:#0f766e;border:none;color:#fff;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px}
-    .btn-add:hover{background:#115e59}
-    .list{display:flex;flex-direction:column;gap:8px;margin-top:16px}
-    .card{background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:8px;transition:.2s;display:flex;align-items:center;gap:12px}
-    .card:hover{border-color:var(--accent)}
-    .card-l{display:flex;gap:8px;align-items:center;flex-shrink:0;width:120px}
-    .rank{background:rgba(20,184,166,.2);color:var(--accent);padding:3px 6px;border-radius:6px;font-size:12px;font-weight:bold}
-    .s-badge{padding:3px 6px;border-radius:6px;font-size:11px;font-weight:bold;color:#000;text-transform:uppercase}
-    .s-badge.active{background:var(--green)}.s-badge.inactive{background:var(--red)}
-    .card-m{flex:1;display:flex;gap:16px;align-items:center;overflow:hidden}
-    .title{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .url{color:var(--muted);font-size:12px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .stats{color:var(--muted);font-size:12px;flex-shrink:0;width:100px;text-align:right}
-    .btn-claim{padding:6px 10px;background:var(--accent);color:#0f172a;border-radius:8px;text-decoration:none;font-weight:bold;font-size:12px;flex-shrink:0}
-    .card-r{display:flex;gap:6px;flex-shrink:0}
-    .card-r button{padding:6px 10px;background:var(--border);font-size:12px}
-    .btn-edit{background:var(--blue)!important}.btn-del{background:var(--red)!important}
-    @media (max-width: 767px){
-      .navbar{padding:12px}.btn,.btn-site{padding:8px 12px;font-size:12px}.container{padding:12px}
-      .list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-      .card{flex-direction:column;align-items:stretch;gap:6px;padding:10px;font-size:12px}
-      .card-l,.card-m,.card-r{width:100%;justify-content:space-between}
-      .card-m{flex-direction:column;align-items:flex-start;gap:2px}
-      .title{font-size:13px}.url,.stats{width:auto;text-align:left;font-size:11px}
-      .btn-claim{width:100%;text-align:center;margin-top:4px}
-      .card-r{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
-      .card-r button{width:100%;padding:6px 0;font-size:11px}
-    }
-    .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);display:none;justify-content:center;align-items:center;z-index:99}
-    .modal.show{display:flex}
-    .modal-box{background:var(--card);padding:20px;width:90%;max-width:400px;border-radius:12px;border:1px solid var(--border)}
-    .modal-actions{display:flex;justify-content:space-between;margin-top:10px;gap:10px}
-    .modal-actions button{flex:1}
-    #toast{position:fixed;top:20px;right:20px;background:#0f766e;padding:10px 14px;border-radius:8px;opacity:0;transform:translateY(-10px);transition:.3s;z-index:999}
-    #toast.show{opacity:1;transform:translateY(0)}
-    hr{border:none;border-top:1px solid var(--border);margin:30px 0}
-    .note{font-size:12px;color:var(--muted);margin-bottom:12px}
-  </style>
+  <link rel="stylesheet" href="dashb.css">
 </head>
 <body>
+
   <nav class="navbar">
     <div class="logo">LTList Admin</div>
     <div class="nav-actions">
-      <a href="index.html" target="_blank" class="btn btn-site">Visit Site</a>
-      <button onclick="logout()" class="btn">Logout</button>
+      <a href="https://ltlist.github.io/" target="_blank" rel="noopener" class="btn-site">Visit Site</a>
+      <button onclick="logout()">Logout</button>
     </div>
   </nav>
 
   <main class="container">
     <h1>Dashboard Admin</h1>
+
     <section>
       <h2>Daftar Faucet</h2>
-      <input id="search" placeholder="Cari nama atau url..." onkeyup="searchData()">
+      <input id="search" placeholder="Cari nama, coin, atau rank..." onkeyup="searchFaucet()">
       <div id="list" class="list">Loading...</div>
     </section>
+
     <hr>
+
     <section>
       <h2>Tambah Faucet</h2>
-      <p class="note">Contoh URL: https://litecoinfaucet.com/?r=</p>
-      <input id="name" placeholder="Nama Faucet" required>
-      <input id="url" placeholder="URL + ?r= di belakang" required>
-      <button onclick="addData()" class="btn-add">Tambah</button>
+      <input id="name" placeholder="Nama" required>
+      <input id="url" placeholder="URL https://..." required>
+      <input id="coin" placeholder="Coin MULTI/BTC/LTC" required>
+      <button onclick="addFaucet()">Tambah</button>
     </section>
   </main>
 
@@ -89,74 +41,21 @@
       <h2>Edit Faucet</h2>
       <input type="hidden" id="editId">
       <input id="editName" placeholder="Nama">
-      <input id="editUrl" placeholder="URL + ?r=">
+      <input id="editUrl" placeholder="URL">
+      <input id="editCoin" placeholder="Coin">
       <input id="editUptime" type="number" placeholder="Uptime %">
-      <select id="editStatus"><option value="active">active</option><option value="inactive">inactive</option></select>
+      <select id="editStatus">
+        <option value="active">active</option>
+        <option value="inactive">inactive</option>
+      </select>
       <div class="modal-actions">
         <button onclick="closeModal()">Batal</button>
-        <button onclick="saveEdit()" class="btn-add">Simpan</button>
+        <button onclick="saveEdit()">Simpan</button>
       </div>
     </div>
   </div>
-  <div id="toast"></div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    
-    const firebaseConfig = { apiKey: "AIzaSyAVrvTMfoQTZObqWRrsWxr5OlqU2N4nV1I", authDomain: "ltlist-8c6d4.firebaseapp.com", projectId: "ltlist-8c6d4", storageBucket: "ltlist-8c6d4.firebasestorage.app", messagingSenderId: "76571718239", appId: "1:76571718239:web:5a1531095924d709f16454" };
-    const app = initializeApp(firebaseConfig); const db = getFirestore(app); const auth = getAuth(app);
-    const listDiv = document.getElementById("list"); const toastDiv = document.getElementById("toast"); const modalDiv = document.getElementById("editModal"); let allData = [];
-    const toast = (msg) => { toastDiv.textContent = msg; toastDiv.classList.add("show"); setTimeout(() => toastDiv.classList.remove("show"), 2000); };
-    
-    async function loadData(){
-      const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
-      const snap = await getDocs(q);
-      allData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      render(allData);
-    }
-    function render(data){
-      if(data.length === 0){ listDiv.innerHTML = "<p style='text-align:center;color:var(--muted);padding:20px;grid-column:1/-1;'>Belum ada data faucet.</p>"; return; }
-      listDiv.innerHTML = data.map(d => `
-        <div class="card">
-          <div class="card-l">
-            <span class="rank">#${d.rank ?? '-'}</span>
-            <span class="s-badge ${d.status}">${d.status}</span>
-          </div>
-          <div class="card-m">
-            <div class="title" title="${d.name}">${d.name}</div>
-            <div class="url" title="${d.url}">${d.url}</div>
-            <div class="stats">${d.clicks ?? 0} clicks | <span style="color:${(d.uptime>=90?'var(--green)':d.uptime>=50?'var(--yellow)':'var(--red)')}">${d.uptime ?? 0}%</span></div>
-          </div>
-          <a href="#" class="btn-claim">Preview</a>
-          <div class="card-r">
-            <button class="btn-edit" onclick='openModal(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button>
-            <button onclick="toggleStatus('${d.id}','${d.status}')">${d.status==='active'?'Off':'On'}</button>
-            <button class="btn-del" onclick="deleteData('${d.id}')">Hapus</button>
-          </div>
-        </div>
-      `).join("");
-    }
-    window.addData = async () => {
-      const name = document.getElementById("name").value.trim();
-      const url = document.getElementById("url").value.trim();
-      if(!name || !url || !url.includes('?r=')) return toast("Isi Nama + URL harus ada ?r= di belakang");
-      const nextRank = allData.length + 1;
-      await addDoc(collection(db, "faucets"), { name, url, status: "active", rank: nextRank, uptime: 100, clicks: 0 });
-      document.getElementById("name").value = ""; document.getElementById("url").value = "";
-      toast(`Ditambah. Rank: #${nextRank}`); loadData();
-    };
-    window.deleteData = async (id) => { if(!confirm("Yakin hapus?")) return; await deleteDoc(doc(db, "faucets", id)); toast("Data dihapus. Merapikan rank..."); await fixRank(); loadData(); };
-    window.toggleStatus = async (id, status) => { const newStatus = status === "active" ? "inactive" : "active"; const newUptime = newStatus === "active" ? 100 : 0; await updateDoc(doc(db, "faucets", id), { status: newStatus, uptime: newUptime }); toast(`Status: ${newStatus}`); loadData(); };
-    window.openModal = (d) => { document.getElementById("editId").value = d.id; document.getElementById("editName").value = d.name; document.getElementById("editUrl").value = d.url; document.getElementById("editUptime").value = d.uptime; document.getElementById("editStatus").value = d.status; modalDiv.classList.add("show"); };
-    window.closeModal = () => modalDiv.classList.remove("show");
-    window.saveEdit = async () => { const id = document.getElementById("editId").value; const data = { name: document.getElementById("editName").value.trim(), url: document.getElementById("editUrl").value.trim(), uptime: parseInt(document.getElementById("editUptime").value) || 0, status: document.getElementById("editStatus").value }; if(!data.url.includes('?r=')) return toast("URL harus ada ?r="); await updateDoc(doc(db, "faucets", id), data); closeModal(); toast("Data diupdate"); loadData(); };
-    window.searchData = () => { const v = document.getElementById("search").value.toLowerCase(); const filtered = allData.filter(f => f.name.toLowerCase().includes(v) || f.url.toLowerCase().includes(v) || String(f.rank).includes(v)); render(filtered); };
-    async function fixRank(){ const q = query(collection(db, "faucets"), orderBy("rank", "asc")); const snap = await getDocs(q); let i = 1; for(const d of snap.docs){ await updateDoc(doc(db, "faucets", d.id), { rank: i++ }); } }
-    window.logout = () => signOut(auth).then(() => window.location.href = "login.html");
-    modalDiv.onclick = (e) => { if(e.target === modalDiv) closeModal(); }
-    loadData();
-  </script>
+  <div id="toast"></div>
+  <script type="module" src="dashboard.js"></script>
 </body>
 </html>
