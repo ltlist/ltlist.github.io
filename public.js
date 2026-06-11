@@ -12,7 +12,7 @@ import {
    FIREBASE CONFIG
 ===================== */
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWJ_Wj3aITEhj6UPetF-KXKDV75S8",
+  apiKey: "AIzaSyAVokWJ_Wj3iATEhj6UPetF-KXKDV75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -24,10 +24,13 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 /* =====================
-   DOM
+   DOM (MATCH INDEX.HTML)
 ===================== */
 const listDiv = document.getElementById("list");
 const trendingDiv = document.getElementById("trending");
+const coinStatsDiv = document.getElementById("coinStats");
+const coinFilter = document.getElementById("coinFilter");
+const totalEl = document.getElementById("totalFaucets");
 
 let allFaucets = [];
 
@@ -44,7 +47,7 @@ function getDeviceId() {
 }
 
 /* =====================
-   ANTI CLICK SPAM (LOCAL)
+   ANTI CLICK SPAM
 ===================== */
 function canClick(id) {
   const last = localStorage.getItem("click_" + id);
@@ -81,10 +84,13 @@ async function loadFaucets() {
 
   render(allFaucets);
   renderTrending();
+  renderCoinStats();
+  renderTotal();
+  loadCoinFilter();
 }
 
 /* =====================
-   CLICK (ONLY UPDATE IF FIELD EXISTS)
+   CLICK TRACK (MODEL C SAFE)
 ===================== */
 window.visitFaucet = async function (id, url) {
 
@@ -103,7 +109,7 @@ window.visitFaucet = async function (id, url) {
       deviceId: getDeviceId()
     };
 
-    // ✔ ONLY UPDATE uptime IF EXISTS
+    // 🔥 ONLY UPDATE IF FIELD EXISTS
     if (faucet && typeof faucet.uptime !== "undefined") {
       updateData.uptime = increment(1);
     }
@@ -118,18 +124,20 @@ window.visitFaucet = async function (id, url) {
 };
 
 /* =====================
-   RENDER MAIN
+   RENDER MAIN LIST
 ===================== */
 function render(data) {
+
+  if (!listDiv) return;
 
   listDiv.innerHTML = data.map(d => `
     <div class="card">
 
       <div class="rank-badge">#${d.rank || "-"}</div>
 
-      <div class="name">${d.name}</div>
+      <div class="name">${d.name || "-"}</div>
 
-      <div class="coin">${d.coin}</div>
+      <div class="coin">${d.coin || "-"}</div>
 
       <div class="clicks">👁 ${d.clicks || 0}</div>
 
@@ -151,6 +159,8 @@ function render(data) {
    TRENDING
 ===================== */
 function renderTrending() {
+
+  if (!trendingDiv) return;
 
   const top = [...allFaucets]
     .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
@@ -182,9 +192,59 @@ function renderTrending() {
 }
 
 /* =====================
+   TOTAL
+===================== */
+function renderTotal() {
+  if (!totalEl) return;
+  totalEl.innerText = `📊 ${allFaucets.length} Active Faucets`;
+}
+
+/* =====================
+   COIN STATS
+===================== */
+function renderCoinStats() {
+
+  if (!coinStatsDiv) return;
+
+  const count = {};
+
+  allFaucets.forEach(f => {
+    const c = (f.coin || "UNKNOWN").trim();
+    count[c] = (count[c] || 0) + 1;
+  });
+
+  coinStatsDiv.innerHTML = Object.keys(count)
+    .sort()
+    .map(c => `<span class="badge">${c} (${count[c]})</span>`)
+    .join("");
+}
+
+/* =====================
+   FILTER COIN
+===================== */
+function loadCoinFilter() {
+
+  if (!coinFilter) return;
+
+  coinFilter.innerHTML = `<option value="all">All Coins</option>`;
+
+  const coins = [...new Set(allFaucets.map(f => (f.coin || "UNKNOWN").trim()))];
+
+  coins.sort();
+
+  coins.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    coinFilter.appendChild(opt);
+  });
+}
+
+/* =====================
    SEARCH
 ===================== */
 window.searchPublic = function () {
+
   const q = document.getElementById("search")?.value.toLowerCase() || "";
 
   render(allFaucets.filter(f =>
@@ -197,8 +257,11 @@ window.searchPublic = function () {
    FILTER
 ===================== */
 window.filterCoin = function () {
-  const c = document.getElementById("coinFilter")?.value;
+
+  const c = coinFilter?.value;
+
   if (!c || c === "all") return render(allFaucets);
+
   render(allFaucets.filter(f => f.coin === c));
 };
 
