@@ -48,6 +48,7 @@ function render(data){
 
   listDiv.innerHTML = data.map(d => {
     const active = d.status === "active";
+    const uptimeColor = d.uptime >= 90 ? '#00ff88' : d.uptime >= 50 ? '#facc15' : '#ff4d4d'; // hijau/kuning/merah
     return `
       <div class="card">
         <span class="rank-badge">#${d.rank ?? '-'}</span>
@@ -60,10 +61,10 @@ function render(data){
         <br><br>
         <b>${d.name}</b><br>
         Coin: ${d.coin}<br>
-        <a href="${d.url}" target="_blank" class="claim-btn" onclick="addClick('${d.id}')">Claim</a> <!-- +1 clicks -->
+        <a href="${d.url}" target="_blank" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
 
         <div class="stat-line">
-          Clicks: ${d.clicks ?? 0} | Uptime: ${d.uptime ?? 0}%
+          Clicks: ${d.clicks ?? 0} | Uptime: <span style="color:${uptimeColor}; font-weight:bold;">${d.uptime ?? 0}%</span>
         </div>
 
         <br>
@@ -77,29 +78,25 @@ function render(data){
 
 // CLAIM = +1 clicks
 window.addClick = async function(id){
-  await updateDoc(doc(db, "faucets", id), {
-    clicks: increment(1) // int64 + 1
-  });
+  await updateDoc(doc(db, "faucets", id), { clicks: increment(1) });
 };
 
-// ADD
+// ADD - uptime default 100 karena status active
 window.addFaucet = async function(){
   const name = document.getElementById("name").value.trim();
   const url = document.getElementById("url").value.trim();
   const coin = document.getElementById("coin").value.trim().toUpperCase();
   const rank = parseInt(document.getElementById("rank").value) || 99;
-  const uptime = parseInt(document.getElementById("uptime").value) || 100;
 
   if(!name || !url || !coin) return showToast("Isi Name, URL, Coin dulu");
 
   await addDoc(collection(db, "faucets"), { 
-    name, url, coin, status: "active", rank, uptime, clicks: 0 // int64 semua
+    name, url, coin, status: "active", rank, uptime: 100, clicks: 0 // int64
   });
   document.getElementById("name").value = "";
   document.getElementById("url").value = "";
   document.getElementById("coin").value = "";
   document.getElementById("rank").value = "";
-  document.getElementById("uptime").value = "";
   showToast("Faucet ditambah");
   loadFaucets();
 };
@@ -112,11 +109,16 @@ window.deleteFaucet = async function(id){
   loadFaucets();
 };
 
-// TOGGLE
+// TOGGLE - AUTO UPTIME
 window.toggleStatus = async function(id, status){
   const newStatus = status === "active" ? "inactive" : "active";
-  await updateDoc(doc(db, "faucets", id), { status: newStatus });
-  showToast(`Status jadi ${newStatus}`);
+  const newUptime = newStatus === "active" ? 100 : 0; // <- KUNCI DISINI
+
+  await updateDoc(doc(db, "faucets", id), { 
+    status: newStatus,
+    uptime: newUptime // int64 auto 100 atau 0
+  });
+  showToast(`Status: ${newStatus} | Uptime: ${newUptime}%`);
   loadFaucets();
 };
 
@@ -137,7 +139,7 @@ window.closeModal = function(){
   modalDiv.classList.remove("show");
 };
 
-// EDIT - SIMPAN
+// EDIT - SIMPAN - uptime masih bisa diedit manual di sini
 window.saveEdit = async function(){
   const id = document.getElementById("editId").value;
   const data = {
@@ -145,7 +147,7 @@ window.saveEdit = async function(){
     url: document.getElementById("editUrl").value.trim(),
     coin: document.getElementById("editCoin").value.trim().toUpperCase(),
     rank: parseInt(document.getElementById("editRank").value) || 99,
-    uptime: parseInt(document.getElementById("editUptime").value) || 100,
+    uptime: parseInt(document.getElementById("editUptime").value) || 0, // int64
     status: document.getElementById("editStatus").value
   };
   await updateDoc(doc(db, "faucets", id), data);
