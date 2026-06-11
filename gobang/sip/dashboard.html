@@ -1,66 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LTList Dashboard</title>
-
-<link rel="stylesheet" href="dashb.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard LTList</title>
+  <link rel="stylesheet" href="dashb.css">
 </head>
-
 <body>
 
-<!-- NAVBAR -->
-<div class="navbar">
-  <div class="logo">LTList Admin</div>
-  <a href="#" onclick="logout()">Logout</a>
-</div>
-
-<div class="container">
-
-  <h1>Dashboard Faucet</h1>
-
-  <input id="search" placeholder="Search..." onkeyup="searchFaucet()">
-
-  <input id="name" placeholder="Name">
-  <input id="url" placeholder="URL">
-  <input id="coin" placeholder="Coin">
-  <input id="rank" placeholder="Rank">
-
-  <button onclick="addFaucet()">Add Faucet</button>
-
-  <div id="list"></div>
-
-</div>
-
-<!-- MODAL EDIT -->
-<div id="editModal" class="modal">
-  <div class="modal-box">
-
-    <h3>Edit Faucet</h3>
-
-    <input id="editName" placeholder="Name">
-    <input id="editUrl" placeholder="URL">
-    <input id="editCoin" placeholder="Coin">
-    <input id="editRank" placeholder="Rank">
-
-    <select id="editStatus">
-      <option value="active">active</option>
-      <option value="inactive">inactive</option>
-    </select>
-
-    <div class="modal-actions">
-      <button onclick="saveEdit()">Save</button>
-      <button onclick="closeModal()">Cancel</button>
-    </div>
-
+  <div class="navbar">
+    <div class="logo">LTList Admin</div>
+    <button onclick="logout()">Logout</button>
   </div>
-</div>
 
-<!-- TOAST -->
-<div id="toast"></div>
+  <div class="container">
+    <h1>Dashboard Admin</h1>
 
-<script type="module" src="dashboard.js"></script>
+    <h2>Faucet List</h2>
+    <input id="search" placeholder="Search nama, coin, atau rank..." onkeyup="searchFaucet()">
 
+    <div id="list">Loading...</div>
+
+    <hr style="margin:30px 0; border-color:#334155;">
+
+    <h2>Add Faucet</h2>
+    <input id="name" placeholder="Name" required>
+    <input id="url" placeholder="URL" required>
+    <input id="coin" placeholder="Coin (BTC/LTC/DOGE)" required>
+    <input id="rank" type="number" placeholder="Rank, ex: 1">
+    <button onclick="addFaucet()">Add</button>
+  </div>
+
+  <div id="toast"></div>
+
+  <script type="module" src="dashboard.js"></script>
 </body>
 </html>
