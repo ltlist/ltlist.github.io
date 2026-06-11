@@ -1,26 +1,209 @@
-/* ... CSS lain tetap sama ... */
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0b1220;
+  color:#fff;
+  -webkit-font-smoothing:antialiased;
+}
 
 /* =====================
-   CLAIM BUTTON - VERSI TOMBOL IJO
+   NAVBAR
+===================== */
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 20px;
+  background:#0f172a;
+  position:sticky;
+  top:0;
+  z-index:1000;
+  border-bottom:1px solid #1f2937;
+}
+
+.navbar .logo{
+  font-size:20px;
+  font-weight:700;
+  color:#00ffd5;
+}
+
+.navbar a{
+  color:#cbd5e1;
+  text-decoration:none;
+  margin-left:14px;
+  font-size:14px;
+}
+
+/* =====================
+   CONTAINER
+===================== */
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+h1{
+  font-size:1.7rem;
+  color:#5eead4;
+  margin-bottom:6px;
+}
+
+h2{
+  font-size:1.2rem;
+  color:#5eead4;
+  margin:20px 0 10px 0;
+}
+
+#totalFaucets{
+  font-size:13px;
+  color:#94a3b8;
+  margin-bottom:14px;
+}
+
+/* =====================
+   INPUT & SELECT
+===================== */
+input,
+select{
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border:1px solid #1f2937;
+  border-radius:10px;
+  background:#111827;
+  color:#fff;
+  font-size:14px;
+  outline:none;
+}
+
+/* =====================
+   BADGE COIN STATS
+===================== */
+.badge{
+  display:inline-block;
+  padding:5px 10px;
+  margin:3px;
+  font-size:12px;
+  border-radius:8px;
+  background:#111827;
+  border:1px solid #134e4a;
+  color:#5eead4;
+}
+
+/* =====================
+   LIST WRAPPER
+===================== */
+#list, #trending {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+/* =====================
+   CARD - 3 BARIS, TOMBOL FULL
+===================== */
+.card{
+  background:#111827;
+  border:1px solid #1f2937;
+  border-radius:12px;
+  padding:12px;
+
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr; /* 3 kolom sama rata */
+  grid-template-rows:auto auto;
+  grid-template-areas:
+    "rank name coin"
+    "clicks uptime uptime"
+    "claim claim"; /* Claim span 3 kolom */
+
+  gap:8px;
+  align-items:center;
+}
+
+/* =====================
+   GRID AREAS
+===================== */
+.rank{ grid-area:rank; }
+.name{ grid-area:name; }
+.coin{ grid-area:coin; text-align:right; }
+.clicks{ grid-area:clicks; }
+.uptime{ grid-area:uptime; }
+
+/* =====================
+   RANK & COIN
+===================== */
+.rank{
+  font-size:13px;
+  font-weight:700;
+  color:#94a3b8;
+}
+.name{
+  font-size:15px;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.coin{
+  font-size:13px;
+  color:#5eead4;
+  font-weight:600;
+}
+
+/* =====================
+   STATS
+===================== */
+.clicks, .uptime{
+  font-size:12px;
+  color:#94a3b8;
+  display:flex;
+  align-items:center;
+  gap:4px;
+}
+
+/* =====================
+   CLAIM BUTTON - GEDE + FULL
 ===================== */
 .visit-btn{
   grid-area:claim;
-  justify-self:end;
-  padding:6px 12px;
-  background:#0f766e; /* Hijau tosca */
+  width:100%;
+  padding:12px; /* Lebih tebel */
+  background:#0f766e;
   color:#fff;
   border:none;
-  border-radius:8px;
-  font-size:12px;
+  border-radius:10px;
+  font-size:14px; /* Lebih gede */
   font-weight:700;
   cursor:pointer;
   transition:0.2s;
+  margin-top:4px;
 }
 .visit-btn:hover{
   background:#0d9488;
 }
 .visit-btn:active{
-  transform:scale(0.95);
+  transform:scale(0.98);
+  background:#0b7a72;
 }
 
-/* ... CSS lain tetap sama ... */
+/* =====================
+   FOOTER TENGAH
+===================== */
+.footer{
+  text-align:center;
+  color:#94a3b8;
+  font-size:13px;
+  padding:20px 0;
+  margin-top:30px;
+  border-top:1px solid #1f2937;
+}
+
+/* =====================
+   MOBILE
+===================== */
+@media(max-width:600px){
+  .name{ font-size:14px; }
+  .visit-btn{ font-size:13px; padding:11px; }
+}
