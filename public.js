@@ -104,7 +104,7 @@ window.visitFaucet = async function (id, url) {
 };
 
 /* =====================
-   RENDER MAIN LIST - LAYOUT BARU 3 KOLOM
+   RENDER MAIN LIST - UDAH PAKE BUTTON
 ===================== */
 function render(data) {
   if (!listDiv) return;
@@ -116,17 +116,15 @@ function render(data) {
 
       <div class="clicks">💧 ${d.clicks || 0}</div>
       <div class="uptime">⏱ ${d.uptime || 100}</div>
-      <a class="visit-btn"
-         href="#"
-         onclick="visitFaucet('${d.id}','${d.url}')">
+      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">
         Claim
-      </a>
+      </button>
     </div>
   `).join("");
 }
 
 /* =====================
-   TRENDING - LAYOUT BARU 3 KOLOM
+   TRENDING - UDAH PAKE BUTTON
 ===================== */
 function renderTrending() {
   if (!trendingDiv) return;
@@ -141,11 +139,9 @@ function renderTrending() {
 
       <div class="clicks">💧 ${d.clicks || 0}</div>
       <div class="uptime">⏱ ${d.uptime || 100}</div>
-      <a class="visit-btn"
-         href="#"
-         onclick="visitFaucet('${d.id}','${d.url}')">
+      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">
         Claim
-      </a>
+      </button>
     </div>
   `).join("");
 }
