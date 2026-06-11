@@ -31,6 +31,26 @@
     <button onclick="addFaucet()">Add</button>
   </div>
 
+  <!-- MODAL EDIT -->
+  <div id="editModal" class="modal">
+    <div class="modal-box">
+      <h2>Edit Faucet</h2>
+      <input type="hidden" id="editId">
+      <input id="editName" placeholder="Name">
+      <input id="editUrl" placeholder="URL">
+      <input id="editCoin" placeholder="Coin">
+      <input id="editRank" type="number" placeholder="Rank">
+      <select id="editStatus">
+        <option value="active">active</option>
+        <option value="inactive">inactive</option>
+      </select>
+      <div class="modal-actions">
+        <button onclick="closeModal()">Batal</button>
+        <button onclick="saveEdit()">Simpan</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast"></div>
 
   <script type="module" src="dashboard.js"></script>
