@@ -4,7 +4,6 @@ body{
   background:#0b1220;
   color:#fff;
   -webkit-font-smoothing:antialiased;
-  padding-bottom:40px; /* Biar footer gak mepet banget sama navbar HP */
 }
 
 /* =====================
@@ -33,10 +32,6 @@ body{
   text-decoration:none;
   margin-left:14px;
   font-size:14px;
-}
-
-.navbar a:hover{
-  color:#00ffd5;
 }
 
 /* =====================
@@ -107,14 +102,13 @@ select{
 }
 
 /* =====================
-   CARD PRO FIX
+   CARD - TETAP KAYAK GAMBAR KAMU
 ===================== */
 .card{
-  background:linear-gradient(180deg,#111827,#0f172a);
+  background:#111827;
   border:1px solid #1f2937;
   border-radius:12px;
-  padding:10px 12px;
-  margin-bottom:0;
+  padding:12px;
 
   display:grid;
   grid-template-columns:60px 1fr 120px;
@@ -125,13 +119,6 @@ select{
 
   gap:6px 10px;
   align-items:center;
-  transition:0.2s;
-}
-
-.card:hover{
-  transform:translateY(-2px);
-  border-color:#0f766e;
-  box-shadow:0 6px 18px rgba(0,0,0,0.4);
 }
 
 /* =====================
@@ -146,30 +133,25 @@ select{
   font-size:11px;
   color:#94a3b8;
   white-space:nowrap;
-  display:flex; align-items:center; gap:4px; /* Biar icon 💧 sejajar teks */
 }
 
 /* =====================
-   CLAIM BUTTON FIX - INI PENYEBAB UNGU
+   CLAIM BUTTON - INI DOANG YANG DIGANTI JADI TOMBOL
 ===================== */
 .visit-btn{
   grid-area:claim;
   justify-self:end;
-  padding:8px 14px;
+  padding:7px 14px;
   background:#0f766e; /* Hijau tosca */
-  color:#fff !important; /* Paksa putih, biar gak ungu */
+  color:#fff !important; 
   border-radius:8px;
-  text-decoration:none !important; /* Hilangin garis bawah */
+  text-decoration:none !important; /* Hilangin garis ungu */
   font-size:12px;
-  font-weight:bold;
-  text-align:center;
-  transition:0.2s;
+  font-weight:700;
+  border:none;
+  display:inline-block;
 }
-
-.visit-btn:visited{ color:#fff !important; } /* Biar abis diklik tetep putih */
-.visit-btn:hover{
-  background:#0d9488;
-}
+.visit-btn:visited{ color:#fff !important; }
 
 /* =====================
    RANK
@@ -204,26 +186,23 @@ select{
 }
 
 /* =====================
-   FOOTER FIX
+   FOOTER - INI DIBIKIN TENGAH
 ===================== */
 .footer{
-  text-align:center;
+  text-align:center; /* INI KUNCINYA */
   color:#94a3b8;
   font-size:13px;
   padding:20px 0;
-  margin-top:30px;
+  margin-top:25px;
   border-top:1px solid #1f2937;
 }
 
 /* =====================
-   MOBILE FIX PRO
+   MOBILE
 ===================== */
 @media(max-width:600px){
   .card{
     grid-template-columns:50px 1fr 90px;
-    grid-template-areas:
-      "rank name claim"
-      "coin stats claim";
     gap:5px 8px;
   }
   .name{ font-size:13px; }
