@@ -4,6 +4,7 @@ body{
   background:#0b1220;
   color:#fff;
   -webkit-font-smoothing:antialiased;
+  padding-bottom:40px; /* Biar footer gak mepet banget sama navbar HP */
 }
 
 /* =====================
@@ -96,12 +97,12 @@ select{
 }
 
 /* =====================
-   LIST WRAPPER - INI YANG BARU
+   LIST WRAPPER
 ===================== */
 #list, #trending {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Jarak antar card biar ada nafas */
+  gap: 10px;
   margin-bottom: 16px;
 }
 
@@ -113,7 +114,7 @@ select{
   border:1px solid #1f2937;
   border-radius:12px;
   padding:10px 12px;
-  margin-bottom:0; /* gap udah di handle wrapper di atas */
+  margin-bottom:0;
 
   display:grid;
   grid-template-columns:60px 1fr 120px;
@@ -124,9 +125,7 @@ select{
 
   gap:6px 10px;
   align-items:center;
-
   transition:0.2s;
-  cursor:pointer;
 }
 
 .card:hover{
@@ -138,4 +137,97 @@ select{
 /* =====================
    GRID AREAS
 ===================== */
-.rank-badge{ grid-area:rank;
+.rank-badge{ grid-area:rank; }
+.name{ grid-area:name; }
+.coin{ grid-area:coin; }
+
+.clicks{
+  grid-area:stats;
+  font-size:11px;
+  color:#94a3b8;
+  white-space:nowrap;
+  display:flex; align-items:center; gap:4px; /* Biar icon 💧 sejajar teks */
+}
+
+/* =====================
+   CLAIM BUTTON FIX - INI PENYEBAB UNGU
+===================== */
+.visit-btn{
+  grid-area:claim;
+  justify-self:end;
+  padding:8px 14px;
+  background:#0f766e; /* Hijau tosca */
+  color:#fff !important; /* Paksa putih, biar gak ungu */
+  border-radius:8px;
+  text-decoration:none !important; /* Hilangin garis bawah */
+  font-size:12px;
+  font-weight:bold;
+  text-align:center;
+  transition:0.2s;
+}
+
+.visit-btn:visited{ color:#fff !important; } /* Biar abis diklik tetep putih */
+.visit-btn:hover{
+  background:#0d9488;
+}
+
+/* =====================
+   RANK
+===================== */
+.rank-badge{
+  background:#134e4a;
+  color:#99f6e4;
+  padding:5px 8px;
+  border-radius:6px;
+  font-weight:bold;
+  font-size:12px;
+  text-align:center;
+}
+
+/* =====================
+   NAME
+===================== */
+.name{
+  font-size:14px;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* =====================
+   COIN
+===================== */
+.coin{
+  font-size:11px;
+  color:#5eead4;
+}
+
+/* =====================
+   FOOTER FIX
+===================== */
+.footer{
+  text-align:center;
+  color:#94a3b8;
+  font-size:13px;
+  padding:20px 0;
+  margin-top:30px;
+  border-top:1px solid #1f2937;
+}
+
+/* =====================
+   MOBILE FIX PRO
+===================== */
+@media(max-width:600px){
+  .card{
+    grid-template-columns:50px 1fr 90px;
+    grid-template-areas:
+      "rank name claim"
+      "coin stats claim";
+    gap:5px 8px;
+  }
+  .name{ font-size:13px; }
+  .coin{ font-size:10px; }
+  .clicks{ font-size:10px; }
+  .visit-btn{ font-size:11px; padding:6px 10px; }
+}
