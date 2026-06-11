@@ -22,13 +22,25 @@ body{ font-family: 'Segoe UI', Arial, sans-serif; background:var(--bg); color:va
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(51, 65, 85, 0.5);
   position: sticky; top:0; z-index: 50;
-  transition: box-shadow .3s;
 }
-.navbar.scrolled{ box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
 .navbar .logo{ color:var(--accent); font-weight:800; font-size: 20px; display:flex; align-items:center; gap:8px; }
-.navbar .logo::before{ content: ''; width: 10px; height: 10px; background: var(--green); border-radius: 50%; box-shadow: 0 0 10px var(--green); }
-.navbar button{ background:var(--card); border: 1px solid var(--border); color:var(--text); font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer; transition: all .2s; }
-.navbar button:hover{ background:var(--red); border-color:var(--red); }
+.navbar .logo::before{ content: ''; width: 10px; height: 10px; background: var(--green); border-radius: 50%; }
+
+.nav-actions{ display: flex; gap: 8px; align-items: center; }
+.navbar button{
+  background:var(--card); border: 1px solid var(--border);
+  color:var(--text); font-weight:600; padding:8px 14px;
+  border-radius:8px; cursor:pointer; transition: all .2s; font-size: 13px;
+}
+.navbar button:hover{ background:var(--red); border-color:var(--red); color:#fff; }
+
+.btn-site{
+  background: var(--blue); border: 1px solid var(--blue);
+  color: #fff; font-weight:600; padding:8px 14px;
+  border-radius:8px; cursor:pointer; transition: all .2s;
+  font-size: 13px; text-decoration: none; display: inline-block;
+}
+.btn-site:hover{ background:#1d4ed8; border-color:#1d4ed8; }
 
 .container{ max-width:1200px; margin:auto; padding:20px; }
 h1, h2{ color:var(--accent-2); margin:0 0 16px 0; font-size: 18px; }
@@ -47,7 +59,14 @@ button{
 }
 button:hover{ background:#115e59; }
 
-.list{ display:flex; flex-direction: column; gap:8px; margin-top:16px; }
+/* === DEFAULT PC/TABLET = 1 BARIS PANJANG === */
+.list{ 
+  display:flex; 
+  flex-direction: column; 
+  gap:8px; 
+  margin-top:16px;
+}
+
 .card{
   background:var(--card); border:1px solid var(--border);
   padding:8px 12px; border-radius:8px; transition:.2s;
@@ -66,16 +85,49 @@ button:hover{ background:#115e59; }
 .card-sub{ color:var(--muted); font-size:12px; flex-shrink: 0; width: 80px; }
 .card-stats{ color:var(--muted); font-size:12px; flex-shrink: 0; width: 120px; text-align: right; }
 
+.claim-btn{ padding:6px 10px; background:var(--accent); color:#0f172a; border-radius:8px; text-decoration:none; font-weight:bold; font-size:12px; flex-shrink: 0; }
+
 .card-right{ display:flex; gap:6px; flex-shrink: 0; }
 .card-right button{ padding:6px 10px; background: var(--border); font-size: 12px; }
-.card-right button:hover{ background:#475569; }
 .btn-edit{ background: var(--blue) !important; }
-.btn-edit:hover{ background:#1d4ed8 !important; }
 .btn-delete{ background: var(--red) !important; }
-.btn-delete:hover{ background:#b91c1c !important; }
 
-.claim-btn{ padding:6px 10px; background:var(--accent); color:#0f172a; border-radius:8px; text-decoration:none; font-weight:bold; font-size:12px; flex-shrink: 0; }
-.claim-btn:hover{ background:var(--accent-2); }
+/* === HP SAJA: JADI 2 KOLOM === */
+@media (max-width: 767px){
+  .list{ 
+    display:grid; 
+    grid-template-columns: repeat(2, 1fr); /* 2 kolom */
+    gap:10px;
+  }
+
+  .card{
+    flex-direction: column; /* Card numpuk ke bawah */
+    align-items: stretch;
+    gap:6px;
+    padding:10px;
+    font-size: 12px;
+  }
+  
+  .card-left, .card-mid, .card-right{ width: 100%; }
+  .card-left{ justify-content: space-between; }
+
+  .card-mid{
+    flex-direction: column; /* Nama, Coin, Stats numpuk */
+    align-items: flex-start;
+    gap:2px;
+  }
+  .card-sub, .card-stats{ width: auto; text-align: left; font-size: 11px; }
+  .card-title{ font-size: 13px; }
+  
+  .claim-btn{ width:100%; text-align:center; margin-top:4px; }
+  
+  .card-right{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr); /* Edit Toggle Hapus */
+    gap:4px;
+  }
+  .card-right button{ width:100%; padding:6px 0; font-size: 11px; }
+}
 
 .modal{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; z-index: 99; }
 .modal.show{ display:flex; }
