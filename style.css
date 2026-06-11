@@ -1,8 +1,8 @@
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:#0b1220;
-  color:#fff;
+  background:#0a0e1a; /* Background item */
+  color:#e2e8f0;
   -webkit-font-smoothing:antialiased;
 }
 
@@ -13,52 +13,44 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:14px 20px;
+  padding:12px 16px;
   background:#0f172a;
   position:sticky;
   top:0;
   z-index:1000;
-  border-bottom:1px solid #1f2937;
+  border-bottom:1px solid #1e293b;
 }
 
 .navbar .logo{
-  font-size:20px;
-  font-weight:700;
-  color:#00ffd5;
+  font-size:22px;
+  font-weight:800;
+  color:#2dd4bf; /* Ijo tosca LTList */
 }
 
 .navbar a{
-  color:#cbd5e1;
+  color:#94a3b8;
   text-decoration:none;
-  margin-left:14px;
+  margin-left:18px;
   font-size:14px;
+  font-weight:500;
 }
 
 /* =====================
    CONTAINER
 ===================== */
 .container{
-  max-width:900px;
+  max-width:600px;
   margin:auto;
-  padding:20px;
-}
-
-h1{
-  font-size:1.7rem;
-  color:#5eead4;
-  margin-bottom:6px;
-}
-
-h2{
-  font-size:1.2rem;
-  color:#5eead4;
-  margin:20px 0 10px 0;
+  padding:16px;
 }
 
 #totalFaucets{
   font-size:13px;
   color:#94a3b8;
-  margin-bottom:14px;
+  margin:12px 0;
+  display:flex;
+  align-items:center;
+  gap:6px;
 }
 
 /* =====================
@@ -67,28 +59,30 @@ h2{
 input,
 select{
   width:100%;
-  padding:12px;
-  margin-bottom:10px;
-  border:1px solid #1f2937;
-  border-radius:10px;
+  padding:12px 14px;
+  margin-bottom:12px;
+  border:1px solid #1e293b;
+  border-radius:12px;
   background:#111827;
-  color:#fff;
+  color:#e2e8f0;
   font-size:14px;
   outline:none;
 }
+input::placeholder{ color:#64748b; }
 
 /* =====================
    BADGE COIN STATS
 ===================== */
 .badge{
   display:inline-block;
-  padding:5px 10px;
-  margin:3px;
-  font-size:12px;
+  padding:6px 12px;
+  margin:4px 6px 4px 0;
+  font-size:13px;
+  font-weight:600;
   border-radius:8px;
-  background:#111827;
-  border:1px solid #134e4a;
-  color:#5eead4;
+  background:transparent;
+  border:1px solid #2dd4bf;
+  color:#2dd4bf;
 }
 
 /* =====================
@@ -98,112 +92,51 @@ select{
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-top: 12px;
 }
 
 /* =====================
-   CARD - 3 BARIS, TOMBOL FULL
+   CARD - KOSONG KAN ADA TOMBOL
 ===================== */
 .card{
   background:#111827;
-  border:1px solid #1f2937;
-  border-radius:12px;
-  padding:12px;
+  border:1px solid #1e293b;
+  border-radius:14px;
+  padding:16px;
+  min-height:70px;
 
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr; /* 3 kolom sama rata */
-  grid-template-rows:auto auto;
-  grid-template-areas:
-    "rank name coin"
-    "clicks uptime uptime"
-    "claim claim"; /* Claim span 3 kolom */
-
-  gap:8px;
-  align-items:center;
-}
-
-/* =====================
-   GRID AREAS
-===================== */
-.rank{ grid-area:rank; }
-.name{ grid-area:name; }
-.coin{ grid-area:coin; text-align:right; }
-.clicks{ grid-area:clicks; }
-.uptime{ grid-area:uptime; }
-
-/* =====================
-   RANK & COIN
-===================== */
-.rank{
-  font-size:13px;
-  font-weight:700;
-  color:#94a3b8;
-}
-.name{
-  font-size:15px;
-  font-weight:600;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-.coin{
-  font-size:13px;
-  color:#5eead4;
-  font-weight:600;
-}
-
-/* =====================
-   STATS
-===================== */
-.clicks, .uptime{
-  font-size:12px;
-  color:#94a3b8;
   display:flex;
+  justify-content:space-between; /* Kunci: teks kiri, tombol kanan */
   align-items:center;
-  gap:4px;
 }
 
 /* =====================
-   CLAIM BUTTON - GEDE + FULL
+   CLAIM BUTTON - IJO GEDE KAN
 ===================== */
 .visit-btn{
-  grid-area:claim;
-  width:100%;
-  padding:12px; /* Lebih tebel */
+  padding:10px 20px;
   background:#0f766e;
   color:#fff;
   border:none;
   border-radius:10px;
-  font-size:14px; /* Lebih gede */
+  font-size:14px;
   font-weight:700;
   cursor:pointer;
   transition:0.2s;
-  margin-top:4px;
+  flex-shrink:0;
 }
 .visit-btn:hover{
   background:#0d9488;
 }
-.visit-btn:active{
-  transform:scale(0.98);
-  background:#0b7a72;
-}
 
 /* =====================
-   FOOTER TENGAH
+   FOOTER
 ===================== */
 .footer{
   text-align:center;
-  color:#94a3b8;
+  color:#64748b;
   font-size:13px;
   padding:20px 0;
   margin-top:30px;
-  border-top:1px solid #1f2937;
-}
-
-/* =====================
-   MOBILE
-===================== */
-@media(max-width:600px){
-  .name{ font-size:14px; }
-  .visit-btn{ font-size:13px; padding:11px; }
+  border-top:1px solid #1e293b;
 }
