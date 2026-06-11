@@ -53,12 +53,6 @@ h1{
   margin-bottom:6px;
 }
 
-h2{
-  font-size:1.2rem;
-  color:#5eead4;
-  margin:20px 0 10px 0;
-}
-
 #totalFaucets{
   font-size:13px;
   color:#94a3b8;
@@ -96,24 +90,14 @@ select{
 }
 
 /* =====================
-   LIST WRAPPER - INI YANG BARU
-===================== */
-#list, #trending {
-  display: flex;
-  flex-direction: column;
-  gap: 10px; /* Jarak antar card biar ada nafas */
-  margin-bottom: 16px;
-}
-
-/* =====================
-   CARD PRO FIX
+   CARD PRO FIX (IMPORTANT)
 ===================== */
 .card{
   background:linear-gradient(180deg,#111827,#0f172a);
   border:1px solid #1f2937;
   border-radius:12px;
   padding:10px 12px;
-  margin-bottom:0; /* gap udah di handle wrapper di atas */
+  margin-bottom:8px;
 
   display:grid;
   grid-template-columns:60px 1fr 120px;
@@ -161,10 +145,6 @@ select{
   text-decoration:none;
   font-size:12px;
   font-weight:bold;
-}
-
-.visit-btn:hover{
-  background:#0d9488;
 }
 
 /* =====================
