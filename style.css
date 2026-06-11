@@ -24,38 +24,38 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
 #totalFaucets{ font-size:13px; color:#94a3b8; margin:12px 0; }
 
 /* =====================
-   INPUT & SELECT - SAMA KAYAK CARD
+   INPUT & SELECT - SAMA LEBAR KAYAK CARD
 ===================== */
 input,
 select{
   width:100%; 
-  padding:14px 16px; /* Lebih tebel biar sama tinggi kayak card */
+  box-sizing: border-box; /* KUNCI: Biar padding gak nambah lebar */
+  padding:14px 16px;
   margin-bottom:12px;
-  border:1px solid #1e293b; /* Border sama kayak card */
-  border-radius:14px; /* Radius sama kayak card */
-  background:#111827; /* Background sama kayak card */
-  color:#e2e8f0; /* Text putih terang */
+  border:1px solid #1e293b;
+  border-radius:14px; /* Sama kayak card */
+  background:#111827;
+  color:#e2e8f0;
   font-size:14px;
-  font-family:Arial, sans-serif;
   outline:none;
-  appearance: none; /* Buang style default browser */
+  appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
 }
 input::placeholder{ color:#64748b; }
 
-/* Panah dropdown custom biar gak item */
+/* Panah dropdown */
 select{
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394A3B8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
   background-size: 12px;
-  padding-right: 40px; /* Kasih ruang buat panah */
+  padding-right: 40px;
 }
 
 input:focus,
 select:focus{
-  border-color: #2dd4bf; /* Ijo pas di-klik */
+  border-color: #2dd4bf;
   box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.2);
 }
 
