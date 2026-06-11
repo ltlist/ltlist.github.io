@@ -180,10 +180,14 @@ window.addEventListener('scroll', () => {
 });
 
 // Redirect paksa kalo belum login buka dashboard.html
-onAuthStateChanged(auth, user => {
-  if (!user && !window.location.href.includes('login.html')) {
-    window.location.href = 'login.html';
+onAuthStateChanged(auth, async (user) => {
+  console.log("AUTH:", user);
+
+  if (user) {
+    console.log("UID:", user.uid);
+    await loadFaucets();
+  } else {
+    console.log("BELUM LOGIN");
+    window.location.href = "login.html";
   }
 });
-
-loadFaucets();
