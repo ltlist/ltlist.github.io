@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy
+  getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy, increment
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -60,9 +60,13 @@ function render(data){
         <br><br>
         <b>${d.name}</b><br>
         Coin: ${d.coin}<br>
-        <a href="${d.url}" target="_blank" class="claim-btn">Claim</a> <!-- GANTI VISIT JADI CLAIM -->
+        <a href="${d.url}" target="_blank" class="claim-btn" onclick="addClick('${d.id}')">Claim</a> <!-- +1 clicks -->
 
-        <br><br>
+        <div class="stat-line">
+          Clicks: ${d.clicks ?? 0} | Uptime: ${d.uptime ?? 0}%
+        </div>
+
+        <br>
         <button class="btn-edit" onclick='openEdit(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button>
         <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
         <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Delete</button>
@@ -71,20 +75,31 @@ function render(data){
   }).join("");
 }
 
+// CLAIM = +1 clicks
+window.addClick = async function(id){
+  await updateDoc(doc(db, "faucets", id), {
+    clicks: increment(1) // int64 + 1
+  });
+};
+
 // ADD
 window.addFaucet = async function(){
   const name = document.getElementById("name").value.trim();
   const url = document.getElementById("url").value.trim();
   const coin = document.getElementById("coin").value.trim().toUpperCase();
   const rank = parseInt(document.getElementById("rank").value) || 99;
+  const uptime = parseInt(document.getElementById("uptime").value) || 100;
 
   if(!name || !url || !coin) return showToast("Isi Name, URL, Coin dulu");
 
-  await addDoc(collection(db, "faucets"), { name, url, coin, status: "active", rank });
+  await addDoc(collection(db, "faucets"), { 
+    name, url, coin, status: "active", rank, uptime, clicks: 0 // int64 semua
+  });
   document.getElementById("name").value = "";
   document.getElementById("url").value = "";
   document.getElementById("coin").value = "";
   document.getElementById("rank").value = "";
+  document.getElementById("uptime").value = "";
   showToast("Faucet ditambah");
   loadFaucets();
 };
@@ -112,6 +127,7 @@ window.openEdit = function(data){
   document.getElementById("editUrl").value = data.url;
   document.getElementById("editCoin").value = data.coin;
   document.getElementById("editRank").value = data.rank;
+  document.getElementById("editUptime").value = data.uptime;
   document.getElementById("editStatus").value = data.status;
   modalDiv.classList.add("show");
 };
@@ -129,6 +145,7 @@ window.saveEdit = async function(){
     url: document.getElementById("editUrl").value.trim(),
     coin: document.getElementById("editCoin").value.trim().toUpperCase(),
     rank: parseInt(document.getElementById("editRank").value) || 99,
+    uptime: parseInt(document.getElementById("editUptime").value) || 100,
     status: document.getElementById("editStatus").value
   };
   await updateDoc(doc(db, "faucets", id), data);
