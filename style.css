@@ -34,10 +34,6 @@ body{
   font-size:14px;
 }
 
-.navbar a:hover{
-  color:#00ffd5;
-}
-
 /* =====================
    CONTAINER
 ===================== */
@@ -51,6 +47,12 @@ h1{
   font-size:1.7rem;
   color:#5eead4;
   margin-bottom:6px;
+}
+
+h2{
+  font-size:1.2rem;
+  color:#5eead4;
+  margin:20px 0 10px 0;
 }
 
 #totalFaucets{
@@ -90,14 +92,23 @@ select{
 }
 
 /* =====================
-   CARD PRO FIX (IMPORTANT)
+   LIST WRAPPER
+===================== */
+#list, #trending {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* =====================
+   CARD - KAYAK DI GAMBAR KAMU
 ===================== */
 .card{
-  background:linear-gradient(180deg,#111827,#0f172a);
+  background:#111827;
   border:1px solid #1f2937;
   border-radius:12px;
-  padding:10px 12px;
-  margin-bottom:8px;
+  padding:12px;
 
   display:grid;
   grid-template-columns:60px 1fr 120px;
@@ -108,15 +119,6 @@ select{
 
   gap:6px 10px;
   align-items:center;
-
-  transition:0.2s;
-  cursor:pointer;
-}
-
-.card:hover{
-  transform:translateY(-2px);
-  border-color:#0f766e;
-  box-shadow:0 6px 18px rgba(0,0,0,0.4);
 }
 
 /* =====================
@@ -133,18 +135,16 @@ select{
   white-space:nowrap;
 }
 
-/* CLAIM BUTTON FIX RIGHT */
+/* =====================
+   CLAIM - INI MASIH LINK UNGU KAYAK GAMBAR
+===================== */
 .visit-btn{
   grid-area:claim;
   justify-self:end;
-
-  padding:7px 12px;
-  background:#0f766e;
-  color:#fff;
-  border-radius:8px;
-  text-decoration:none;
   font-size:12px;
-  font-weight:bold;
+  font-weight:600;
+  color:#8b5cf6; /* Ungu */
+  text-decoration:underline; /* Ada garis bawah */
 }
 
 /* =====================
@@ -180,44 +180,27 @@ select{
 }
 
 /* =====================
-   FOOTER
+   FOOTER TENGAH
 ===================== */
 .footer{
-  text-align:center;
+  text-align:center; /* Di tengah */
   color:#94a3b8;
   font-size:13px;
-  padding:15px 0;
+  padding:20px 0;
   margin-top:25px;
   border-top:1px solid #1f2937;
 }
 
 /* =====================
-   MOBILE FIX PRO
+   MOBILE
 ===================== */
 @media(max-width:600px){
-
   .card{
     grid-template-columns:50px 1fr 90px;
-    grid-template-areas:
-      "rank name claim"
-      "coin stats claim";
     gap:5px 8px;
   }
-
-  .name{
-    font-size:13px;
-  }
-
-  .coin{
-    font-size:10px;
-  }
-
-  .clicks{
-    font-size:10px;
-  }
-
-  .visit-btn{
-    font-size:11px;
-    padding:6px 8px;
-  }
+  .name{ font-size:13px; }
+  .coin{ font-size:10px; }
+  .clicks{ font-size:10px; }
+  .visit-btn{ font-size:11px; }
 }
