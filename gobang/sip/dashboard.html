@@ -8,29 +8,31 @@
 </head>
 <body>
 
-  <div class="navbar">
+  <nav class="navbar">
     <div class="logo">LTList Admin</div>
     <button onclick="logout()">Logout</button>
-  </div>
+  </nav>
 
-  <div class="container">
+  <main class="container">
     <h1>Dashboard Admin</h1>
 
-    <h2>Daftar Faucet</h2>
-    <input id="search" placeholder="Cari nama, coin, atau rank..." onkeyup="searchFaucet()">
+    <section>
+      <h2>Daftar Faucet</h2>
+      <input id="search" placeholder="Cari nama, coin, atau rank..." onkeyup="searchFaucet()">
+      <div id="list" class="grid">Loading...</div>
+    </section>
 
-    <div id="list">Loading...</div>
+    <hr>
 
-    <hr style="margin:30px 0; border-color:#334155;">
-
-    <h2>Tambah Faucet</h2>
-    <input id="name" placeholder="Nama" required>
-    <input id="url" placeholder="URL https://..." required>
-    <input id="coin" placeholder="Coin MULTI/BTC/LTC" required>
-    <button onclick="addFaucet()">Tambah</button>
-
-    <button onclick="rerank()" style="background:#2563eb; margin-top:20px; width:100%;">Fix Urutan Rank Bolong</button>
-  </div>
+    <section>
+      <h2>Tambah Faucet</h2>
+      <input id="name" placeholder="Nama" required>
+      <input id="url" placeholder="URL https://..." required>
+      <input id="coin" placeholder="Coin MULTI/BTC/LTC" required>
+      <button onclick="addFaucet()">Tambah</button>
+      <button onclick="rerank()" style="background:var(--blue); margin-top:20px; width:100%;">Fix Urutan Rank Bolong</button>
+    </section>
+  </main>
 
   <!-- MODAL EDIT -->
   <div id="editModal" class="modal">
@@ -53,7 +55,6 @@
   </div>
 
   <div id="toast"></div>
-
   <script type="module" src="dashboard.js"></script>
 </body>
 </html>
