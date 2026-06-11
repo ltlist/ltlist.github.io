@@ -36,62 +36,58 @@ async function loadFaucets(){
     render(allFaucets);
   } catch (err) {
     console.error("Gagal load:", err);
-    listDiv.innerHTML = "Error load data. Cek Console F12 + Rules Firestore = true";
+    listDiv.innerHTML = "Error load data. Cek Console F12 + Rules Firestore";
   }
 }
 
+// RENDER VERSI RAPI PAKAI GRID
 function render(data){
   if(data.length === 0){
-    listDiv.innerHTML = "Belum ada data faucet.";
+    listDiv.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:var(--muted);'>Belum ada data faucet.</p>";
     return;
   }
 
   listDiv.innerHTML = data.map(d => {
-    const active = d.status === "active";
-    const uptimeColor = d.uptime >= 90 ? '#00ff88' : d.uptime >= 50 ? '#facc15' : '#ff4d4d';
+    const uptimeColor = d.uptime >= 90 ? 'var(--green)' : d.uptime >= 50 ? 'var(--yellow)' : 'var(--red)';
     return `
       <div class="card">
-        <span class="rank-badge">#${d.rank ?? '-'}</span>
-        <span style="float:right;
-          background:${active ? '#00ff88' : '#ff4d4d'};
-          color:#000; padding:3px 8px; border-radius:6px; font-size:12px; font-weight:bold;">
-          ${d.status}
-        </span>
-
-        <br><br>
-        <b>${d.name}</b><br>
-        Coin: ${d.coin}<br>
-        <a href="${d.url}" target="_blank" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
+        <div class="card-head">
+          <span class="rank-badge">#${d.rank ?? '-'}</span>
+          <span class="status-badge ${d.status}">${d.status}</span>
+        </div>
+        
+        <div class="card-title">${d.name}</div>
+        <div class="card-sub">Coin: ${d.coin}</div>
+        
+        <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
 
         <div class="stat-line">
-          Clicks: ${d.clicks ?? 0} | Uptime: <span style="color:${uptimeColor}; font-weight:bold;">${d.uptime ?? 0}%</span>
+          ${d.clicks ?? 0} Claims | Uptime: <span style="color:${uptimeColor}; font-weight:bold;">${d.uptime ?? 0}%</span>
         </div>
 
-        <br>
-        <button class="btn-edit" onclick='openEdit(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button>
-        <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
-        <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button>
+        <div class="card-actions">
+          <button class="btn-edit" onclick='openEdit(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button>
+          <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
+          <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button>
+        </div>
       </div>
     `;
   }).join("");
 }
 
-// CLAIM = +1 clicks
+// LOGIKA CRUD TETAP SAMA
 window.addClick = async function(id){
   await updateDoc(doc(db, "faucets", id), { clicks: increment(1) });
 };
 
-// ADD - RANK AUTO
 window.addFaucet = async function(){
   const name = document.getElementById("name").value.trim();
   const url = document.getElementById("url").value.trim();
   const coin = document.getElementById("coin").value.trim().toUpperCase();
-
   if(!name || !url || !coin) return showToast("Isi Nama, URL, Coin dulu");
 
   const snap = await getDocs(collection(db, "faucets"));
-  const nextRank = snap.size + 1; // int64 auto
-
+  const nextRank = snap.size + 1;
   await addDoc(collection(db, "faucets"), { 
     name, url, coin, status: "active", rank: nextRank, uptime: 100, clicks: 0
   });
@@ -102,7 +98,6 @@ window.addFaucet = async function(){
   loadFaucets();
 };
 
-// DELETE
 window.deleteFaucet = async function(id){
   if(!confirm("Yakin hapus?")) return;
   await deleteDoc(doc(db, "faucets", id));
@@ -110,20 +105,14 @@ window.deleteFaucet = async function(id){
   loadFaucets();
 };
 
-// TOGGLE - AUTO UPTIME 100/0
 window.toggleStatus = async function(id, status){
   const newStatus = status === "active" ? "inactive" : "active";
   const newUptime = newStatus === "active" ? 100 : 0;
-
-  await updateDoc(doc(db, "faucets", id), { 
-    status: newStatus,
-    uptime: newUptime
-  });
+  await updateDoc(doc(db, "faucets", id), { status: newStatus, uptime: newUptime });
   showToast(`Status: ${newStatus} | Uptime: ${newUptime}%`);
   loadFaucets();
 };
 
-// EDIT - BUKA MODAL
 window.openEdit = function(data){
   document.getElementById("editId").value = data.id;
   document.getElementById("editName").value = data.name;
@@ -134,12 +123,8 @@ window.openEdit = function(data){
   modalDiv.classList.add("show");
 };
 
-// EDIT - TUTUP MODAL
-window.closeModal = function(){
-  modalDiv.classList.remove("show");
-};
+window.closeModal = function(){ modalDiv.classList.remove("show"); };
 
-// EDIT - SIMPAN
 window.saveEdit = async function(){
   const id = document.getElementById("editId").value;
   const data = {
@@ -148,7 +133,6 @@ window.saveEdit = async function(){
     coin: document.getElementById("editCoin").value.trim().toUpperCase(),
     uptime: parseInt(document.getElementById("editUptime").value) || 0,
     status: document.getElementById("editStatus").value
-    // rank tidak diedit di sini biar aman
   };
   await updateDoc(doc(db, "faucets", id), data);
   closeModal();
@@ -156,22 +140,18 @@ window.saveEdit = async function(){
   loadFaucets();
 };
 
-// RERANK - PERBAIKI URUTAN YG BOLONG HABIS DELETE
 window.rerank = async function(){
   if(!confirm("Yakin urutkan ulang rank jadi 1,2,3...?")) return;
   const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
   const snap = await getDocs(q);
-  
   let i = 1;
   for(const d of snap.docs){
-    await updateDoc(doc(db, "faucets", d.id), { rank: i });
-    i++;
+    await updateDoc(doc(db, "faucets", d.id), { rank: i++ });
   }
   showToast("Rank sudah diurutkan ulang");
   loadFaucets();
 };
 
-// SEARCH
 window.searchFaucet = function(){
   const v = document.getElementById("search").value.toLowerCase();
   const filtered = allFaucets.filter(f =>
@@ -182,10 +162,13 @@ window.searchFaucet = function(){
   render(filtered);
 };
 
-// LOGOUT
 window.logout = () => signOut(auth).then(() => window.location.href = "login.html");
 
-// Klik di luar modal = close
 modalDiv.onclick = (e) => { if(e.target === modalDiv) closeModal(); }
+
+// NAVBAR SHADOW PAS SCROLL
+window.addEventListener('scroll', () => {
+  document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 10);
+});
 
 loadFaucets();
