@@ -16,20 +16,20 @@
   <div class="container">
     <h1>Dashboard Admin</h1>
 
-    <h2>Faucet List</h2>
-    <input id="search" placeholder="Search nama, coin, atau rank..." onkeyup="searchFaucet()">
+    <h2>Daftar Faucet</h2>
+    <input id="search" placeholder="Cari nama, coin, atau rank..." onkeyup="searchFaucet()">
 
     <div id="list">Loading...</div>
 
     <hr style="margin:30px 0; border-color:#334155;">
 
-    <h2>Add Faucet</h2>
-    <input id="name" placeholder="Name" required>
-    <input id="url" placeholder="URL http://..." required>
+    <h2>Tambah Faucet</h2>
+    <input id="name" placeholder="Nama" required>
+    <input id="url" placeholder="URL https://..." required>
     <input id="coin" placeholder="Coin MULTI/BTC/LTC" required>
-    <input id="rank" type="number" placeholder="Rank, ex: 1">
-    <input id="uptime" type="number" placeholder="Uptime %, ex: 99" value="100">
-    <button onclick="addFaucet()">Add</button>
+    <button onclick="addFaucet()">Tambah</button>
+
+    <button onclick="rerank()" style="background:#2563eb; margin-top:20px; width:100%;">Fix Urutan Rank Bolong</button>
   </div>
 
   <!-- MODAL EDIT -->
@@ -37,10 +37,9 @@
     <div class="modal-box">
       <h2>Edit Faucet</h2>
       <input type="hidden" id="editId">
-      <input id="editName" placeholder="Name">
+      <input id="editName" placeholder="Nama">
       <input id="editUrl" placeholder="URL">
       <input id="editCoin" placeholder="Coin">
-      <input id="editRank" type="number" placeholder="Rank">
       <input id="editUptime" type="number" placeholder="Uptime %">
       <select id="editStatus">
         <option value="active">active</option>
