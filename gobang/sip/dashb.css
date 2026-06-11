@@ -13,9 +13,9 @@
 }
 
 * { box-sizing: border-box; margin:0; padding:0; }
-body{ font-family: 'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); line-height:1.5; }
+body{ font-family: 'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); font-size: 14px; }
 
-/* NAVBAR KACA BLUR */
+/* NAVBAR KACA */
 .navbar{
   display:flex;
   justify-content:space-between;
@@ -23,109 +23,83 @@ body{ font-family: 'Segoe UI', Arial, sans-serif; background:var(--bg); color:va
   padding:12px 20px;
   background:rgba(17, 24, 39, 0.7);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(51, 65, 85, 0.5);
-  position: sticky;
-  top:0;
-  z-index: 50;
+  position: sticky; top:0; z-index: 50;
   transition: box-shadow .3s;
 }
 .navbar.scrolled{ box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
-.navbar .logo{
-  color:var(--accent);
-  font-weight:800;
-  font-size: 20px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.navbar .logo::before{ /* Titik ijo online */
-  content: '';
-  width: 10px;
-  height: 10px;
-  background: var(--green);
-  border-radius: 50%;
-  box-shadow: 0 0 10px var(--green);
-}
-.navbar button{
-  background:var(--card);
-  border: 1px solid var(--border);
-  color:var(--text);
-  font-weight:600;
-  padding:8px 14px;
-  border-radius:8px;
-  cursor:pointer;
-  transition: all .2s;
-}
-.navbar button:hover{ background:var(--red); border-color:var(--red); color:#fff; }
+.navbar .logo{ color:var(--accent); font-weight:800; font-size: 20px; display:flex; align-items:center; gap:8px; }
+.navbar .logo::before{ content: ''; width: 10px; height: 10px; background: var(--green); border-radius: 50%; box-shadow: 0 0 10px var(--green); }
+.navbar button{ background:var(--card); border: 1px solid var(--border); color:var(--text); font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer; transition: all .2s; }
+.navbar button:hover{ background:var(--red); border-color:var(--red); }
 
-.container{ max-width:1000px; margin:auto; padding:20px; }
-h1, h2{ color:var(--accent-2); margin:0 0 16px 0; }
+.container{ max-width:1200px; margin:auto; padding:20px; } /* Dibikin lebar biar muat */
+h1, h2{ color:var(--accent-2); margin:0 0 16px 0; font-size: 18px; }
 
 input, select{
-  width:100%; padding:10px 12px; margin-bottom:12px;
+  width:100%; padding:8px 12px; margin-bottom:12px;
   border-radius:8px; border:1px solid var(--border);
-  background:var(--card); color:var(--text); outline:none;
-  transition:border .2s;
+  background:var(--card); color:var(--text); outline:none; font-size: 14px;
 }
 input:focus, select:focus { border-color: var(--accent); }
 
 button{
-  padding:10px 15px; background:#0f766e; border:none;
+  padding:8px 12px; background:#0f766e; border:none;
   color:#fff; border-radius:8px; cursor:pointer;
-  font-weight: 600; transition: .2s;
+  font-weight: 600; transition: .2s; font-size: 13px;
 }
-button:hover{ background:#115e59; transform:translateY(-1px); }
+button:hover{ background:#115e59; }
 
-/* GRID CARD - Biar rapi gak numpuk */
-.grid{ 
-  display:grid; 
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-  gap:16px; 
+/* LIST 1 KOLOM, CARD SEJAJAR */
+.list{ 
+  display:flex; 
+  flex-direction: column; 
+  gap:8px; 
   margin-top:16px;
 }
 .card{
   background:var(--card); border:1px solid var(--border);
-  padding:16px; border-radius:12px; transition:.2s;
-  display:flex; flex-direction:column; gap:8px;
+  padding:8px 12px; 
+  border-radius:8px; transition:.2s;
+  display:flex; align-items:center; gap:12px;
 }
-.card:hover{ border-color: var(--accent); transform:translateY(-3px); }
+.card:hover{ border-color: var(--accent); }
 
-.card-head{ display:flex; justify-content:space-between; align-items:center; }
+.card-left{ display:flex; gap:8px; align-items:center; flex-shrink: 0; width: 120px; } /* Kolom Rank + Status */
 .rank-badge{
   background:rgba(20, 184, 166, 0.2);
   color:var(--accent-2);
-  padding:4px 8px; border-radius:6px;
+  padding:3px 6px; border-radius:6px;
   font-size:12px; font-weight:bold;
 }
 .status-badge{
-  padding:3px 8px; border-radius:6px;
-  font-size:12px; font-weight:bold; color:#000;
+  padding:3px 6px; border-radius:6px;
+  font-size:11px; font-weight:bold; color:#000;
   text-transform: uppercase;
 }
 .status-badge.active{ background:var(--green); }
 .status-badge.inactive{ background:var(--red); }
 
-.card-title{ font-size:16px; font-weight:700; }
-.card-sub{ color:var(--muted); font-size:13px; }
+.card-mid{ flex:1; display:flex; gap:16px; align-items:center; overflow: hidden; } /* Kolom Nama + Coin */
+.card-title{ font-weight:700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-sub{ color:var(--muted); font-size:12px; flex-shrink: 0; }
+.card-stats{ color:var(--muted); font-size:12px; flex-shrink: 0; width: 100px; text-align: right; }
 
-.claim-btn{
-  display:block; text-align:center; margin-top:8px;
-  padding:10px; background:var(--accent);
-  color:#0f172a; border-radius:8px;
-  text-decoration:none; font-weight:bold; transition:.2s;
-}
-.claim-btn:hover{ background:var(--accent-2); }
-
-.stat-line{ font-size:12px; color:var(--muted); }
-
-.card-actions{ display:flex; gap:8px; margin-top:8px; }
-.card-actions button{ flex:1; font-size:13px; padding:8px 12px; background: var(--border); }
-.card-actions button:hover{ background:#475569; }
+.card-right{ display:flex; gap:6px; flex-shrink: 0; } /* Kolom Tombol */
+.card-right button{ padding:6px 10px; background: var(--border); font-size: 12px; }
+.card-right button:hover{ background:#475569; }
 .btn-edit{ background: var(--blue) !important; }
 .btn-edit:hover{ background:#1d4ed8 !important; }
 .btn-delete{ background: var(--red) !important; }
 .btn-delete:hover{ background:#b91c1c !important; }
+
+.claim-btn{
+  padding:6px 10px; background:var(--accent);
+  color:#0f172a; border-radius:8px;
+  text-decoration:none; font-weight:bold; font-size:12px;
+  flex-shrink: 0;
+}
+.claim-btn:hover{ background:var(--accent-2); }
 
 .modal{ position:fixed; top:0; left:0; width:100%; height:100%;
   background:rgba(0,0,0,0.7); display:none;
