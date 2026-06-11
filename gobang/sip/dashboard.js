@@ -48,7 +48,7 @@ function render(data){
 
   listDiv.innerHTML = data.map(d => {
     const active = d.status === "active";
-    const uptimeColor = d.uptime >= 90 ? '#00ff88' : d.uptime >= 50 ? '#facc15' : '#ff4d4d'; // hijau/kuning/merah
+    const uptimeColor = d.uptime >= 90 ? '#00ff88' : d.uptime >= 50 ? '#facc15' : '#ff4d4d';
     return `
       <div class="card">
         <span class="rank-badge">#${d.rank ?? '-'}</span>
@@ -70,7 +70,7 @@ function render(data){
         <br>
         <button class="btn-edit" onclick='openEdit(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button>
         <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
-        <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Delete</button>
+        <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button>
       </div>
     `;
   }).join("");
@@ -81,23 +81,24 @@ window.addClick = async function(id){
   await updateDoc(doc(db, "faucets", id), { clicks: increment(1) });
 };
 
-// ADD - uptime default 100 karena status active
+// ADD - RANK AUTO
 window.addFaucet = async function(){
   const name = document.getElementById("name").value.trim();
   const url = document.getElementById("url").value.trim();
   const coin = document.getElementById("coin").value.trim().toUpperCase();
-  const rank = parseInt(document.getElementById("rank").value) || 99;
 
-  if(!name || !url || !coin) return showToast("Isi Name, URL, Coin dulu");
+  if(!name || !url || !coin) return showToast("Isi Nama, URL, Coin dulu");
+
+  const snap = await getDocs(collection(db, "faucets"));
+  const nextRank = snap.size + 1; // int64 auto
 
   await addDoc(collection(db, "faucets"), { 
-    name, url, coin, status: "active", rank, uptime: 100, clicks: 0 // int64
+    name, url, coin, status: "active", rank: nextRank, uptime: 100, clicks: 0
   });
   document.getElementById("name").value = "";
   document.getElementById("url").value = "";
   document.getElementById("coin").value = "";
-  document.getElementById("rank").value = "";
-  showToast("Faucet ditambah");
+  showToast(`Faucet ditambah. Rank auto: #${nextRank}`);
   loadFaucets();
 };
 
@@ -109,14 +110,14 @@ window.deleteFaucet = async function(id){
   loadFaucets();
 };
 
-// TOGGLE - AUTO UPTIME
+// TOGGLE - AUTO UPTIME 100/0
 window.toggleStatus = async function(id, status){
   const newStatus = status === "active" ? "inactive" : "active";
-  const newUptime = newStatus === "active" ? 100 : 0; // <- KUNCI DISINI
+  const newUptime = newStatus === "active" ? 100 : 0;
 
   await updateDoc(doc(db, "faucets", id), { 
     status: newStatus,
-    uptime: newUptime // int64 auto 100 atau 0
+    uptime: newUptime
   });
   showToast(`Status: ${newStatus} | Uptime: ${newUptime}%`);
   loadFaucets();
@@ -128,7 +129,6 @@ window.openEdit = function(data){
   document.getElementById("editName").value = data.name;
   document.getElementById("editUrl").value = data.url;
   document.getElementById("editCoin").value = data.coin;
-  document.getElementById("editRank").value = data.rank;
   document.getElementById("editUptime").value = data.uptime;
   document.getElementById("editStatus").value = data.status;
   modalDiv.classList.add("show");
@@ -139,20 +139,35 @@ window.closeModal = function(){
   modalDiv.classList.remove("show");
 };
 
-// EDIT - SIMPAN - uptime masih bisa diedit manual di sini
+// EDIT - SIMPAN
 window.saveEdit = async function(){
   const id = document.getElementById("editId").value;
   const data = {
     name: document.getElementById("editName").value.trim(),
     url: document.getElementById("editUrl").value.trim(),
     coin: document.getElementById("editCoin").value.trim().toUpperCase(),
-    rank: parseInt(document.getElementById("editRank").value) || 99,
-    uptime: parseInt(document.getElementById("editUptime").value) || 0, // int64
+    uptime: parseInt(document.getElementById("editUptime").value) || 0,
     status: document.getElementById("editStatus").value
+    // rank tidak diedit di sini biar aman
   };
   await updateDoc(doc(db, "faucets", id), data);
   closeModal();
   showToast("Data diupdate");
+  loadFaucets();
+};
+
+// RERANK - PERBAIKI URUTAN YG BOLONG HABIS DELETE
+window.rerank = async function(){
+  if(!confirm("Yakin urutkan ulang rank jadi 1,2,3...?")) return;
+  const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
+  const snap = await getDocs(q);
+  
+  let i = 1;
+  for(const d of snap.docs){
+    await updateDoc(doc(db, "faucets", d.id), { rank: i });
+    i++;
+  }
+  showToast("Rank sudah diurutkan ulang");
   loadFaucets();
 };
 
@@ -170,7 +185,7 @@ window.searchFaucet = function(){
 // LOGOUT
 window.logout = () => signOut(auth).then(() => window.location.href = "login.html");
 
-// Klik diluar modal = close
+// Klik di luar modal = close
 modalDiv.onclick = (e) => { if(e.target === modalDiv) closeModal(); }
 
 loadFaucets();
