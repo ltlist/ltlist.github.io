@@ -1,3 +1,4 @@
+* { box-sizing: border-box; }
 body{
   margin:0;
   font-family:Arial,sans-serif;
@@ -10,18 +11,25 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  padding:15px;
+  padding:15px 20px;
   background:#111827;
+  border-bottom: 1px solid #334155;
+  position: sticky;
+  top:0;
+  z-index: 10;
 }
 
 .navbar .logo{
   color:#00ffcc;
   font-weight:bold;
+  font-size: 18px;
 }
 
-.navbar a{
-  color:#fff;
-  text-decoration:none;
+.navbar button{
+  background:#ef4444;
+}
+.navbar button:hover{
+  background:#dc2626;
 }
 
 /* CONTAINER */
@@ -31,19 +39,21 @@ body{
   padding:20px;
 }
 
-h1{
+h1, h2{
   color:#5eead4;
 }
 
-input, select{
+input{
   width:100%;
   padding:10px;
-  margin:6px 0;
+  margin:6px 0 12px 0;
   border-radius:8px;
-  border:none;
+  border:1px solid #334155;
   background:#1f2937;
   color:#fff;
+  outline:none;
 }
+input:focus { border-color: #00ffcc; }
 
 button{
   padding:10px 15px;
@@ -52,55 +62,52 @@ button{
   color:#fff;
   border-radius:8px;
   cursor:pointer;
+  font-weight: 600;
+  transition: .2s;
+}
+button:hover{
+  background:#115e59;
 }
 
 /* CARD */
 .card{
   background:#111827;
   border:1px solid #334155;
-  padding:12px;
-  margin-top:10px;
+  padding:14px;
+  margin-top:12px;
   border-radius:10px;
+  transition: .2s;
+}
+.card:hover{
+  border-color: #00ffcc;
 }
 
 .rank-badge{
   background:#134e4a;
+  color:#5eead4;
   padding:4px 8px;
   border-radius:6px;
   display:inline-block;
   font-size:12px;
+  font-weight:bold;
 }
 
 .visit-btn{
   display:inline-block;
   margin-top:5px;
   color:#00ffcc;
+  text-decoration: none;
 }
+.visit-btn:hover{ text-decoration: underline; }
 
-/* MODAL */
-.modal{
-  position:fixed;
-  top:0; left:0;
-  width:100%; height:100%;
-  background:rgba(0,0,0,0.7);
-  display:none;
-  justify-content:center;
-  align-items:center;
+.card button {
+  margin-right: 8px;
+  margin-top: 8px;
+  background: #334155;
+  font-size: 13px;
+  padding: 6px 12px;
 }
-
-.modal-box{
-  background:#111827;
-  padding:20px;
-  width:90%;
-  max-width:400px;
-  border-radius:10px;
-}
-
-.modal-actions{
-  display:flex;
-  justify-content:space-between;
-  margin-top:10px;
-}
+.card button:hover { background: #475569; }
 
 /* TOAST */
 #toast{
@@ -113,6 +120,7 @@ button{
   opacity:0;
   transform:translateY(-10px);
   transition:.3s;
+  z-index: 99;
 }
 
 #toast.show{
