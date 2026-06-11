@@ -25,9 +25,10 @@
 
     <h2>Add Faucet</h2>
     <input id="name" placeholder="Name" required>
-    <input id="url" placeholder="URL" required>
-    <input id="coin" placeholder="Coin (BTC/LTC/DOGE)" required>
+    <input id="url" placeholder="URL http://..." required>
+    <input id="coin" placeholder="Coin MULTI/BTC/LTC" required>
     <input id="rank" type="number" placeholder="Rank, ex: 1">
+    <input id="uptime" type="number" placeholder="Uptime %, ex: 99" value="100">
     <button onclick="addFaucet()">Add</button>
   </div>
 
@@ -40,6 +41,7 @@
       <input id="editUrl" placeholder="URL">
       <input id="editCoin" placeholder="Coin">
       <input id="editRank" type="number" placeholder="Rank">
+      <input id="editUptime" type="number" placeholder="Uptime %">
       <select id="editStatus">
         <option value="active">active</option>
         <option value="inactive">inactive</option>
