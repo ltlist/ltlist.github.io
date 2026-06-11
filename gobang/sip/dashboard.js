@@ -7,18 +7,15 @@ import {
   deleteDoc,
   doc,
   updateDoc,
-  writeBatch
+  query,
+  orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-import {
-  getAuth,
-  signOut
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-/* =====================
-   FIREBASE
-===================== */
-apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKDV75S8",
+// GANTI DENGAN CONFIG KAMU
+const firebaseConfig = {
+  apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKDV75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -31,275 +28,132 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 const listDiv = document.getElementById("list");
-
+const toastDiv = document.getElementById("toast");
 let allFaucets = [];
-let editId = null;
 
-/* =====================
-   TOAST
-===================== */
-function showToast(msg, type = "success") {
-  const t = document.getElementById("toast");
-  if (!t) return;
-
-  t.innerText = msg;
-
-  t.style.background =
-    type === "error" ? "#dc2626" :
-    type === "warning" ? "#f59e0b" :
-    "#0f766e";
-
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 2500);
+// TOAST NOTIF
+function showToast(msg){
+  toastDiv.textContent = msg;
+  toastDiv.classList.add("show");
+  setTimeout(() => toastDiv.classList.remove("show"), 2000);
 }
 
-/* =====================
-   LOAD DATA
-===================== */
-async function loadFaucets() {
-  const snap = await getDocs(collection(db, "faucets"));
-
-  allFaucets = snap.docs.map(d => ({
-    id: d.id,
-    ...d.data()
-  }));
-
-  allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
-
-  render(allFaucets);
-}
-
-/* =====================
-   AUTO RE-RANK (STABLE)
-===================== */
-async function autoReRank() {
-
-  const active = allFaucets
-    .filter(f => f.status === "active")
-    .sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
-
-  const batch = writeBatch(db);
-
-  active.forEach((f, i) => {
-    batch.update(doc(db, "faucets", f.id), {
-      rank: i + 1
-    });
-  });
-
-  await batch.commit();
-}
-
-/* =====================
-   CHECK URL (SAFE VERSION)
-===================== */
-async function checkUrlAlive(url) {
+// LOAD + SORT RANK KECIL -> BESAR
+async function loadFaucets(){
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
+    const snap = await getDocs(q);
 
-    await fetch(url, {
-      method: "HEAD",
-      mode: "no-cors",
-      signal: controller.signal
+    allFaucets = [];
+    snap.forEach((d) => {
+      allFaucets.push({ id: d.id, ...d.data() });
     });
-
-    clearTimeout(timeout);
-    return true;
-
-  } catch (e) {
-    return false;
+    render(allFaucets);
+  } catch (err) {
+    console.error("Gagal load:", err);
+    listDiv.innerHTML = "Error load data. Cek Console F12. Kemungkinan Rules Firestore masih false.";
   }
 }
 
-/* =====================
-   RENDER
-===================== */
-function render(data) {
+// RENDER ADMIN
+function render(data){
+  if(data.length === 0){
+    listDiv.innerHTML = "Belum ada data faucet. Tambah di form bawah.";
+    return;
+  }
 
-  listDiv.innerHTML = data.map(d => {
-    const status = d.status || "inactive";
-
-    return `
+  let html = "";
+  data.forEach((d) => {
+    const active = d.status === "active";
+    html += `
       <div class="card">
-
-        <div class="rank-badge">#${d.rank || "-"}</div>
-
-        <b>${d.name}</b> (${d.coin})
-
-        <span style="
-          float:right;
-          background:${status === "active" ? "#00ff88" : "#ff4d4d"};
+        <span class="rank-badge">#${d.rank ?? '-'}</span>
+        
+        <span style="float:right;
+          background:${active ? '#00ff88' : '#ff4d4d'};
           color:#000;
           padding:3px 8px;
           border-radius:6px;
           font-size:12px;
-        ">
-          ${status}
+          font-weight:bold;">
+          ${d.status}
         </span>
 
         <br><br>
-
-        <a href="${d.url}" target="_blank">Visit</a>
+        <b>${d.name}</b><br>
+        Coin: ${d.coin}<br>
+        <a href="${d.url}" target="_blank" class="visit-btn">${d.url}</a>
 
         <br><br>
-
-        <button onclick="openEdit('${d.id}')">Edit</button>
-        <button onclick="toggleStatus('${d.id}','${status}')">Toggle</button>
+        <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
         <button onclick="deleteFaucet('${d.id}')">Delete</button>
-
       </div>
     `;
-  }).join("");
+  });
+  listDiv.innerHTML = html;
 }
 
-/* =====================
-   ADD FAUCET (FIXED)
-===================== */
-window.addFaucet = async function () {
-
+// ADD
+window.addFaucet = async function(){
   const name = document.getElementById("name").value.trim();
   const url = document.getElementById("url").value.trim();
-  const coin = document.getElementById("coin").value.trim();
-  const rank = Number(document.getElementById("rank").value);
+  const coin = document.getElementById("coin").value.trim().toUpperCase();
+  const rank = parseInt(document.getElementById("rank").value) || 99;
 
-  if (!name || !url || !coin) {
-    showToast("Lengkapi data!", "warning");
+  if(!name || !url || !coin) {
+    showToast("Isi Name, URL, Coin dulu");
     return;
   }
 
   await addDoc(collection(db, "faucets"), {
-    name,
-    url,
-    coin,
-    rank,
-    status: "active",
-
-    clicks: 0,
-    likes: 0,
-    dislikes: 0,
-
-    uptime: 1,
-    createdAt: new Date()
+    name, url, coin, status: "active", rank: rank // int64
   });
 
   document.getElementById("name").value = "";
   document.getElementById("url").value = "";
   document.getElementById("coin").value = "";
   document.getElementById("rank").value = "";
-
-  await autoReRank();
-  await loadFaucets();
-
-  showToast("Faucet ditambahkan!");
+  
+  showToast("Faucet ditambah");
+  loadFaucets();
 };
 
-/* =====================
-   SAVE EDIT
-===================== */
-window.saveEdit = async function () {
-
-  await updateDoc(doc(db, "faucets", editId), {
-    name: document.getElementById("editName").value,
-    url: document.getElementById("editUrl").value,
-    coin: document.getElementById("editCoin").value,
-    rank: Number(document.getElementById("editRank").value),
-    status: document.getElementById("editStatus").value
-  });
-
-  await autoReRank();
-  await loadFaucets();
-
-  closeModal();
-  showToast("Data diupdate!");
-};
-
-/* =====================
-   DELETE
-===================== */
-window.deleteFaucet = async function (id) {
-
+// DELETE
+window.deleteFaucet = async function(id){
+  if(!confirm("Yakin hapus faucet ini?")) return;
   await deleteDoc(doc(db, "faucets", id));
-
-  await autoReRank();
-  await loadFaucets();
-
-  showToast("Faucet dihapus", "error");
+  showToast("Faucet dihapus");
+  loadFaucets();
 };
 
-/* =====================
-   TOGGLE STATUS
-===================== */
-window.toggleStatus = async function (id, status) {
-
+// TOGGLE
+window.toggleStatus = async function(id, status){
   const newStatus = status === "active" ? "inactive" : "active";
+  await updateDoc(doc(db, "faucets", id), { status: newStatus });
+  showToast(`Status jadi ${newStatus}`);
+  loadFaucets();
+};
 
-  await updateDoc(doc(db, "faucets", id), {
-    status: newStatus
+// SEARCH
+window.searchFaucet = function(){
+  const v = document.getElementById("search").value.toLowerCase();
+  const filtered = allFaucets.filter(f =>
+    f.name.toLowerCase().includes(v) ||
+    f.coin.toLowerCase().includes(v) ||
+    String(f.rank).includes(v)
+  );
+  render(filtered);
+};
+
+// LOGOUT
+window.logout = function(){
+  signOut(auth).then(() => {
+    window.location.href = "login.html";
+  }).catch(err => {
+    console.error(err);
+    window.location.href = "login.html"; // force redirect
   });
-
-  await autoReRank();
-  await loadFaucets();
-
-  showToast("Status: " + newStatus);
 };
 
-/* =====================
-   SCAN DEAD FAUCET PRO (FIXED + CLEAN)
-===================== */
-window.scanDeadFaucets = async function () {
-
-  let deadCount = 0;
-
-  showToast("Scanning faucets...", "warning");
-
-  for (let f of allFaucets) {
-
-    if (f.status !== "active") continue;
-
-    let alive = true;
-
-    try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
-
-      await fetch(f.url, {
-        method: "GET",
-        mode: "no-cors",
-        signal: controller.signal
-      });
-
-      clearTimeout(timeout);
-
-    } catch (e) {
-      alive = false;
-    }
-
-    if (!alive) {
-      await updateDoc(doc(db, "faucets", f.id), {
-        status: "inactive",
-        rank: 9999,
-        uptime: 0
-      });
-
-      deadCount++;
-    }
-  }
-
-  await autoReRank();
-  await loadFaucets();
-
-  showToast("Scan selesai. Dead: " + deadCount);
-};
-
-/* =====================
-   LOGOUT
-===================== */
-window.logout = async function () {
-  await signOut(auth);
-  location.href = "login.html";
-};
-
-/* =====================
-   INIT
-===================== */
+// INIT
 loadFaucets();
