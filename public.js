@@ -2,17 +2,17 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import {
   getFirestore,
   collection,
+  getDocs,
   doc,
   updateDoc,
-  increment,
-  onSnapshot
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 /* =====================
-   FIREBASE
+   FIREBASE CONFIG
 ===================== */
 const firebaseConfig = {
-  apiKey: "YOUR_KEY",
+  apiKey: "AIzaSyAVokWJ_Wj3aITEhj6UPetF-KXKDV75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -28,119 +28,127 @@ const db = getFirestore(app);
 ===================== */
 const listDiv = document.getElementById("list");
 const trendingDiv = document.getElementById("trending");
-const totalEl = document.getElementById("totalFaucets");
 
 let allFaucets = [];
 
 /* =====================
-   SCORE SYSTEM
+   DEVICE ID
 ===================== */
-function calcScore(f) {
-  return (f.likes || 0) * 3 - (f.dislikes || 0) * 4 + (f.clicks || 0);
+function getDeviceId() {
+  let id = localStorage.getItem("deviceId");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("deviceId", id);
+  }
+  return id;
 }
 
 /* =====================
-   REALTIME DATA
+   ANTI CLICK SPAM (LOCAL)
 ===================== */
-function startRealtime() {
-  onSnapshot(collection(db, "faucets"), (snap) => {
+function canClick(id) {
+  const last = localStorage.getItem("click_" + id);
+  if (!last) return true;
 
-    allFaucets = [];
+  return Date.now() - Number(last) > 5000;
+}
 
-    snap.forEach((d) => {
-      const data = d.data();
-      if (data.status === "active") {
-        allFaucets.push({ id: d.id, ...data });
-      }
-    });
+function setClick(id) {
+  localStorage.setItem("click_" + id, Date.now());
+}
 
-    render();
-    renderTrending();
-    renderTotal();
+/* =====================
+   LOAD DATA
+===================== */
+async function loadFaucets() {
+
+  const snap = await getDocs(collection(db, "faucets"));
+
+  allFaucets = [];
+
+  snap.forEach((docSnap) => {
+    const data = docSnap.data();
+
+    if (data.status === "active") {
+      allFaucets.push({
+        id: docSnap.id,
+        ...data
+      });
+    }
   });
+
+  allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
+
+  render(allFaucets);
+  renderTrending();
 }
 
 /* =====================
-   CLICK / CLAIM
+   CLICK (ONLY UPDATE IF FIELD EXISTS)
 ===================== */
 window.visitFaucet = async function (id, url) {
 
-  const key = "click_" + id;
-  const now = Date.now();
-  const last = localStorage.getItem(key);
+  if (!canClick(id)) return;
 
-  if (last && now - last < 5000) return;
+  setClick(id);
 
-  localStorage.setItem(key, now);
+  const ref = doc(db, "faucets", id);
 
   try {
-    await updateDoc(doc(db, "faucets", id), {
-      clicks: increment(1)
-    });
-  } catch (e) {}
+    const faucet = allFaucets.find(f => f.id === id);
+
+    let updateData = {
+      clicks: increment(1),
+      lastClickAt: Date.now(),
+      deviceId: getDeviceId()
+    };
+
+    // ✔ ONLY UPDATE uptime IF EXISTS
+    if (faucet && typeof faucet.uptime !== "undefined") {
+      updateData.uptime = increment(1);
+    }
+
+    await updateDoc(ref, updateData);
+
+  } catch (e) {
+    console.log(e);
+  }
 
   window.open(url, "_blank");
 };
 
 /* =====================
-   LIKE
+   RENDER MAIN
 ===================== */
-window.likeFaucet = async function (id) {
-  try {
-    await updateDoc(doc(db, "faucets", id), {
-      likes: increment(1)
-    });
-  } catch (e) {}
-};
+function render(data) {
 
-/* =====================
-   DISLIKE
-===================== */
-window.dislikeFaucet = async function (id) {
-  try {
-    await updateDoc(doc(db, "faucets", id), {
-      dislikes: increment(1)
-    });
-  } catch (e) {}
-};
-
-/* =====================
-   MAIN LIST
-===================== */
-function render() {
-
-  allFaucets.sort((a, b) => calcScore(b) - calcScore(a));
-
-  listDiv.innerHTML = allFaucets.map((d, i) => `
+  listDiv.innerHTML = data.map(d => `
     <div class="card">
 
-      <div class="rank">#${i + 1}</div>
+      <div class="rank-badge">#${d.rank || "-"}</div>
 
       <div class="name">${d.name}</div>
 
       <div class="coin">${d.coin}</div>
 
-      <div class="score">⭐ ${calcScore(d)}</div>
+      <div class="clicks">👁 ${d.clicks || 0}</div>
 
-      <div class="vote">
-        👍 ${d.likes || 0}
-        👎 ${d.dislikes || 0}
-      </div>
+      ${typeof d.uptime !== "undefined"
+        ? `<div class="clicks">⏱ ${d.uptime}</div>`
+        : ""}
 
       <a class="visit-btn"
+         href="#"
          onclick="visitFaucet('${d.id}','${d.url}')">
         Claim
       </a>
-
-      <button onclick="likeFaucet('${d.id}')">👍</button>
-      <button onclick="dislikeFaucet('${d.id}')">👎</button>
 
     </div>
   `).join("");
 }
 
 /* =====================
-   TRENDING + CLAIM BUTTON (FIXED)
+   TRENDING
 ===================== */
 function renderTrending() {
 
@@ -151,15 +159,20 @@ function renderTrending() {
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
 
-      <div class="rank">🔥 ${i + 1}</div>
+      <div class="rank-badge">🔥 ${i + 1}</div>
 
       <div class="name">${d.name}</div>
 
       <div class="coin">${d.coin}</div>
 
-      <div class="score">⭐ ${calcScore(d)}</div>
+      <div class="clicks">👁 ${d.clicks || 0}</div>
+
+      ${typeof d.uptime !== "undefined"
+        ? `<div class="clicks">⏱ ${d.uptime}</div>`
+        : ""}
 
       <a class="visit-btn"
+         href="#"
          onclick="visitFaucet('${d.id}','${d.url}')">
         Claim
       </a>
@@ -169,15 +182,27 @@ function renderTrending() {
 }
 
 /* =====================
-   TOTAL
+   SEARCH
 ===================== */
-function renderTotal() {
-  if (totalEl) {
-    totalEl.innerText = `📊 ${allFaucets.length} Faucets`;
-  }
-}
+window.searchPublic = function () {
+  const q = document.getElementById("search")?.value.toLowerCase() || "";
+
+  render(allFaucets.filter(f =>
+    (f.name || "").toLowerCase().includes(q) ||
+    (f.coin || "").toLowerCase().includes(q)
+  ));
+};
 
 /* =====================
-   START APP
+   FILTER
 ===================== */
-startRealtime();
+window.filterCoin = function () {
+  const c = document.getElementById("coinFilter")?.value;
+  if (!c || c === "all") return render(allFaucets);
+  render(allFaucets.filter(f => f.coin === c));
+};
+
+/* =====================
+   INIT
+===================== */
+loadFaucets();
