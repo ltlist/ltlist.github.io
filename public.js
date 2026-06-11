@@ -104,19 +104,18 @@ window.visitFaucet = async function (id, url) {
 };
 
 /* =====================
-   RENDER MAIN LIST
+   RENDER MAIN LIST - LAYOUT BARU 3 KOLOM
 ===================== */
 function render(data) {
   if (!listDiv) return;
   listDiv.innerHTML = data.map(d => `
     <div class="card">
-      <div class="rank-badge">#${d.rank || "-"}</div>
+      <div class="rank">#${d.rank || "-"}</div>
       <div class="name">${d.name || "-"}</div>
       <div class="coin">${d.coin || "-"}</div>
-      <div class="clicks">💧 ${d.clicks || 0}</div> <!-- GANTI ICON DISINI -->
-      ${typeof d.uptime !== "undefined"
-        ? `<div class="clicks">⏱ ${d.uptime}</div>`
-        : ""}
+
+      <div class="clicks">💧 ${d.clicks || 0}</div>
+      <div class="uptime">⏱ ${d.uptime || 100}</div>
       <a class="visit-btn"
          href="#"
          onclick="visitFaucet('${d.id}','${d.url}')">
@@ -127,7 +126,7 @@ function render(data) {
 }
 
 /* =====================
-   TRENDING
+   TRENDING - LAYOUT BARU 3 KOLOM
 ===================== */
 function renderTrending() {
   if (!trendingDiv) return;
@@ -136,13 +135,12 @@ function renderTrending() {
     .slice(0, 3);
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
-      <div class="rank-badge">🔥 ${i + 1}</div>
+      <div class="rank">🔥 ${i + 1}</div>
       <div class="name">${d.name}</div>
       <div class="coin">${d.coin}</div>
-      <div class="clicks">💧 ${d.clicks || 0}</div> <!-- GANTI ICON DISINI -->
-      ${typeof d.uptime !== "undefined"
-        ? `<div class="clicks">⏱ ${d.uptime}</div>`
-        : ""}
+
+      <div class="clicks">💧 ${d.clicks || 0}</div>
+      <div class="uptime">⏱ ${d.uptime || 100}</div>
       <a class="visit-btn"
          href="#"
          onclick="visitFaucet('${d.id}','${d.url}')">
