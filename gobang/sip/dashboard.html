@@ -19,7 +19,7 @@
     <section>
       <h2>Daftar Faucet</h2>
       <input id="search" placeholder="Cari nama, coin, atau rank..." onkeyup="searchFaucet()">
-      <div id="list" class="grid">Loading...</div>
+      <div id="list" class="list">Loading...</div>
     </section>
 
     <hr>
@@ -30,11 +30,10 @@
       <input id="url" placeholder="URL https://..." required>
       <input id="coin" placeholder="Coin MULTI/BTC/LTC" required>
       <button onclick="addFaucet()">Tambah</button>
-      <button onclick="rerank()" style="background:var(--blue); margin-top:20px; width:100%;">Fix Urutan Rank Bolong</button>
+      <!-- Tombol Fix Rank manual udah dihapus, karena auto -->
     </section>
   </main>
 
-  <!-- MODAL EDIT -->
   <div id="editModal" class="modal">
     <div class="modal-box">
       <h2>Edit Faucet</h2>
