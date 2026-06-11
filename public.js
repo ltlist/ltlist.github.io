@@ -164,7 +164,7 @@ function renderTrending() {
 
   const top = [...allFaucets]
     .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
-    .slice(0, 5);
+    .slice(0, 3);
 
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
