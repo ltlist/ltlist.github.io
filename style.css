@@ -1,14 +1,10 @@
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:#0a0e1a; /* Background item */
+  background:#0a0e1a;
   color:#e2e8f0;
-  -webkit-font-smoothing:antialiased;
 }
 
-/* =====================
-   NAVBAR
-===================== */
 .navbar{
   display:flex;
   justify-content:space-between;
@@ -17,126 +13,81 @@ body{
   background:#0f172a;
   position:sticky;
   top:0;
-  z-index:1000;
   border-bottom:1px solid #1e293b;
 }
+.navbar .logo{ font-size:22px; font-weight:800; color:#2dd4bf; }
+.navbar a{ color:#94a3b8; text-decoration:none; margin-left:18px; font-size:14px; }
 
-.navbar .logo{
-  font-size:22px;
-  font-weight:800;
-  color:#2dd4bf; /* Ijo tosca LTList */
+.container{ max-width:600px; margin:auto; padding:16px; }
+h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:center; gap:8px; }
+
+#totalFaucets{ font-size:13px; color:#94a3b8; margin:12px 0; }
+input, select{
+  width:100%; padding:12px 14px; margin-bottom:12px;
+  border:1px solid #1e293b; border-radius:12px;
+  background:#111827; color:#e2e8f0; font-size:14px;
 }
 
-.navbar a{
-  color:#94a3b8;
-  text-decoration:none;
-  margin-left:18px;
-  font-size:14px;
-  font-weight:500;
-}
-
-/* =====================
-   CONTAINER
-===================== */
-.container{
-  max-width:600px;
-  margin:auto;
-  padding:16px;
-}
-
-#totalFaucets{
-  font-size:13px;
-  color:#94a3b8;
-  margin:12px 0;
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
-
-/* =====================
-   INPUT & SELECT
-===================== */
-input,
-select{
-  width:100%;
-  padding:12px 14px;
-  margin-bottom:12px;
-  border:1px solid #1e293b;
-  border-radius:12px;
-  background:#111827;
-  color:#e2e8f0;
-  font-size:14px;
-  outline:none;
-}
-input::placeholder{ color:#64748b; }
-
-/* =====================
-   BADGE COIN STATS
-===================== */
 .badge{
-  display:inline-block;
-  padding:6px 12px;
-  margin:4px 6px 4px 0;
-  font-size:13px;
-  font-weight:600;
-  border-radius:8px;
-  background:transparent;
-  border:1px solid #2dd4bf;
-  color:#2dd4bf;
+  display:inline-block; padding:6px 12px; margin:4px 6px 4px 0;
+  font-size:13px; font-weight:600; border-radius:8px;
+  background:transparent; border:1px solid #2dd4bf; color:#2dd4bf;
 }
 
-/* =====================
-   LIST WRAPPER
-===================== */
-#list, #trending {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 12px;
-}
+#list, #trending { display:flex; flex-direction:column; gap:12px; }
 
 /* =====================
-   CARD - KOSONG KAN ADA TOMBOL
+   CARD 1 BARIS - KUNCI UTAMA
 ===================== */
 .card{
   background:#111827;
   border:1px solid #1e293b;
   border-radius:14px;
-  padding:16px;
-  min-height:70px;
+  padding:12px 14px;
 
-  display:flex;
-  justify-content:space-between; /* Kunci: teks kiri, tombol kanan */
+  display:flex; /* Pake flex biar gampang */
   align-items:center;
+  gap:12px;
 }
 
-/* =====================
-   CLAIM BUTTON - IJO GEDE KAN
-===================== */
+.rank{
+  font-size:14px;
+  font-weight:700;
+  color:#94a3b8;
+  flex-shrink:0;
+  width:28px; /* Biar 🔥1 sama #1 lebarnya sama */
+}
+
+.info{
+  flex:1; /* Ambil sisa ruang */
+  min-width:0; /* Biar text-overflow jalan */
+}
+.name{
+  font-size:15px;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.meta{
+  font-size:12px;
+  color:#94a3b8;
+  margin-top:3px;
+  display:flex;
+  gap:10px; /* Jarak 💧 sama ⏱ */
+}
+
 .visit-btn{
-  padding:10px 20px;
+  padding:9px 18px;
   background:#0f766e;
   color:#fff;
   border:none;
   border-radius:10px;
-  font-size:14px;
+  font-size:13px;
   font-weight:700;
   cursor:pointer;
-  transition:0.2s;
-  flex-shrink:0;
+  flex-shrink:0; /* Biar gak keteken */
 }
-.visit-btn:hover{
-  background:#0d9488;
-}
+.visit-btn:hover{ background:#0d9488; }
 
-/* =====================
-   FOOTER
-===================== */
-.footer{
-  text-align:center;
-  color:#64748b;
-  font-size:13px;
-  padding:20px 0;
-  margin-top:30px;
-  border-top:1px solid #1e293b;
-}
+.footer{ text-align:center; color:#64748b; font-size:13px; padding:20px 0; margin-top:30px; border-top:1px solid #1e293b; }
