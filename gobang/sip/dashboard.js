@@ -18,8 +18,7 @@ import {
 /* =====================
    FIREBASE
 ===================== */
-const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_l5i...",
+apiKey: "AIzaSyAVokWJ_l3aITEhj6UPetF-MGQXKDV75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -51,7 +50,6 @@ function showToast(msg, type = "success") {
     "#0f766e";
 
   t.classList.add("show");
-
   setTimeout(() => t.classList.remove("show"), 2500);
 }
 
@@ -72,7 +70,7 @@ async function loadFaucets() {
 }
 
 /* =====================
-   AUTO RE-RANK (FIXED)
+   AUTO RE-RANK (STABLE)
 ===================== */
 async function autoReRank() {
 
@@ -89,6 +87,28 @@ async function autoReRank() {
   });
 
   await batch.commit();
+}
+
+/* =====================
+   CHECK URL (SAFE VERSION)
+===================== */
+async function checkUrlAlive(url) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    await fetch(url, {
+      method: "HEAD",
+      mode: "no-cors",
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+    return true;
+
+  } catch (e) {
+    return false;
+  }
 }
 
 /* =====================
@@ -158,7 +178,7 @@ window.addFaucet = async function () {
     likes: 0,
     dislikes: 0,
 
-    uptime: 1,   // ✅ FIX (bukan 100)
+    uptime: 1,
     createdAt: new Date()
   });
 
@@ -174,7 +194,7 @@ window.addFaucet = async function () {
 };
 
 /* =====================
-   SAVE EDIT (FIXED FLOW)
+   SAVE EDIT
 ===================== */
 window.saveEdit = async function () {
 
@@ -194,7 +214,7 @@ window.saveEdit = async function () {
 };
 
 /* =====================
-   DELETE (FIXED FLOW)
+   DELETE
 ===================== */
 window.deleteFaucet = async function (id) {
 
@@ -207,7 +227,7 @@ window.deleteFaucet = async function (id) {
 };
 
 /* =====================
-   TOGGLE STATUS (FIXED FLOW)
+   TOGGLE STATUS
 ===================== */
 window.toggleStatus = async function (id, status) {
 
@@ -221,6 +241,62 @@ window.toggleStatus = async function (id, status) {
   await loadFaucets();
 
   showToast("Status: " + newStatus);
+};
+
+/* =====================
+   SCAN DEAD FAUCET PRO (FIXED + CLEAN)
+===================== */
+window.scanDeadFaucets = async function () {
+
+  let deadCount = 0;
+
+  showToast("Scanning faucets...", "warning");
+
+  for (let f of allFaucets) {
+
+    if (f.status !== "active") continue;
+
+    let alive = true;
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+
+      await fetch(f.url, {
+        method: "GET",
+        mode: "no-cors",
+        signal: controller.signal
+      });
+
+      clearTimeout(timeout);
+
+    } catch (e) {
+      alive = false;
+    }
+
+    if (!alive) {
+      await updateDoc(doc(db, "faucets", f.id), {
+        status: "inactive",
+        rank: 9999,
+        uptime: 0
+      });
+
+      deadCount++;
+    }
+  }
+
+  await autoReRank();
+  await loadFaucets();
+
+  showToast("Scan selesai. Dead: " + deadCount);
+};
+
+/* =====================
+   LOGOUT
+===================== */
+window.logout = async function () {
+  await signOut(auth);
+  location.href = "login.html";
 };
 
 /* =====================
