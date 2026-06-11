@@ -1,216 +1,26 @@
-body{
-  margin:0;
-  font-family:Arial, sans-serif;
-  background:#0b1220;
-  color:#fff;
-  -webkit-font-smoothing:antialiased;
-}
+/* ... CSS lain tetap sama ... */
 
 /* =====================
-   NAVBAR
-===================== */
-.navbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:14px 20px;
-  background:#0f172a;
-  position:sticky;
-  top:0;
-  z-index:1000;
-  border-bottom:1px solid #1f2937;
-}
-
-.navbar .logo{
-  font-size:20px;
-  font-weight:700;
-  color:#00ffd5;
-}
-
-.navbar a{
-  color:#cbd5e1;
-  text-decoration:none;
-  margin-left:14px;
-  font-size:14px;
-}
-.navbar a:hover{
-  color:#00ffd5;
-}
-
-/* =====================
-   CONTAINER
-===================== */
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:20px;
-}
-
-h1{
-  font-size:1.7rem;
-  color:#5eead4;
-  margin-bottom:6px;
-}
-
-h2{
-  font-size:1.2rem;
-  color:#5eead4;
-  margin:20px 0 10px 0;
-}
-
-#totalFaucets{
-  font-size:13px;
-  color:#94a3b8;
-  margin-bottom:14px;
-}
-
-/* =====================
-   INPUT & SELECT
-===================== */
-input,
-select{
-  width:100%;
-  padding:12px;
-  margin-bottom:10px;
-  border:none;
-  border-radius:10px;
-  background:#111827;
-  color:#fff;
-  font-size:14px;
-  outline:none;
-  border:1px solid #1f2937;
-}
-
-/* =====================
-   BADGE COIN STATS
-===================== */
-.badge{
-  display:inline-block;
-  padding:5px 10px;
-  margin:3px;
-  font-size:12px;
-  border-radius:8px;
-  background:#111827;
-  border:1px solid #134e4a;
-  color:#5eead4;
-}
-
-/* =====================
-   LIST WRAPPER - BIAR ADA JARAK CARD
-===================== */
-#list, #trending {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-/* =====================
-   CARD - LAYOUT 2 BARIS KAYAK GAMBAR
-===================== */
-.card{
-  background:#111827;
-  border:1px solid #1f2937;
-  border-radius:12px;
-  padding:12px;
-
-  display:grid;
-  grid-template-columns:60px 1fr 100px; /* 60px rank, 1fr nama, 100px claim */
-  grid-template-rows:auto auto;
-  grid-template-areas:
-    "rank name claim"
-    "coin stats claim";
-
-  gap:4px 10px;
-  align-items:center;
-}
-
-/* =====================
-   GRID AREAS
-===================== */
-.rank-badge{ grid-area:rank; }
-.name{ grid-area:name; }
-.coin{ grid-area:coin; }
-
-.clicks{
-  grid-area:stats;
-  font-size:11px;
-  color:#94a3b8;
-  white-space:nowrap;
-  display:flex;
-  align-items:center;
-  gap:4px; /* Biar 💧 dan teks sejajar */
-}
-
-/* =====================
-   CLAIM LINK - UNGU + GARIS BAWAH KAYAK GAMBAR
+   CLAIM BUTTON - VERSI TOMBOL IJO
 ===================== */
 .visit-btn{
   grid-area:claim;
   justify-self:end;
+  padding:6px 12px;
+  background:#0f766e; /* Hijau tosca */
+  color:#fff;
+  border:none;
+  border-radius:8px;
   font-size:12px;
-  font-weight:600;
-  color:#8b5cf6; /* Ungu */
-  text-decoration:underline; /* Garis bawah */
+  font-weight:700;
   cursor:pointer;
+  transition:0.2s;
 }
-.visit-btn:visited{ color:#8b5cf6; }
-
-/* =====================
-   RANK BADGE
-===================== */
-.rank-badge{
-  background:#134e4a;
-  color:#99f6e4;
-  padding:5px 8px;
-  border-radius:6px;
-  font-weight:bold;
-  font-size:12px;
-  text-align:center;
-  width:fit-content;
+.visit-btn:hover{
+  background:#0d9488;
+}
+.visit-btn:active{
+  transform:scale(0.95);
 }
 
-/* =====================
-   NAME & COIN
-===================== */
-.name{
-  font-size:14px;
-  font-weight:600;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.coin{
-  font-size:11px;
-  color:#5eead4;
-  font-weight:500;
-}
-
-/* =====================
-   FOOTER TENGAH
-===================== */
-.footer{
-  text-align:center; /* Kunci biar di tengah */
-  color:#94a3b8;
-  font-size:13px;
-  padding:20px 0;
-  margin-top:30px;
-  border-top:1px solid #1f2937;
-}
-
-/* =====================
-   MOBILE FIX
-===================== */
-@media(max-width:600px){
-  .card{
-    grid-template-columns:50px 1fr 80px;
-    gap:4px 8px;
-    padding:10px;
-  }
-  .name{ font-size:13px; }
-  .coin{ font-size:10px; }
-  .clicks{ font-size:10px; }
-  .visit-btn{ font-size:11px; }
-  .rank-badge{ font-size:11px; padding:4px 6px; }
-}
+/* ... CSS lain tetap sama ... */
