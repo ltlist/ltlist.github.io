@@ -114,4 +114,23 @@ select:focus{
 }
 .visit-btn:hover{ background:#0d9488; }
 
-.footer{ text-align:center; color:#64748b; font-size:15px; padding:20px 0; margin-top:30px; border-top:1px solid #1e293b; }
+.footer{ 
+  text-align:center; 
+  color:#64748b; 
+  font-size:13px; 
+  padding:20px 0; 
+  margin-top:30px; 
+  border-top:1px solid #1e293b; 
+}
+
+/* KUNCI: Warna link di footer */
+.footer a{
+  color: #2dd4bf; /* Hijau tosa */
+  text-decoration: none; /* Buang garis bawah */
+  font-weight: 600;
+}
+
+.footer a:hover{
+  color: #5eead4; /* Hijau lebih terang pas di-hover */
+  text-decoration: underline;
+}
