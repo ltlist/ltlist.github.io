@@ -8,9 +8,6 @@ import {
   increment
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* =====================
-   FIREBASE CONFIG
-===================== */
 const firebaseConfig = {
   apiKey: "AIzaSyAVokWJ_Wj3iATEhj6UPetF-KXKDV75S8",
   authDomain: "ltlist-f.firebaseapp.com",
@@ -23,9 +20,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-/* =====================
-   DOM
-===================== */
 const listDiv = document.getElementById("list");
 const trendingDiv = document.getElementById("trending");
 const coinStatsDiv = document.getElementById("coinStats");
@@ -34,9 +28,6 @@ const totalEl = document.getElementById("totalFaucets");
 
 let allFaucets = [];
 
-/* =====================
-   DEVICE ID
-===================== */
 function getDeviceId() {
   let id = localStorage.getItem("deviceId");
   if (!id) {
@@ -46,9 +37,6 @@ function getDeviceId() {
   return id;
 }
 
-/* =====================
-   ANTI CLICK SPAM 5 DETIK
-===================== */
 function canClick(id) {
   const last = localStorage.getItem("click_" + id);
   if (!last) return true;
@@ -59,9 +47,6 @@ function setClick(id) {
   localStorage.setItem("click_" + id, Date.now());
 }
 
-/* =====================
-   LOAD DATA
-===================== */
 async function loadFaucets() {
   const snap = await getDocs(collection(db, "faucets"));
   allFaucets = [];
@@ -79,9 +64,6 @@ async function loadFaucets() {
   loadCoinFilter();
 }
 
-/* =====================
-   CLICK TRACK SAFE
-===================== */
 window.visitFaucet = async function (id, url) {
   if (!canClick(id)) return;
   setClick(id);
@@ -104,27 +86,24 @@ window.visitFaucet = async function (id, url) {
 };
 
 /* =====================
-   RENDER MAIN LIST - UDAH PAKE BUTTON
+   RENDER ALL LIST - STYLE #1 NAMA COIN 💧 ⏱ CLAIM
 ===================== */
 function render(data) {
   if (!listDiv) return;
   listDiv.innerHTML = data.map(d => `
     <div class="card">
       <div class="rank">#${d.rank || "-"}</div>
-      <div class="name">${d.name || "-"}</div>
-      <div class="coin">${d.coin || "-"}</div>
-
-      <div class="clicks">💧 ${d.clicks || 0}</div>
-      <div class="uptime">⏱ ${d.uptime || 100}</div>
-      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">
-        Claim
-      </button>
+      <div class="info">
+        <div class="name">${d.name || "-"}</div>
+        <div class="meta">${d.coin || "-"} 💧 ${d.clicks || 0} ⏱ ${d.uptime || 100}</div>
+      </div>
+      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">Claim</button>
     </div>
   `).join("");
 }
 
 /* =====================
-   TRENDING - UDAH PAKE BUTTON
+   RENDER TRENDING - STYLE 🔥1 NAMA COIN 💧 ⏱ CLAIM
 ===================== */
 function renderTrending() {
   if (!trendingDiv) return;
@@ -134,29 +113,20 @@ function renderTrending() {
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
       <div class="rank">🔥 ${i + 1}</div>
-      <div class="name">${d.name}</div>
-      <div class="coin">${d.coin}</div>
-
-      <div class="clicks">💧 ${d.clicks || 0}</div>
-      <div class="uptime">⏱ ${d.uptime || 100}</div>
-      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">
-        Claim
-      </button>
+      <div class="info">
+        <div class="name">${d.name}</div>
+        <div class="meta">${d.coin} 💧 ${d.clicks || 0} ⏱ ${d.uptime || 100}</div>
+      </div>
+      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">Claim</button>
     </div>
   `).join("");
 }
 
-/* =====================
-   TOTAL
-===================== */
 function renderTotal() {
   if (!totalEl) return;
   totalEl.innerText = `📊 ${allFaucets.length} Active Faucets`;
 }
 
-/* =====================
-   COIN STATS
-===================== */
 function renderCoinStats() {
   if (!coinStatsDiv) return;
   const count = {};
@@ -170,9 +140,6 @@ function renderCoinStats() {
     .join("");
 }
 
-/* =====================
-   FILTER COIN
-===================== */
 function loadCoinFilter() {
   if (!coinFilter) return;
   coinFilter.innerHTML = `<option value="all">All Coins</option>`;
@@ -186,9 +153,6 @@ function loadCoinFilter() {
   });
 }
 
-/* =====================
-   SEARCH
-===================== */
 window.searchPublic = function () {
   const q = document.getElementById("search")?.value.toLowerCase() || "";
   render(allFaucets.filter(f =>
@@ -197,16 +161,10 @@ window.searchPublic = function () {
   ));
 };
 
-/* =====================
-   FILTER
-===================== */
 window.filterCoin = function () {
   const c = coinFilter?.value;
   if (!c || c === "all") return render(allFaucets);
   render(allFaucets.filter(f => f.coin === c));
 };
 
-/* =====================
-   INIT
-===================== */
 loadFaucets();
