@@ -53,6 +53,12 @@ h1{
   margin-bottom:6px;
 }
 
+h2{
+  font-size:1.2rem;
+  color:#5eead4;
+  margin:20px 0 10px 0;
+}
+
 #totalFaucets{
   font-size:13px;
   color:#94a3b8;
@@ -90,14 +96,24 @@ select{
 }
 
 /* =====================
-   CARD PRO FIX (IMPORTANT)
+   LIST WRAPPER - INI YANG BARU
+===================== */
+#list, #trending {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Jarak antar card biar ada nafas */
+  margin-bottom: 16px;
+}
+
+/* =====================
+   CARD PRO FIX
 ===================== */
 .card{
   background:linear-gradient(180deg,#111827,#0f172a);
   border:1px solid #1f2937;
   border-radius:12px;
   padding:10px 12px;
-  margin-bottom:8px;
+  margin-bottom:0; /* gap udah di handle wrapper di atas */
 
   display:grid;
   grid-template-columns:60px 1fr 120px;
@@ -122,102 +138,4 @@ select{
 /* =====================
    GRID AREAS
 ===================== */
-.rank-badge{ grid-area:rank; }
-.name{ grid-area:name; }
-.coin{ grid-area:coin; }
-
-.clicks{
-  grid-area:stats;
-  font-size:11px;
-  color:#94a3b8;
-  white-space:nowrap;
-}
-
-/* CLAIM BUTTON FIX RIGHT */
-.visit-btn{
-  grid-area:claim;
-  justify-self:end;
-
-  padding:7px 12px;
-  background:#0f766e;
-  color:#fff;
-  border-radius:8px;
-  text-decoration:none;
-  font-size:12px;
-  font-weight:bold;
-}
-
-/* =====================
-   RANK
-===================== */
-.rank-badge{
-  background:#134e4a;
-  color:#99f6e4;
-  padding:5px 8px;
-  border-radius:6px;
-  font-weight:bold;
-  font-size:12px;
-  text-align:center;
-}
-
-/* =====================
-   NAME
-===================== */
-.name{
-  font-size:14px;
-  font-weight:600;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-/* =====================
-   COIN
-===================== */
-.coin{
-  font-size:11px;
-  color:#5eead4;
-}
-
-/* =====================
-   FOOTER
-===================== */
-.footer{
-  text-align:center;
-  color:#94a3b8;
-  font-size:13px;
-  padding:15px 0;
-  margin-top:25px;
-  border-top:1px solid #1f2937;
-}
-
-/* =====================
-   MOBILE FIX PRO
-===================== */
-@media(max-width:600px){
-
-  .card{
-    grid-template-columns:50px 1fr 90px;
-    grid-template-areas:
-      "rank name claim"
-      "coin stats claim";
-    gap:5px 8px;
-  }
-
-  .name{
-    font-size:13px;
-  }
-
-  .coin{
-    font-size:10px;
-  }
-
-  .clicks{
-    font-size:10px;
-  }
-
-  .visit-btn{
-    font-size:11px;
-    padding:6px 8px;
-  }
-}
+.rank-badge{ grid-area:rank;
