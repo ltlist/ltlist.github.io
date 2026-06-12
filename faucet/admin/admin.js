@@ -123,7 +123,7 @@ if (document.getElementById("logout")) {
 
     try {
 
-      const snap = await getDocs(collection(db, "faucets"));
+      const snap = await getDocs(collection(db, "paycoin"));
 
       list.innerHTML = "";
 
