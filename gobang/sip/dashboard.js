@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import {
   getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy, increment
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"; // <- Tambah onAuthStateChanged
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"; 
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
@@ -12,6 +12,9 @@ const firebaseConfig = {
   messagingSenderId: "991011425656",
   appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
+
+// 1. ISI UID KAMU DI SINI DOANG
+const UID_ADMIN = "gZPXqeKPBAZfCzYXEcrGWMcSFHI2"; 
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -28,16 +31,18 @@ const showToast = (msg) => {
   setTimeout(() => toastDiv.classList.remove("show"), 2000);
 };
 
-// FUNGSI BARU: Cek login 1x di awal
-function requireAuth() {
-  if (!auth.currentUser) {
-    showToast("Login dulu admin");
+// FUNGSI KUNCI BARU: Cek login + Cek UID
+function requireAdmin() {
+  const user = auth.currentUser;
+  if (!user || user.uid !== UID_ADMIN) { // <- Cek UID di sini juga
+    showToast("Akses ditolak. Bukan admin");
     return false;
   }
   return true;
 }
 
 async function loadFaucets(){
+  if (!requireAdmin()) return; // cegah load kalo bukan admin
   const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
   const snap = await getDocs(q);
   allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -49,7 +54,6 @@ function render(data){
     listDiv.innerHTML = "<p style='text-align:center; color:var(--muted); padding:20px;'>Belum ada data faucet.</p>";
     return;
   }
-
   listDiv.innerHTML = data.map(d => {
     const uptimeColor = d.uptime >= 90 ? 'var(--green)' : d.uptime >= 50 ? 'var(--yellow)' : 'var(--red)';
     return `
@@ -75,11 +79,12 @@ function render(data){
 }
 
 window.addClick = async function(id){
+  if (!requireAdmin()) return;
   await updateDoc(doc(db, "faucets", id), { clicks: increment(1) });
 };
 
 window.addFaucet = async function(){
-  if(!requireAuth()) return; // <- KUNCI 1
+  if(!requireAdmin()) return; 
   const name = document.getElementById("name").value.trim();
   const url = document.getElementById("url").value.trim();
   const coin = document.getElementById("coin").value.trim().toUpperCase();
@@ -97,9 +102,8 @@ window.addFaucet = async function(){
   loadFaucets();
 };
 
-// KUNCINYA ADA DI SINI: AUTO RERANK HABIS HAPUS
 window.deleteFaucet = async function(id){
-  if(!requireAuth()) return; // <- KUNCI 2
+  if(!requireAdmin()) return; 
   if(!confirm("Yakin hapus?")) return;
   await deleteDoc(doc(db, "faucets", id));
   showToast("Faucet dihapus. Merapikan rank...");
@@ -107,7 +111,7 @@ window.deleteFaucet = async function(id){
 };
 
 window.toggleStatus = async function(id, status){
-  if(!requireAuth()) return; // <- KUNCI 3
+  if(!requireAdmin()) return; 
   const newStatus = status === "active" ? "inactive" : "active";
   const newUptime = newStatus === "active" ? 100 : 0;
   await updateDoc(doc(db, "faucets", id), { status: newStatus, uptime: newUptime });
@@ -116,7 +120,7 @@ window.toggleStatus = async function(id, status){
 };
 
 window.openEdit = function(data){
-  if(!requireAuth()) return; // <- KUNCI 4 biar gak bisa buka modal kalo belum login
+  if(!requireAdmin()) return; 
   document.getElementById("editId").value = data.id;
   document.getElementById("editName").value = data.name;
   document.getElementById("editUrl").value = data.url;
@@ -129,7 +133,7 @@ window.openEdit = function(data){
 window.closeModal = function(){ modalDiv.classList.remove("show"); };
 
 window.saveEdit = async function(){
-  if(!requireAuth()) return; // <- KUNCI 5
+  if(!requireAdmin()) return; 
   const id = document.getElementById("editId").value;
   const data = {
     name: document.getElementById("editName").value.trim(),
@@ -144,9 +148,8 @@ window.saveEdit = async function(){
   loadFaucets();
 };
 
-// FUNGSI RERANK AUTO
 window.rerank = async function(auto = false){
-  if(!requireAuth()) return; // <- KUNCI 6
+  if(!requireAdmin()) return; 
   if(!auto){
     if(!confirm("Urutkan ulang rank 1,2,3...?")) return;
   }
@@ -176,25 +179,16 @@ window.logout = () => signOut(auth).then(() => window.location.href = "login.htm
 
 modalDiv.onclick = (e) => { if(e.target === modalDiv) closeModal(); }
 window.addEventListener('scroll', () => {
-  document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 10);
+  document.querySelector('.navbar')?.classList.toggle('scrolled', window.scrollY > 10);
 });
 
-// Redirect paksa kalo belum login buka dashboard.html
+// Redirect paksa kalo belum login / bukan admin
 onAuthStateChanged(auth, async (user) => {
-  console.log("AUTH:", user);
-
-  if (!user) {
+  if (!user || user.uid !== UID_ADMIN) { // <- PAKE VARIABEL + PETIK
+    if(user) await signOut(auth); // kick kalo UID salah
     window.location.href = "login.html";
     return;
   }
-
-  if (user.uid !== gZPXqeKPBAZfCzYXEcrGWMcSFHI2) {
-    alert("Bukan admin");
-    await signOut(auth);
-    window.location.href = "login.html";
-    return;
-  }
-
   console.log("ADMIN LOGIN:", user.uid);
   await loadFaucets();
 });
