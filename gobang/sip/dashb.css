@@ -138,3 +138,22 @@ button:hover{ background:#115e59; }
 #toast{ position:fixed; top:20px; right:20px; background:#0f766e; padding:10px 14px; border-radius:8px; opacity:0; transform:translateY(-10px); transition:.3s; z-index: 999; }
 #toast.show{ opacity:1; transform:translateY(0); }
 hr{ border:none; border-top:1px solid var(--border); margin:30px 0; }
+
+/* === READ MORE FIX === */
+.read-more-btn{
+  color:var(--accent);
+  font-size:12px;
+  margin-left:4px;
+  text-decoration: underline;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Biar teks panjang gak jebolin card + bisa kebuka */
+.card-title, .card-sub{
+  white-space: normal; /* Timpa nowrap bawaan */
+  word-break: break-word; 
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.3;
+}
