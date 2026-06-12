@@ -70,8 +70,8 @@ button:hover{ background:#115e59; }
 .card{
   background:var(--card); border:1px solid var(--border);
   padding:8px 12px; border-radius:8px; transition:.2s;
-  display:flex; align-items:flex-start; gap:12px; /* Ganti center -> flex-start biar gak ketarik */
-  min-height: 52px; /* Kunci biar semua card sama tinggi */
+  display:flex; align-items:flex-start; gap:12px;
+  min-height: 52px;
 }
 .card:hover{ border-color: var(--accent); }
 
@@ -82,7 +82,7 @@ button:hover{ background:#115e59; }
 .status-badge.inactive{ background:var(--red); }
 
 .card-mid{ flex:1; display:flex; gap:16px; align-items:center; overflow: hidden; min-width: 0; }
-.card-title{ font-weight:700; } /* Hapus nowrap dari sini */
+.card-title{ font-weight:700; } 
 .card-sub{ color:var(--muted); font-size:12px; flex-shrink: 0; width: 80px; }
 .card-stats{ color:var(--muted); font-size:12px; flex-shrink: 0; width: 120px; text-align: right; }
 
@@ -99,7 +99,7 @@ button:hover{ background:#115e59; }
     display:grid; 
     grid-template-columns: repeat(2, 1fr);
     gap:10px;
-    align-items: stretch; /* Kunci biar 2 card sejajar */
+    align-items: stretch;
   }
   .card{
     flex-direction: column;
@@ -107,7 +107,8 @@ button:hover{ background:#115e59; }
     gap:6px;
     padding:10px;
     font-size: 12px;
-    min-height: auto; /* HP bebas tingginya */
+    min-height: 165px; /* Kunci tinggi sama */
+    justify-content: space-between;
   }
   .card-left, .card-mid, .card-right{ width: 100%; padding-top: 0; }
   .card-left{ justify-content: space-between; }
@@ -115,6 +116,7 @@ button:hover{ background:#115e59; }
     flex-direction: column;
     align-items: flex-start;
     gap:2px;
+    flex-grow: 1; /* Dorong tombol ke bawah */
   }
   .card-sub, .card-stats{ width: auto; text-align: left; font-size: 11px; }
   .card-title{ font-size: 13px; }
@@ -137,25 +139,38 @@ button:hover{ background:#115e59; }
 #toast.show{ opacity:1; transform:translateY(0); }
 hr{ border:none; border-top:1px solid var(--border); margin:30px 0; }
 
-/* === READ MORE FIX FINAL === */
+/* === READ MORE FIX FINAL - PALING BAWAH === */
 .read-more-btn{
   color:var(--accent);
-  font-size:11px;
-  margin-left:4px;
+  font-size:10px; 
+  margin-left:3px;
   text-decoration: underline;
   cursor: pointer;
   white-space: nowrap;
+  flex-shrink: 0; /* Tombol gak bakal turun */
 }
 
 .card-title{
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0; 
+  width: 100%;
+}
+.card-title > span:first-child{
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 1; /* 1 baris doang */
-  -webkit-box-orient: vertical;
-}
-.card-title.expanded{
-  -webkit-line-clamp: unset; /* Buka semua baris */
-  display: block;
+  white-space: nowrap;
+  flex-shrink: 1; /* Teks yg rela kepotong */
+  min-width: 0; 
 }
 .more-text{ display: none; }
+
+.card-title.expanded{
+  display: block;
+}
+.card-title.expanded > span:first-child{
+  white-space: normal;
+  text-overflow: clip;
+  overflow: visible;
+}
