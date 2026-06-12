@@ -20,12 +20,11 @@
 
 <body>
 
-<!-- NAVBAR -->
 <nav class="navbar">
   <div class="nav-left">
     <span class="logo">LTList</span>
   </div>
-    <div class="nav-right">
+  <div class="nav-right">
     <a href="https://ltlist.github.io/marketcap">MARKET</a>
   </div>
 </nav>
@@ -34,27 +33,22 @@
   <h1>LTList Faucet</h1>
 
   <h2>🔥 Trending Faucets</h2>
-<div id="trending"></div>
- <div id="coinStats"></div>
- <p id="totalFaucets"></p>
-  <input
-    id="search"
-    placeholder="Search faucet..."
-    onkeyup="searchPublic()"
-  >
+  <div id="trending"></div>
+  <div id="coinStats"></div>
+  <p id="totalFaucets"></p>
   
-  <select
-    id="coinFilter"
-    onchange="filterCoin()"
-  >
+  <input id="search" placeholder="Search faucet..." onkeyup="searchPublic()">
+  
+  <select id="coinFilter" onchange="filterCoin()">
     <option value="all">All Coins</option>
   </select>
 
   <div id="list"></div>
-   <footer class="footer">
-<p>
-LTList provides a list of crypto faucets with a fast payout system to <a href="https://faucetpay.io/?r=5725">Faucetpay</a>. For the ZER coin, use the name<a href="https://zerochain.info/wallet">ZeroChain</a>. Daily updates for active faucets.
-</p>
+
+  <footer class="footer">
+    <p>
+    LTList provides a list of crypto faucets with a fast payout system to <a href="https://faucetpay.io/?r=5725">Faucetpay</a>. For the ZER coin, use the name<a href="https://zerochain.info/wallet">ZeroChain</a>. Daily updates for active faucets.
+    </p>
     © LTList Faucet - All rights reserved
   </footer>
 
