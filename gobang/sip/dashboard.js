@@ -50,6 +50,12 @@ function render(data){
     return;
   }
 
+  function render(data){
+  if(data.length === 0){
+    listDiv.innerHTML = "<p style='text-align:center; color:var(--muted); padding:20px;'>Belum ada data faucet.</p>";
+    return;
+  }
+
   listDiv.innerHTML = data.map(d => {
     const uptimeColor = d.uptime >= 90 ? 'var(--green)' : d.uptime >= 50 ? 'var(--yellow)' : 'var(--red)';
     return `
@@ -59,8 +65,8 @@ function render(data){
           <span class="status-badge ${d.status}">${d.status}</span>
         </div>
         <div class="card-mid">
-          <div class="card-title" title="${d.name}">${d.name}</div>
-          <div class="card-sub">${d.coin}</div>
+          <div class="card-title" title="${d.name}">${cutText(d.name, 25)}</div>
+          <div class="card-sub">${cutText(d.url, 35)}</div> 
           <div class="card-stats">${d.clicks ?? 0} claims | <span style="color:${uptimeColor}">${d.uptime ?? 0}%</span></div>
         </div>
         <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
@@ -72,6 +78,16 @@ function render(data){
       </div>
     `;
   }).join("");
+  
+  // Event buat tombol Read More
+  document.querySelectorAll('.read-more-btn').forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      const parent = e.target.parentElement;
+      parent.querySelector('.more-text').style.display = 'inline';
+      e.target.style.display = 'none';
+    }
+  });
 }
 
 window.addClick = async function(id){
