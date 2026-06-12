@@ -183,11 +183,18 @@ window.addEventListener('scroll', () => {
 onAuthStateChanged(auth, async (user) => {
   console.log("AUTH:", user);
 
-  if (user) {
-    console.log("UID:", user.uid);
-    await loadFaucets();
-  } else {
-    console.log("BELUM LOGIN");
+  if (!user) {
     window.location.href = "login.html";
+    return;
   }
+
+  if (user.uid !== UID_ADMIN) {
+    alert("Bukan admin");
+    await signOut(auth);
+    window.location.href = "login.html";
+    return;
+  }
+
+  console.log("ADMIN LOGIN:", user.uid);
+  await loadFaucets();
 });
