@@ -188,7 +188,7 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-  if (user.uid !== UID_ADMIN) {
+  if (user.uid !== gZPXqeKPBAZfCzYXEcrGWMcSFHI2) {
     alert("Bukan admin");
     await signOut(auth);
     window.location.href = "login.html";
