@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Admin</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <h2>Dashboard Admin</h2>
+    <button id="logout">Logout</button>
+  </div>
+
+  <h3>Tambah Faucet Baru</h3>
+  <input id="id" placeholder="ID Currency ex: LTC">
+  <input id="name" placeholder="Nama Tampil ex: LTC Faucet">
+  <button id="add">Tambah</button>
+  <p class="small">ID = kode currency buat FaucetPay. Nama = yg muncul di index.html</p>
+
+  <table>
+    <thead><tr><th>ID</th><th>Nama</th><th>Aksi</th></tr></thead>
+    <tbody id="list"></tbody>
+  </table>
+</div>
+<script type="module" src="admin.js"></script>
+</body>
+</html>
