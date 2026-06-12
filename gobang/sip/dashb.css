@@ -1,191 +1,67 @@
 :root{
-  --bg:#0f172a;
-  --card:#111827;
-  --border:#334155;
-  --text:#e2e8f0;
-  --muted:#94a3b8;
-  --accent:#00ffcc;
-  --accent-2:#5eead4;
-  --green:#00ff88;
-  --red:#ef4444;
-  --blue:#2563eb;
-  --yellow:#facc15;
+  --bg:#0f172a; --card:#111827; --border:#334155; --text:#e2e8f0;
+  --muted:#94a3b8; --accent:#00ffcc; --accent-2:#5eead4;
+  --green:#00ff88; --red:#ef4444; --blue:#2563eb; --yellow:#facc15;
 }
-
 * { box-sizing: border-box; margin:0; padding:0; }
 body{ font-family: 'Segoe UI', Arial, sans-serif; background:var(--bg); color:var(--text); font-size: 14px; }
-
-.navbar{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:12px 20px;
-  background:rgba(17, 24, 39, 0.7);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
-  position: sticky; top:0; z-index: 50;
-}
+.navbar{ display:flex; justify-content:space-between; align-items:center; padding:12px 20px; background:rgba(17, 24, 39, 0.7); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(51, 65, 85, 0.5); position: sticky; top:0; z-index: 50; }
 .navbar .logo{ color:var(--accent); font-weight:800; font-size: 20px; display:flex; align-items:center; gap:8px; }
 .navbar .logo::before{ content: ''; width: 10px; height: 10px; background: var(--green); border-radius: 50%; }
-
 .nav-actions{ display: flex; gap: 8px; align-items: center; }
-.navbar button{
-  background:var(--card); border: 1px solid var(--border);
-  color:var(--text); font-weight:600; padding:8px 14px;
-  border-radius:8px; cursor:pointer; transition: all .2s; font-size: 13px;
-}
+.navbar button{ background:var(--card); border: 1px solid var(--border); color:var(--text); font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer; transition: all .2s; font-size: 13px; }
 .navbar button:hover{ background:var(--red); border-color:var(--red); color:#fff; }
-
-.btn-site{
-  background: var(--blue); border: 1px solid var(--blue);
-  color: #fff; font-weight:600; padding:8px 14px;
-  border-radius:8px; cursor:pointer; transition: all .2s;
-  font-size: 13px; text-decoration: none; display: inline-block;
-}
+.btn-site{ background: var(--blue); border: 1px solid var(--blue); color: #fff; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer; transition: all .2s; font-size: 13px; text-decoration: none; display: inline-block; }
 .btn-site:hover{ background:#1d4ed8; border-color:#1d4ed8; }
-
 .container{ max-width:1200px; margin:auto; padding:20px; }
 h1, h2{ color:var(--accent-2); margin:0 0 16px 0; font-size: 18px; }
-
-input, select{
-  width:100%; padding:8px 12px; margin-bottom:12px;
-  border-radius:8px; border:1px solid var(--border);
-  background:var(--card); color:var(--text); outline:none; font-size: 14px;
-}
+input, select{ width:100%; padding:8px 12px; margin-bottom:12px; border-radius:8px; border:1px solid var(--border); background:var(--card); color:var(--text); outline:none; font-size: 14px; }
 input:focus, select:focus { border-color: var(--accent); }
-
-button{
-  padding:8px 12px; background:#0f766e; border:none;
-  color:#fff; border-radius:8px; cursor:pointer;
-  font-weight: 600; transition: .2s; font-size: 13px;
-}
+button{ padding:8px 12px; background:#0f766e; border:none; color:#fff; border-radius:8px; cursor:pointer; font-weight: 600; transition: .2s; font-size: 13px; }
 button:hover{ background:#115e59; }
-
-/* === DEFAULT PC/TABLET = 1 BARIS PANJANG === */
-.list{ 
-  display:flex; 
-  flex-direction: column; 
-  gap:8px; 
-  margin-top:16px;
-}
-
-.card{
-  background:var(--card); border:1px solid var(--border);
-  padding:8px 12px; border-radius:8px; transition:.2s;
-  display:flex; align-items:flex-start; gap:12px;
-  min-height: 52px;
-}
+.list{ display:flex; flex-direction: column; gap:8px; margin-top:16px; }
+.card{ background:var(--card); border:1px solid var(--border); padding:8px 12px; border-radius:8px; transition:.2s; display:flex; align-items:flex-start; gap:12px; min-height: 52px; }
 .card:hover{ border-color: var(--accent); }
-
 .card-left{ display:flex; gap:8px; align-items:center; flex-shrink: 0; width: 120px; padding-top: 2px; }
 .rank-badge{ background:rgba(20, 184, 166, 0.2); color:var(--accent-2); padding:3px 6px; border-radius:6px; font-size:12px; font-weight:bold; }
 .status-badge{ padding:3px 6px; border-radius:6px; font-size:11px; font-weight:bold; color:#000; text-transform: uppercase; }
 .status-badge.active{ background:var(--green); }
 .status-badge.inactive{ background:var(--red); }
-
 .card-mid{ flex:1; display:flex; gap:16px; align-items:center; overflow: hidden; min-width: 0; }
-.card-title{ font-weight:700; } 
 .card-sub{ color:var(--muted); font-size:12px; flex-shrink: 0; width: 80px; }
 .card-stats{ color:var(--muted); font-size:12px; flex-shrink: 0; width: 120px; text-align: right; }
-
 .claim-btn{ padding:6px 10px; background:var(--accent); color:#0f172a; border-radius:8px; text-decoration:none; font-weight:bold; font-size:12px; flex-shrink: 0; margin-top: 2px; }
-
 .card-right{ display:flex; gap:6px; flex-shrink: 0; padding-top: 2px; }
 .card-right button{ padding:6px 10px; background: var(--border); font-size: 12px; }
 .btn-edit{ background: var(--blue) !important; }
 .btn-delete{ background: var(--red) !important; }
 
-/* === HP SAJA: JADI 2 KOLOM === */
+/* === KUNCI ELLIPSIS 1 BARIS === */
+.card-title{
+  font-weight:700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
 @media (max-width: 767px){
-  .list{ 
-    display:grid; 
-    grid-template-columns: repeat(2, 1fr);
-    gap:10px;
-    align-items: stretch;
-  }
-  .card{
-    flex-direction: column;
-    align-items: stretch;
-    gap:6px;
-    padding:10px;
-    font-size: 12px;
-    min-height: 165px; /* Kunci tinggi sama */
-    justify-content: space-between;
-  }
+  .list{ display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; align-items: stretch; }
+  .card{ flex-direction: column; align-items: stretch; gap:6px; padding:10px; font-size: 12px; min-height: 165px; justify-content: space-between; }
   .card-left, .card-mid, .card-right{ width: 100%; padding-top: 0; }
   .card-left{ justify-content: space-between; }
-  .card-mid{
-    flex-direction: column;
-    align-items: flex-start;
-    gap:2px;
-    flex-grow: 1; /* Dorong tombol ke bawah */
-  }
+  .card-mid{ flex-direction: column; align-items: flex-start; gap:2px; flex-grow: 1; }
   .card-sub, .card-stats{ width: auto; text-align: left; font-size: 11px; }
   .card-title{ font-size: 13px; }
   .claim-btn{ width:100%; text-align:center; margin-top:4px; }
-  .card-right{
-    display:grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap:4px;
-  }
+  .card-right{ display:grid; grid-template-columns: repeat(3, 1fr); gap:4px; }
   .card-right button{ width:100%; padding:6px 0; font-size: 11px; }
 }
-
 .modal{ position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; justify-content:center; align-items:center; z-index: 99; }
 .modal.show{ display:flex; }
 .modal-box{ background:var(--card); padding:20px; width:90%; max-width:400px; border-radius:12px; border:1px solid var(--border); }
 .modal-actions{ display:flex; justify-content:space-between; margin-top:10px; gap:10px; }
 .modal-actions button{ flex:1; }
-
 #toast{ position:fixed; top:20px; right:20px; background:#0f766e; padding:10px 14px; border-radius:8px; opacity:0; transform:translateY(-10px); transition:.3s; z-index: 999; }
 #toast.show{ opacity:1; transform:translateY(0); }
 hr{ border:none; border-top:1px solid var(--border); margin:30px 0; }
-
-/* === READ MORE FIX FINAL - PALING BAWAH === */
-.read-more-btn{
-  color:var(--accent);
-  font-size:10px;
-  margin-left:3px;
-  text-decoration: underline;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.card-title{
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  min-width: 0;
-  width: 100%;
-}
-
-.card-title > span:first-child{
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  flex-shrink: 1;
-  min-width: 0;
-}
-
-.more-text{
-  display:none;
-}
-
-.card-title.expanded{
-  display:block;
-  white-space:normal;
-  word-break:break-word;
-}
-
-.card-title.expanded > span:first-child{
-  white-space:normal;
-  overflow:visible;
-  text-overflow:clip;
-}
-
-.card-title.expanded .more-text{
-  display:inline;
-}
-
-.card-title.expanded .read-more-btn{
-  display:none;
-}
