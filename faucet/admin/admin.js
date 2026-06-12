@@ -65,8 +65,8 @@ if (document.getElementById("logout")) {
   onAuthStateChanged(auth, async (user) => {
     if (!user) return location.href = "index.html";
 
-    if (user.uid !== UID_ADMIN) { // LAPISAN KE-2
-      alert("Akses ditolak. UID kamu: " + user.uid); // biar kamu gampang copy
+    if (user.uid !== gZPXqeKPBAZfCzYXEcrGWMcSFHI2) { // LAPISAN KE-2
+      alert("Akses ditolak.: " + user.uid); // biar kamu gampang copy
       await signOut(auth);
       return location.href = "index.html";
     }
