@@ -3,8 +3,12 @@ import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from
 import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ======================================
-// 1. ISI DATA FIREBASE DI SINI
+// GANTI INI 1 BARIS DOANG
+// Ambil UID di: Firebase Console > Authentication > Users
 // ======================================
+const UID_ADMIN = "gZPXqeKPBAZfCzYXEcrGWMcSFHI2"; 
+// ======================================
+
 const firebaseConfig = {
   apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
   authDomain: "ltlist-f.firebaseapp.com",
@@ -14,31 +18,18 @@ const firebaseConfig = {
   appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 
-// 2. ISI UID KAMU DI SINI DOANG -> AMBIL DARI Firebase > Authentication > Users
-const UID_ADMIN = "ISI_UID_KAMU_DISINI"; 
-// ======================================
-
-const firebaseReady = firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.projectId;
-if (!firebaseReady) {
-  document.body.innerHTML = `<div style="max-width:600px;margin:50px auto;padding:20px;background:#111827;color:#fff;border-radius:10px;"><h2>Firebase Belum Dikonfigurasi</h2><p>Isi firebaseConfig di admin.js</p></div>`;
-  throw new Error("Firebase config kosong");
-}
-
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// ========== LOGIN PAGE ==========
-if (document.getElementById("btnLogin")) {
+// ========== HALAMAN LOGIN index.html ==========
+if (document.getElementById("loginForm")) {
   const err = document.getElementById("err");
   const form = document.getElementById("loginForm");
 
   onAuthStateChanged(auth, (user) => { 
-    if (user && user.uid === UID_ADMIN) { // cuma redirect kalo UID cocok
-      location.href = "dashboard.html"; 
-    } else if (user) { // kalo login tapi bukan UID kamu
-      signOut(auth); // langsung kick
-    }
+    if (user?.uid === UID_ADMIN) location.href = "dashboard.html"; 
+    else if (user) signOut(auth); // kick kalo bukan admin
   });
 
   form.addEventListener("submit", async (e) => {
@@ -51,8 +42,8 @@ if (document.getElementById("btnLogin")) {
     try { 
       const cred = await signInWithEmailAndPassword(auth, email, pass);
       if (cred.user.uid !== UID_ADMIN) {
-        err.textContent = "Akses ditolak. Bukan akun admin.";
-        await signOut(auth); // kick langsung
+        err.textContent = "Akses ditolak. UID kamu: " + cred.user.uid; // copy UID dari sini
+        await signOut(auth); 
       }
     } catch (e) { 
       err.textContent = "Gagal: " + e.code.replace('auth/', '');
@@ -60,21 +51,19 @@ if (document.getElementById("btnLogin")) {
   });
 }
 
-// ========== DASHBOARD PAGE ==========
-if (document.getElementById("logout")) {
+// ========== HALAMAN DASHBOARD dashboard.html ==========
+if (document.getElementById("logoutBtn")) {
   onAuthStateChanged(auth, async (user) => {
     if (!user) return location.href = "index.html";
-
-    if (user.uid !== gZPXqeKPBAZfCzYXEcrGWMcSFHI2) { // LAPISAN KE-2
-      alert("Akses ditolak.: " + user.uid); // biar kamu gampang copy
+    if (user.uid !== UID_ADMIN) { 
+      alert("Akses ditolak. UID kamu: " + user.uid); 
       await signOut(auth);
       return location.href = "index.html";
     }
-
     await setupLTC();
   });
 
-  document.getElementById("logout").addEventListener("click", async () => {
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
     await signOut(auth);
     location.href = "index.html";
   });
@@ -96,7 +85,6 @@ if (document.getElementById("logout")) {
     } catch(e) {
       statusEl.textContent = "Error: " + e.code; // permission-denied = rules salah
       statusEl.style.color = "#f87171";
-      console.error(e);
     }
   }
 }
