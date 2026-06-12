@@ -39,8 +39,10 @@ function getDeviceId() {
 
 function canClick(id) {
   const last = localStorage.getItem("click_" + id);
+
   if (!last) return true;
-  return Date.now() - Number(last) > 5000;
+
+  return Date.now() - Number(last) > 60 * 60 * 1000;
 }
 
 function setClick(id) {
@@ -65,23 +67,32 @@ async function loadFaucets() {
 }
 
 window.visitFaucet = async function (id, url) {
-  if (!canClick(id)) return;
-  setClick(id);
-  const ref = doc(db, "faucets", id);
-  try {
-    const faucet = allFaucets.find(f => f.id === id);
-    let updateData = {
-      clicks: increment(1),
-      lastClickAt: Date.now(),
-      deviceId: getDeviceId()
-    };
-    if (faucet && typeof faucet.uptime !== "undefined") {
-      updateData.uptime = increment(1);
-    }
-    await updateDoc(ref, updateData);
-  } catch (e) {
-    console.log(e);
+
+  let countClick = true;
+
+  if (!canClick(id)) {
+    countClick = false;
   }
+
+  if (countClick) {
+
+    setClick(id);
+
+    try {
+      await updateDoc(
+        doc(db, "faucets", id),
+        {
+          clicks: increment(1),
+          lastClickAt: Date.now(),
+          deviceId: getDeviceId()
+        }
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // tetap buka faucet
   window.open(url, "_blank");
 };
 
