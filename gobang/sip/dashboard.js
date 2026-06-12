@@ -28,13 +28,14 @@ const showToast = (msg) => {
   setTimeout(() => toastDiv.classList.remove("show"), 2000);
 };
 
-// Helper Read More
-const cutText = (text, max = 25) => {
-  if(!text || text.length <= max) return text;
-  return `${text.slice(0, max)}...<a href="#" class="read-more-btn">Lihat selengkapnya</a>`;
+// Helper Read More - 14 huruf
+const cutText = (text, max = 14) => {
+  if(!text || text.length <= max) return `<span>${text}</span>`;
+  const short = text.slice(0, max);
+  const long = text.slice(max);
+  return `<span>${short}...</span><span class="more-text" style="display:none;">${long}</span><a href="#" class="read-more-btn">Lihat selengkapnya</a>`;
 };
 
-// Cek login 1x di awal
 function requireAuth() {
   if (!auth.currentUser) {
     showToast("Login dulu admin");
@@ -50,7 +51,6 @@ async function loadFaucets(){
   render(allFaucets);
 }
 
-// CUMA 1 KALI FUNCTION RENDER
 function render(data){
   if(data.length === 0){
     listDiv.innerHTML = "<p style='text-align:center; color:var(--muted); padding:20px;'>Belum ada data faucet.</p>";
@@ -80,11 +80,13 @@ function render(data){
     `;
   }).join("");
   
-  // Event buat tombol Read More
+  // Event Read More
   document.querySelectorAll('.read-more-btn').forEach(btn => {
     btn.onclick = (e) => {
       e.preventDefault();
-      e.target.closest('.card-title').classList.add('expanded'); // <- Buka full
+      const cardTitle = e.target.closest('.card-title');
+      cardTitle.classList.add('expanded');
+      cardTitle.querySelector('.more-text').style.display = 'inline';
       e.target.style.display = 'none';
     }
   });
@@ -164,14 +166,11 @@ window.rerank = async function(auto = false){
   if(!auto){
     if(!confirm("Urutkan ulang rank 1,2,3...?")) return;
   }
-  
   const snap = await getDocs(query(collection(db, "faucets"), orderBy("rank", "asc")));
   if(snap.empty) return loadFaucets();
-
   let i = 1;
   const updates = snap.docs.map(d => updateDoc(doc(db, "faucets", d.id), { rank: i++ }));
   await Promise.all(updates);
-  
   showToast(auto ? "Rank auto dirapikan" : "Rank sudah diurutkan ulang");
   loadFaucets();
 };
@@ -193,14 +192,10 @@ window.addEventListener('scroll', () => {
   document.querySelector('.navbar').classList.toggle('scrolled', window.scrollY > 10);
 });
 
-// Redirect paksa kalo belum login buka dashboard.html
 onAuthStateChanged(auth, async (user) => {
-  console.log("AUTH:", user);
   if (user) {
-    console.log("UID:", user.uid);
     await loadFaucets();
   } else {
-    console.log("BELUM LOGIN");
     window.location.href = "login.html";
   }
 });
