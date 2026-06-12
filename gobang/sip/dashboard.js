@@ -66,7 +66,7 @@ function render(data){
           <span class="status-badge ${d.status}">${d.status}</span>
         </div>
         <div class="card-mid">
-          <div class="card-title" title="${d.name}">${cutText(d.name, 25)}</div>
+          <div class="card-title" title="${d.name}">${cutText(d.name, 16)}</div>
           <div class="card-sub">${d.coin}</div> 
           <div class="card-stats">${d.clicks ?? 0} claims | <span style="color:${uptimeColor}">${d.uptime ?? 0}%</span></div>
         </div>
