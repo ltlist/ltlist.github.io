@@ -142,35 +142,50 @@ hr{ border:none; border-top:1px solid var(--border); margin:30px 0; }
 /* === READ MORE FIX FINAL - PALING BAWAH === */
 .read-more-btn{
   color:var(--accent);
-  font-size:10px; 
+  font-size:10px;
   margin-left:3px;
   text-decoration: underline;
   cursor: pointer;
   white-space: nowrap;
-  flex-shrink: 0; /* Tombol gak bakal turun */
+  flex-shrink: 0;
 }
 
 .card-title{
   display: flex;
   align-items: center;
   gap: 2px;
-  min-width: 0; 
+  min-width: 0;
   width: 100%;
 }
+
 .card-title > span:first-child{
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  flex-shrink: 1; /* Teks yg rela kepotong */
-  min-width: 0; 
+  flex-shrink: 1;
+  min-width: 0;
 }
-.more-text{ display: none; }
+
+.more-text{
+  display:none;
+}
 
 .card-title.expanded{
-  display: block;
+  display:block;
+  white-space:normal;
+  word-break:break-word;
 }
+
 .card-title.expanded > span:first-child{
-  white-space: normal;
-  text-overflow: clip;
-  overflow: visible;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+}
+
+.card-title.expanded .more-text{
+  display:inline;
+}
+
+.card-title.expanded .read-more-btn{
+  display:none;
 }
