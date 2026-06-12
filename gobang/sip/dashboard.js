@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import {
   getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy, increment
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"; // <- Tambah onAuthStateChanged
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
@@ -28,7 +28,13 @@ const showToast = (msg) => {
   setTimeout(() => toastDiv.classList.remove("show"), 2000);
 };
 
-// FUNGSI BARU: Cek login 1x di awal
+// Helper Read More
+const cutText = (text, max = 25) => {
+  if(!text || text.length <= max) return text;
+  return `${text.slice(0, max)}...<a href="#" class="read-more-btn">Lihat selengkapnya</a>`;
+};
+
+// Cek login 1x di awal
 function requireAuth() {
   if (!auth.currentUser) {
     showToast("Login dulu admin");
@@ -44,13 +50,8 @@ async function loadFaucets(){
   render(allFaucets);
 }
 
+// CUMA 1 KALI FUNCTION RENDER
 function render(data){
-  if(data.length === 0){
-    listDiv.innerHTML = "<p style='text-align:center; color:var(--muted); padding:20px;'>Belum ada data faucet.</p>";
-    return;
-  }
-
-  function render(data){
   if(data.length === 0){
     listDiv.innerHTML = "<p style='text-align:center; color:var(--muted); padding:20px;'>Belum ada data faucet.</p>";
     return;
@@ -66,7 +67,7 @@ function render(data){
         </div>
         <div class="card-mid">
           <div class="card-title" title="${d.name}">${cutText(d.name, 25)}</div>
-          <div class="card-sub">${cutText(d.url, 35)}</div> 
+          <div class="card-sub">${d.coin}</div> 
           <div class="card-stats">${d.clicks ?? 0} claims | <span style="color:${uptimeColor}">${d.uptime ?? 0}%</span></div>
         </div>
         <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
@@ -83,8 +84,7 @@ function render(data){
   document.querySelectorAll('.read-more-btn').forEach(btn => {
     btn.onclick = (e) => {
       e.preventDefault();
-      const parent = e.target.parentElement;
-      parent.querySelector('.more-text').style.display = 'inline';
+      e.target.closest('.card-title').classList.add('expanded'); // <- Buka full
       e.target.style.display = 'none';
     }
   });
@@ -95,7 +95,7 @@ window.addClick = async function(id){
 };
 
 window.addFaucet = async function(){
-  if(!requireAuth()) return; // <- KUNCI 1
+  if(!requireAuth()) return;
   const name = document.getElementById("name").value.trim();
   const url = document.getElementById("url").value.trim();
   const coin = document.getElementById("coin").value.trim().toUpperCase();
@@ -113,9 +113,8 @@ window.addFaucet = async function(){
   loadFaucets();
 };
 
-// KUNCINYA ADA DI SINI: AUTO RERANK HABIS HAPUS
 window.deleteFaucet = async function(id){
-  if(!requireAuth()) return; // <- KUNCI 2
+  if(!requireAuth()) return;
   if(!confirm("Yakin hapus?")) return;
   await deleteDoc(doc(db, "faucets", id));
   showToast("Faucet dihapus. Merapikan rank...");
@@ -123,7 +122,7 @@ window.deleteFaucet = async function(id){
 };
 
 window.toggleStatus = async function(id, status){
-  if(!requireAuth()) return; // <- KUNCI 3
+  if(!requireAuth()) return;
   const newStatus = status === "active" ? "inactive" : "active";
   const newUptime = newStatus === "active" ? 100 : 0;
   await updateDoc(doc(db, "faucets", id), { status: newStatus, uptime: newUptime });
@@ -132,7 +131,7 @@ window.toggleStatus = async function(id, status){
 };
 
 window.openEdit = function(data){
-  if(!requireAuth()) return; // <- KUNCI 4 biar gak bisa buka modal kalo belum login
+  if(!requireAuth()) return;
   document.getElementById("editId").value = data.id;
   document.getElementById("editName").value = data.name;
   document.getElementById("editUrl").value = data.url;
@@ -145,7 +144,7 @@ window.openEdit = function(data){
 window.closeModal = function(){ modalDiv.classList.remove("show"); };
 
 window.saveEdit = async function(){
-  if(!requireAuth()) return; // <- KUNCI 5
+  if(!requireAuth()) return;
   const id = document.getElementById("editId").value;
   const data = {
     name: document.getElementById("editName").value.trim(),
@@ -160,9 +159,8 @@ window.saveEdit = async function(){
   loadFaucets();
 };
 
-// FUNGSI RERANK AUTO
 window.rerank = async function(auto = false){
-  if(!requireAuth()) return; // <- KUNCI 6
+  if(!requireAuth()) return;
   if(!auto){
     if(!confirm("Urutkan ulang rank 1,2,3...?")) return;
   }
@@ -198,7 +196,6 @@ window.addEventListener('scroll', () => {
 // Redirect paksa kalo belum login buka dashboard.html
 onAuthStateChanged(auth, async (user) => {
   console.log("AUTH:", user);
-
   if (user) {
     console.log("UID:", user.uid);
     await loadFaucets();
