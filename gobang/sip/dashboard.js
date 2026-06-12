@@ -28,12 +28,12 @@ const showToast = (msg) => {
   setTimeout(() => toastDiv.classList.remove("show"), 2000);
 };
 
-// Helper Read More - 14 huruf
+// === KUNCI READ MORE 14 HURUF ===
 const cutText = (text, max = 14) => {
   if(!text || text.length <= max) return text;
   const short = text.slice(0, max);
   const long = text.slice(max);
-  return `${short}...<span class="more-text">${long}</span><a href="#" class="read-more-btn">Lihat selengkapnya</a>`;
+  return `<span>${short}...</span><span class="more-text">${long}</span><a href="#" class="read-more-btn">Lihat selengkapnya</a>`;
 };
 
 function requireAuth() {
