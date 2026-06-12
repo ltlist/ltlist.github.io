@@ -2,26 +2,27 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Dashboard Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Admin | LTC Faucet</title>
 <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 <div class="container">
   <div class="topbar">
-    <h2>Dashboard Admin</h2>
-    <button id="logout">Logout</button>
+    <h2>Dashboard LTC Admin</h2>
+    <button id="logout" class="danger">Logout</button>
   </div>
 
-  <h3>Tambah Faucet Baru</h3>
-  <input id="id" placeholder="ID Currency ex: LTC">
-  <input id="name" placeholder="Nama Tampil ex: LTC Faucet">
-  <button id="add">Tambah</button>
-  <p class="small">ID = kode currency buat FaucetPay. Nama = yg muncul di index.html</p>
+  <p>Coin Aktif: <b id="status">Memeriksa...</b></p>
 
-  <table>
-    <thead><tr><th>ID</th><th>Nama</th><th>Aksi</th></tr></thead>
-    <tbody id="list"></tbody>
-  </table>
+  <div class="table-wrap"> <!-- TAMBAH INI -->
+    <table>
+      <thead><tr><th>Currency ID</th><th>Nama Tampil</th></tr></thead>
+      <tbody id="list"></tbody>
+    </table>
+  </div>
+  
+  <p class="small">Koleksi Firestore: <code>paycoin/LTC</code>. Log claim masuk ke <code>pasycoin</code> otomatis via Worker.</p>
 </div>
 <script type="module" src="admin.js"></script>
 </body>
