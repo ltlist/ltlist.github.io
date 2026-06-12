@@ -30,10 +30,10 @@ const showToast = (msg) => {
 
 // Helper Read More - 14 huruf
 const cutText = (text, max = 14) => {
-  if(!text || text.length <= max) return `<span>${text}</span>`;
+  if(!text || text.length <= max) return text;
   const short = text.slice(0, max);
   const long = text.slice(max);
-  return `<span>${short}...</span><span class="more-text" style="display:none;">${long}</span><a href="#" class="read-more-btn">Lihat selengkapnya</a>`;
+  return `${short}...<span class="more-text">${long}</span><a href="#" class="read-more-btn">Lihat selengkapnya</a>`;
 };
 
 function requireAuth() {
@@ -67,7 +67,7 @@ function render(data){
         </div>
         <div class="card-mid">
           <div class="card-title" title="${d.name}">${cutText(d.name, 14)}</div>
-          <div class="card-sub">${d.coin}</div> 
+          <div class="card-sub">${d.coin}</div>
           <div class="card-stats">${d.clicks ?? 0} claims | <span style="color:${uptimeColor}">${d.uptime ?? 0}%</span></div>
         </div>
         <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
@@ -86,7 +86,6 @@ function render(data){
       e.preventDefault();
       const cardTitle = e.target.closest('.card-title');
       cardTitle.classList.add('expanded');
-      cardTitle.querySelector('.more-text').style.display = 'inline';
       e.target.style.display = 'none';
     }
   });
