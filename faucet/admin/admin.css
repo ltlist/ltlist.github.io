@@ -9,6 +9,7 @@
 }
 
 *{box-sizing:border-box}
+html,body{height:100%}
 
 body{
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -17,6 +18,7 @@ body{
   margin:0;
   padding:16px;
   line-height:1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
 .container{
@@ -29,7 +31,7 @@ body{
   box-shadow: 0 8px 30px rgba(0,0,0,.35);
 }
 
-h2{margin:0 0 12px;font-size:22px}
+h2{margin:0 0 12px;font-size:22px;font-weight:700}
 h3{margin:16px 0 8px;font-size:16px;opacity:.9}
 
 input,button{
@@ -45,6 +47,7 @@ input{
   background:var(--muted);
   color:#fff;
   outline:none;
+  transition:.2s;
 }
 input:focus{box-shadow: 0 0 0 2px var(--accent)}
 button{
@@ -71,12 +74,13 @@ button.danger{background:var(--danger);color:#fff}
 .small{font-size:12px;opacity:.7}
 code{background:var(--muted);padding:2px 6px;border-radius:6px;font-family:monospace}
 
-/* TABEL RESPONSIF */
+/* ===== TABEL RESPONSIF ===== */
 .table-wrap{
   width:100%;
   overflow-x:auto; /* biar bisa geser kanan kiri di HP */
   margin-top:16px;
   border-radius:10px;
+  border:1px solid var(--muted);
 }
 table{
   width:100%;
@@ -97,11 +101,49 @@ thead th{
   top:0;
 }
 
-/* HP KECIL < 480px */
+/* ===== LOGIN PAGE ===== */
+.auth-wrap{
+  min-height: 100dvh; /* pake dvh biar aman di HP android/ios */
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.auth-card{
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  padding: 24px;
+}
+
+.auth-card h2{margin-bottom: 16px}
+
+#loginForm{display: flex; flex-direction: column; gap: 10px; margin-top: 8px}
+
+.error-text{
+  color: #f87171;
+  font-size: 13px;
+  margin: 4px 0 0;
+  min-height: 18px; /* biar gak loncat pas ada error */
+}
+
+.link-back{
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+  opacity: .9;
+}
+.link-back:hover{opacity: 1; text-decoration: underline}
+
+/* ===== HP KECIL < 480px ===== */
 @media (max-width: 480px){
   body{padding:12px}
   .container{padding:16px;border-radius:12px}
+  .auth-card{padding: 20px 16px; border-radius: 14px}
   h2{font-size:20px}
+  .auth-card h2{font-size: 20px}
   input,button{font-size:16px;padding:14px} /* biar gampang dipencet jempol */
   .topbar{flex-direction:column;align-items:stretch}
   .topbar button{width:100%}
