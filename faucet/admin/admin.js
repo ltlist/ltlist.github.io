@@ -4,12 +4,12 @@ import { getFirestore, collection, setDoc, getDocs, deleteDoc, doc } from "https
 
 // ===== GANTI BAGIAN INI =====
 const firebaseConfig = {
-  apiKey: "GANTI_DENGAN_API_KEY_KAMU",
-  authDomain: "GANTI_DENGAN_AUTH_DOMAIN", 
-  projectId: "GANTI_DENGAN_PROJECT_ID",
-  storageBucket: "GANTI",
-  messagingSenderId: "GANTI",
-  appId: "GANTI"
+  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
+  authDomain: "ltlist-f.firebaseapp.com",
+  projectId: "ltlist-f",
+  storageBucket: "ltlist-f.firebasestorage.app",
+  messagingSenderId: "991011425656",
+  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 const UID_ADMIN = "GANTI_DENGAN_UID_KAMU"; // Ambil di Firebase > Authentication > Users
 // ============================
