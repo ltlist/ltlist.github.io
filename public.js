@@ -1,15 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-  increment
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, collection, getDocs, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWJ_Wj3iATEhj6UPetF-KXKDV75S8",
+  apiKey: "AIzaSyAVokWJ_Wj3iATEhj6UPetF-KXKDV75S8", // Ganti sama punyamu yang bener
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -26,39 +19,20 @@ const coinStatsDiv = document.getElementById("coinStats");
 const coinFilter = document.getElementById("coinFilter");
 const totalEl = document.getElementById("totalFaucets");
 
+const API_URL = "https://api.ltlist.workers.dev"; // <- GANTI URL WORKER KAMU
+
 let allFaucets = [];
 
-function getDeviceId() {
-  let id = localStorage.getItem("deviceId");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("deviceId", id);
-  }
-  return id;
-}
-
-function canClick(id) {
-  const last = localStorage.getItem("click_" + id);
-
-  if (!last) return true;
-
-  return Date.now() - Number(last) > 60 * 60 * 1000;
-}
-
-function setClick(id) {
-  localStorage.setItem("click_" + id, Date.now());
-}
-
 async function loadFaucets() {
-  const snap = await getDocs(collection(db, "faucets"));
-  allFaucets = [];
-  snap.forEach((docSnap) => {
-    const data = docSnap.data();
-    if (data.status === "active") {
-      allFaucets.push({ id: docSnap.id, ...data });
-    }
-  });
-  allFaucets.sort((a, b) => (a.rank || 9999) - (b.rank || 9999));
+  // KUNCI 1: Cuma ambil yang active dari Firestore. Otomatis kehide
+  const q = query(
+    collection(db, "faucets"),
+    where("status", "==", "active"),
+    orderBy("clicks", "desc") // KUNCI 2: Urut clicks paling banyak di atas
+  );
+  const snap = await getDocs(q);
+  allFaucets = snap.docs.map(d => ({ id: d.id,...d.data() }));
+
   render(allFaucets);
   renderTrending();
   renderCoinStats();
@@ -66,39 +40,32 @@ async function loadFaucets() {
   loadCoinFilter();
 }
 
+// KUNCI 3: Klik Claim sekarang nembak ke Worker, bukan Firestore langsung
 window.visitFaucet = async function (id, url) {
+  try {
+    const res = await fetch(`${API_URL}/api/click`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id})
+    });
+    const data = await res.json();
 
-  let countClick = true;
-
-  if (!canClick(id)) {
-    countClick = false;
-  }
-
-  if (countClick) {
-
-    setClick(id);
-
-    try {
-      await updateDoc(
-        doc(db, "faucets", id),
-        {
-          clicks: increment(1),
-          lastClickAt: Date.now(),
-          deviceId: getDeviceId()
-        }
-      );
-    } catch (e) {
-      console.log(e);
+    if(!res.ok){
+      alert(data.error); // "Tunggu 42 menit lagi"
+      return; // Gagal = gak buka link
     }
+
+  } catch (e) {
+    console.log(e);
+    alert("Gagal connect server");
+    return;
   }
 
-  // tetap buka faucet
+  // Lolos rate limit baru buka link
   window.open(url, "_blank");
-};
+  loadFaucets(); // Refresh jumlah clicks biar naik
+}
 
-/* =====================
-   RENDER ALL LIST - STYLE #1 NAMA COIN 💧 ⏱ CLAIM
-===================== */
 function render(data) {
   if (!listDiv) return;
   listDiv.innerHTML = data.map(d => `
@@ -106,27 +73,22 @@ function render(data) {
       <div class="rank">#${d.rank || "-"}</div>
       <div class="info">
         <div class="name">${d.name || "-"}</div>
-        <div class="meta">${d.coin || "-"} 💧 ${d.clicks || 0} ⏱ ${d.uptime || 100}</div>
+        <div class="meta">${d.coin || "-"} 💧 ${d.clicks || 0}</div> <!-- UPTIME DIBUANG -->
       </div>
       <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">Claim</button>
     </div>
   `).join("");
 }
 
-/* =====================
-   RENDER TRENDING - STYLE 🔥1 NAMA COIN 💧 ⏱ CLAIM
-===================== */
 function renderTrending() {
   if (!trendingDiv) return;
-  const top = [...allFaucets]
-    .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
-    .slice(0, 3);
+  const top = allFaucets.slice(0, 3); // Udah urut clicks dari query
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
       <div class="rank">🔥 ${i + 1}</div>
       <div class="info">
         <div class="name">${d.name}</div>
-        <div class="meta">${d.coin} 💧 ${d.clicks || 0} ⏱ ${d.uptime || 100}</div>
+        <div class="meta">${d.coin} 💧 ${d.clicks || 0}</div> <!-- UPTIME DIBUANG -->
       </div>
       <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">Claim</button>
     </div>
@@ -146,9 +108,9 @@ function renderCoinStats() {
     count[c] = (count[c] || 0) + 1;
   });
   coinStatsDiv.innerHTML = Object.keys(count)
-    .sort()
-    .map(c => `<span class="badge">${c} (${count[c]})</span>`)
-    .join("");
+   .sort()
+   .map(c => `<span class="badge">${c} (${count[c]})</span>`)
+   .join("");
 }
 
 function loadCoinFilter() {
