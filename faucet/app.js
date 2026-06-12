@@ -25,7 +25,7 @@ const addressEl = document.getElementById('address');
 // 1. Load list faucet dari Firestore /faucets
 async function loadFaucets(){
   try{
-    const snap = await getDocs(collection(db, "faucets"));
+    const snap = await getDocs(collection(db, "paycoin"));
     select.innerHTML = "";
     snap.forEach(d => {
       const opt = document.createElement('option');
