@@ -47,7 +47,7 @@ window.visitFaucet = async function (id, url) {
   if(btn) { btn.disabled = true; btn.textContent = '...'; }
 
   try {
-    const res = await fetch(`${API_URL}/api/click`, {
+    const res = await fetch(`${API_URL}`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({id})
