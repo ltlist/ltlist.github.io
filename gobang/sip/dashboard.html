@@ -11,7 +11,7 @@
   <nav class="navbar">
     <div class="logo">LTList Admin</div>
     <div class="nav-actions">
-      <a href="/index.html" target="_blank" class="btn-site">Lihat Site</a>
+      <a href="https://ltlist.github.io/" target="_blank" rel="noopener" class="btn-site">Visit Site</a>
       <button onclick="logout()">Logout</button>
     </div>
   </nav>
@@ -19,26 +19,40 @@
   <main class="container">
     <h1>Dashboard Admin</h1>
 
-    <section class="add-form">
-      <h2>Tambah Faucet Baru</h2>
-      <div class="form-grid">
-        <input id="name" placeholder="Nama Faucet" required>
-        <input id="url" placeholder="URL Faucet https://..." required>
-        <input id="min" placeholder="Min Withdraw" required>
-        <input id="interval" placeholder="Interval" required>
-        <select id="status">
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </select>
-        <button onclick="addFaucet()">Tambah</button>
-      </div>
-    </section>
-
     <section>
       <h2>Daftar Faucet</h2>
-      <div id="list" class="list"></div>
+      <input id="search" placeholder="Cari nama, coin, atau rank..." onkeyup="searchFaucet()">
+      <div id="list" class="list">Loading...</div>
+    </section>
+
+    <hr>
+
+    <section>
+      <h2>Tambah Faucet</h2>
+      <input id="name" placeholder="Nama" required>
+      <input id="url" placeholder="URL https://..." required>
+      <input id="coin" placeholder="Coin MULTI/BTC/LTC" required>
+      <button onclick="addFaucet()">Tambah</button>
     </section>
   </main>
+
+  <div id="editModal" class="modal">
+    <div class="modal-box">
+      <h2>Edit Faucet</h2>
+      <input type="hidden" id="editId">
+      <input id="editName" placeholder="Nama">
+      <input id="editUrl" placeholder="URL">
+      <input id="editCoin" placeholder="Coin">
+      <select id="editStatus">
+        <option value="active">active</option>
+        <option value="inactive">inactive</option>
+      </select>
+      <div class="modal-actions">
+        <button onclick="closeModal()">Batal</button>
+        <button onclick="saveEdit()">Simpan</button>
+      </div>
+    </div>
+  </div>
 
   <div id="toast"></div>
   <script type="module" src="dashboard.js"></script>
