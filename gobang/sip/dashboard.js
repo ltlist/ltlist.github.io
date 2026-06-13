@@ -2,10 +2,17 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import {
   getFirestore, collection, getDocs, addDoc, deleteDoc, doc, query, orderBy, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+import {
+  getAuth,
+  signOut,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokJ_Wj3aITEhj6UPetF-MGQXKdv75S8",
+  apiKey: "AIzaSyAVokJ_Wj3aITEhj6UPetF-Fix",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -19,6 +26,9 @@ const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+
+// 🔥 FIX 1: LOGIN TIDAK HILANG SAAT REFRESH
+setPersistence(auth, browserLocalPersistence);
 
 const listDiv = document.getElementById("list");
 const toastDiv = document.getElementById("toast");
@@ -34,46 +44,27 @@ const showToast = (msg) => {
 
 function requireAdmin() {
   const user = auth.currentUser;
-  if (!user || user.uid !== UID_ADMIN) {
+
+  if (!user) return false;
+
+  if (user.uid !== UID_ADMIN) {
     showToast("Akses ditolak");
     return false;
   }
+
   return true;
 }
 
 // =========================
-// LOAD FIRESTORE + SYNC KV
+// LOAD DATA
 // =========================
 async function loadFaucets() {
-  if (!requireAdmin()) return;
-
   const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
   const snap = await getDocs(q);
 
   allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  await syncClicksFromKV(); // ⭐ INI FIX UTAMA
   render(allFaucets);
-}
-
-// =========================
-// SYNC CLICK DARI WORKER KV
-// =========================
-async function syncClicksFromKV() {
-  try {
-    const res = await fetch(`${API_URL}/api/get-clicks`);
-    const data = await res.json();
-
-    data.forEach(item => {
-      const f = allFaucets.find(x => x.id === item.id);
-      if (f) {
-        f.clicks = item.clicks;
-      }
-    });
-
-  } catch (e) {
-    console.log("KV sync error:", e);
-  }
 }
 
 // =========================
@@ -94,18 +85,12 @@ function render(data) {
       </div>
 
       <a href="${d.url}" target="_blank" class="claim-btn">Open</a>
-
-      <div class="card-right">
-        <button onclick='openEdit(${JSON.stringify(d).replace(/'/g,"&apos;")})'>Edit</button>
-        <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
-        <button onclick="deleteFaucet('${d.id}')">Hapus</button>
-      </div>
     </div>
   `).join("");
 }
 
 // =========================
-// ADD FAUCET
+// ADD
 // =========================
 window.addFaucet = async function () {
   if (!requireAdmin()) return;
@@ -120,7 +105,8 @@ window.addFaucet = async function () {
   await addDoc(collection(db, "faucets"), {
     name, url, coin,
     status: "active",
-    rank: nextRank
+    rank: nextRank,
+    clicks: 0
   });
 
   showToast("Ditambahkan");
@@ -132,26 +118,29 @@ window.addFaucet = async function () {
 // =========================
 window.deleteFaucet = async function (id) {
   if (!requireAdmin()) return;
+
   await deleteDoc(doc(db, "faucets", id));
+
   showToast("Dihapus");
   loadFaucets();
 };
 
 // =========================
-// TOGGLE STATUS
+// TOGGLE
 // =========================
 window.toggleStatus = async function (id, status) {
   if (!requireAdmin()) return;
 
   const newStatus = status === "active" ? "inactive" : "active";
+
   await updateDoc(doc(db, "faucets", id), { status: newStatus });
 
-  showToast("Status update");
+  showToast("Status diupdate");
   loadFaucets();
 };
 
 // =========================
-// EDIT
+// EDIT SAVE
 // =========================
 window.saveEdit = async function () {
   if (!requireAdmin()) return;
@@ -169,11 +158,20 @@ window.saveEdit = async function () {
 };
 
 // =========================
-// AUTH
+// AUTH FIX (ANTI LOGOUT LOOP)
 // =========================
+let authReady = false;
+
 onAuthStateChanged(auth, async (user) => {
-  if (!user || user.uid !== UID_ADMIN) {
-    if (user) await signOut(auth);
+  authReady = true;
+
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  if (user.uid !== UID_ADMIN) {
+    await signOut(auth);
     window.location.href = "login.html";
     return;
   }
