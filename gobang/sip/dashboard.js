@@ -1,103 +1,184 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { 
-  getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy 
+import {
+  getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"; 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAVf...",
-  authDomain: "ltlist-firebaseapp.com",
-  projectId: "ltlist",
-  storageBucket: "ltlist.appspot.com",
-  messagingSenderId: "123...",
-  appId: "1:123...:web:abc"
+  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
+  authDomain: "ltlist-f.firebaseapp.com",
+  projectId: "ltlist-f",
+  storageBucket: "ltlist-f.firebasestorage.app",
+  messagingSenderId: "991011425656",
+  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
+
+const UID_ADMIN = "gZPXqeKPBAZfCzYXEcrGWMcSFHI2"; 
+const API_URL = "https://api.ltlist.workers.dev";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const API_URL = "https://api.ltlist.workers.dev"; // GANTI URL WORKER KAMU
+const listDiv = document.getElementById("list");
+const toastDiv = document.getElementById("toast");
+const modalDiv = document.getElementById("editModal");
+let allFaucets = [];
 
-const listEl = document.getElementById("list");
-const form = document.getElementById("form");
+const showToast = (msg) => {
+  toastDiv.textContent = msg;
+  toastDiv.classList.add("show");
+  setTimeout(() => toastDiv.classList.remove("show"), 2000);
+};
 
-onAuthStateChanged(auth, user => {
-  if (!user) return window.location.href = "login.html";
-  loadData();
-});
-
-async function loadData() {
-  listEl.innerHTML = "Loading...";
-
-  // 1. Ambil semua faucet dari Firestore, urut by rank
-  const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
-  const snap = await getDocs(q);
-  const faucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-  // 2. Ambil semua count dari Worker sekaligus
-  const ids = faucets.map(f => f.id);
-  const res = await fetch(`${API_URL}/counts`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ ids })
-  });
-  const counts = await res.json(); // { id1: 12, id2: 5, ... }
-
-  // 3. Render
-  listEl.innerHTML = "";
-  faucets.forEach((f, i) => {
-    const count = counts[f.id] ?? 0; // ambil dari KV, bukan firestore.clicks
-
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <div class="rank">#${f.rank}</div> <!-- RANK TETEP ADA -->
-      <div class="info">
-        <b>${f.name}</b>
-        <span>${count} claims</span> <!-- INI DARI WORKER -->
-      </div>
-      <div class="actions">
-        <button onclick="editFaucet('${f.id}')">Edit</button>
-        <button onclick="deleteFaucet('${f.id}', ${f.rank})" class="danger">Hapus</button>
-      </div>
-    `;
-    listEl.appendChild(card);
-  });
+function requireAdmin() {
+  const user = auth.currentUser;
+  if (!user || user.uid !== UID_ADMIN) {
+    showToast("Akses ditolak. Bukan admin");
+    return false;
+  }
+  return true;
 }
 
-form.addEventListener("submit", async e => {
-  e.preventDefault();
-  const name = form.name.value;
-  const url = form.url.value;
+async function loadFaucets(){
+  if (!requireAdmin()) return;
+  const snap = await getDocs(collection(db, "faucets")); 
+  allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() })); // UDAH GAK AMBIL CLICKS DARI KV
+  rerank(); // Rank tetep ada, urut dari field `rank` di Firestore
+}
 
-  // Cari rank paling akhir + 1
-  const snap = await getDocs(query(collection(db, "faucets"), orderBy("rank", "desc"), limit(1)));
-  const nextRank = snap.empty ? 1 : snap.docs[0].data().rank + 1;
+function render(data){
+  if(data.length === 0){
+    listDiv.innerHTML = "<p style='text-align:center; color:var(--muted); padding:20px;'>Belum ada data faucet.</p>";
+    return;
+  }
+  listDiv.innerHTML = data.map((d) => {
+    return `
+      <div class="card">
+        <div class="card-left">
+          <span class="rank-badge">#${d.rank}</span> <!-- RANK TETAP ADA -->
+          <span class="status-badge ${d.status}">${d.status}</span> <!-- STATUS TETAP ADA -->
+        </div>
+        <div class="card-mid">
+          <div class="card-title" title="${d.name}">${d.name}</div>
+          <div class="card-sub">${d.coin}</div>
+          <div class="card-stats">Min: ${d.min || '-'}</div> <!-- INI YANG DIHAPUS: ${d.clicks ?? 0} claims -->
+        </div>
+        <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
+        <div class="card-right">
+          <button class="btn-edit" onclick='openEdit(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button> <!-- BIRU -->
+          <button onclick="toggleStatus('${d.id}','${d.status}')" style="background:var(--yellow); color:#000;">Toggle</button> <!-- KUNING -->
+          <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button> <!-- MERAH -->
+        </div>
+      </div>
+    `;
+  }).join("");
+}
 
-  await addDoc(collection(db, "faucets"), {
-    name, url, rank: nextRank // cuma simpan rank, ga ada clicks
+window.addClick = async function(id){
+  if (!requireAdmin()) return;
+  const res = await fetch(`${API_URL}/api/click`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({id})
   });
-  form.reset();
-  loadData();
-});
+  const data = await res.json();
+  if(!res.ok) return showToast(data.error);
+  window.open(document.querySelector(`a[onclick*="${id}"]`).href, '_blank');
+  // loadFaucets(); DIHAPUS, biar gak refresh angka clicks
+};
 
-window.deleteFaucet = async (id, rank) => {
-  if (!confirm("Hapus?")) return;
+window.addFaucet = async function(){
+  if(!requireAdmin()) return; 
+  const name = document.getElementById("name").value.trim();
+  const url = document.getElementById("url").value.trim();
+  const coin = document.getElementById("coin").value.trim().toUpperCase();
+  if(!name || !url || !coin) return showToast("Isi Nama, URL, Coin dulu");
+
+  const nextRank = allFaucets.length + 1;
+  await addDoc(collection(db, "faucets"), { 
+    name, url, coin, rank: nextRank, status: "active" // CLICKS DIHAPUS
+  });
+  document.getElementById("name").value = "";
+  document.getElementById("url").value = "";
+  document.getElementById("coin").value = "";
+  showToast(`Ditambah`);
+  loadFaucets();
+};
+
+window.deleteFaucet = async function(id){
+  if(!requireAdmin()) return; 
+  if(!confirm("Yakin hapus?")) return;
   await deleteDoc(doc(db, "faucets", id));
-  // Geser rank yang dibawahnya naik 1
-  const snap = await getDocs(query(collection(db, "faucets"), where("rank", ">", rank)));
+  showToast("Faucet dihapus.");
+  loadFaucets();
+  rerank();
+};
+
+window.toggleStatus = async function(id, status){
+  if(!requireAdmin()) return; 
+  const newStatus = status === "active" ? "inactive" : "active";
+  await updateDoc(doc(db, "faucets", id), { status: newStatus }); 
+  showToast(`Status: ${newStatus}`);
+  loadFaucets();
+};
+
+window.openEdit = function(data){
+  if(!requireAdmin()) return; 
+  document.getElementById("editId").value = data.id;
+  document.getElementById("editName").value = data.name;
+  document.getElementById("editUrl").value = data.url;
+  document.getElementById("editCoin").value = data.coin;
+  document.getElementById("editStatus").value = data.status;
+  modalDiv.classList.add("show");
+};
+
+window.closeModal = function(){ modalDiv.classList.remove("show"); };
+
+window.saveEdit = async function(){
+  if(!requireAdmin()) return; 
+  const id = document.getElementById("editId").value;
+  const data = {
+    name: document.getElementById("editName").value.trim(),
+    url: document.getElementById("editUrl").value.trim(),
+    coin: document.getElementById("editCoin").value.trim().toUpperCase(),
+    status: document.getElementById("editStatus").value
+    // clicks: DIHAPUS
+  };
+  await updateDoc(doc(db, "faucets", id), data);
+  closeModal();
+  showToast("Diupdate");
+  loadFaucets();
+};
+
+async function rerank(){ // RANK TETAP JALAN
+  allFaucets.sort((a,b) => (a.rank || 999) - (b.rank || 999));
   const batch = [];
-  snap.forEach(d => batch.push(updateDoc(d.ref, { rank: d.data().rank - 1 })));
+  allFaucets.forEach((f, i) => {
+    if(f.rank !== i + 1) batch.push(updateDoc(doc(db, "faucets", f.id), {rank: i+1}));
+  });
   await Promise.all(batch);
-  loadData();
+  render(allFaucets);
+}
+
+window.searchFaucet = function(){
+  const v = document.getElementById("search").value.toLowerCase();
+  const filtered = allFaucets.filter(f =>
+    f.name.toLowerCase().includes(v) ||
+    f.coin.toLowerCase().includes(v)
+  );
+  render(filtered);
 };
 
-window.editFaucet = async (id) => {
-  const newRank = prompt("Rank baru:");
-  if (!newRank) return;
-  await updateDoc(doc(db, "faucets", id), { rank: Number(newRank) });
-  loadData();
-};
+window.logout = () => signOut(auth).then(() => window.location.href = "login.html");
 
-document.getElementById("logout").onclick = () => signOut(auth);
+modalDiv.onclick = (e) => { if(e.target === modalDiv) closeModal(); }
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user || user.uid !== UID_ADMIN) {
+    if(user) await signOut(auth);
+    window.location.href = "login.html";
+    return;
+  }
+  await loadFaucets();
+});
