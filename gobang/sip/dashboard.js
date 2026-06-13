@@ -86,7 +86,12 @@ function render(data){
         <div class="card-mid">
           <div class="card-title" title="${d.name}">${d.name}</div>
           <div class="card-sub">${d.coin}</div>
-          <div class="card-stats">${d.clicks ?? 0} claims | <span style="color:${uptimeColor}">${d.uptime ?? 0}%</span></div>
+          <div class="card-stats">
+  ${d.clicks ?? 0} claims |
+  <span style="color:${uptimeColor}">
+    ${d.uptime ?? 0}%
+  </span>
+</div>
         </div>
         <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
         <div class="card-right">
