@@ -24,15 +24,14 @@ const API_URL = "https://api.ltlist.workers.dev"; // GANTI URL WORKER KAMU
 let allFaucets = [];
 
 async function loadFaucets() {
-  // KUNCI: Cuma where doang, gak pake orderBy. Biar gak perlu index
   const q = query(
     collection(db, "faucets"),
     where("status", "==", "active")
   );
   const snap = await getDocs(q);
-  allFaucets = snap.docs.map(d => ({ id: d.id,...d.data() }));
+  allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  // KUNCI: Urut manual di browser by clicks paling banyak
+  // KUNCI 1: Urut manual di browser by clicks paling banyak
   allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
 
   render(allFaucets);
@@ -44,6 +43,9 @@ async function loadFaucets() {
 
 // Klik Claim -> Nembak ke Worker biar anti spam 60mnt
 window.visitFaucet = async function (id, url) {
+  const btn = document.querySelector(`button[onclick*="${id}"]`);
+  if(btn) { btn.disabled = true; btn.textContent = '...'; }
+
   try {
     const res = await fetch(`${API_URL}/api/click`, {
       method: 'POST',
@@ -54,26 +56,39 @@ window.visitFaucet = async function (id, url) {
 
     if(!res.ok){
       alert(data.error); // "Tunggu 42 menit lagi"
+      if(btn) { btn.disabled = false; btn.textContent = 'Claim'; }
       return;
     }
+    
+    // KUNCI 2: Update local biar rank langsung geser tanpa reload Firebase
+    const item = allFaucets.find(f => f.id === id);
+    if(item) {
+      item.clicks = (item.clicks || 0) + 1;
+      allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0)); // Urut ulang
+    }
+    
+    render(allFaucets); // Render ulang biar rank #1 #2 #3 ke geser
+    renderTrending();
+    renderCoinStats();
+
   } catch (e) {
     console.log(e);
     alert("Gagal connect server");
-    return;
   }
 
   window.open(url, "_blank");
-  loadFaucets(); // Refresh biar clicks naik
+  if(btn) { setTimeout(() => { btn.disabled = false; btn.textContent = 'Claim'; }, 1500); }
 }
 
 function render(data) {
   if (!listDiv) return;
-  listDiv.innerHTML = data.map(d => `
+  // KUNCI 3: Pake `i` dari map, bukan `d.rank`
+  listDiv.innerHTML = data.map((d, i) => `
     <div class="card">
-      <div class="rank">#${d.rank || "-"}</div>
+      <div class="rank">#${i + 1}</div> <!-- INI AUTO RANK 1,2,3 -->
       <div class="info">
         <div class="name">${d.name || "-"}</div>
-        <div class="meta">${d.coin || "-"} 💧 ${d.clicks || 0}</div> <!-- UPTIME UDAH DIBUANG -->
+        <div class="meta">${d.coin || "-"} 💧 ${d.clicks || 0}</div>
       </div>
       <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">Claim</button>
     </div>
@@ -85,10 +100,10 @@ function renderTrending() {
   const top = allFaucets.slice(0, 3); // Udah urut dari atas
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
-      <div class="rank">🔥 ${i + 1}</div>
+      <div class="rank">🔥 ${i + 1}</div> <!-- INI JUGA AUTO -->
       <div class="info">
         <div class="name">${d.name}</div>
-        <div class="meta">${d.coin} 💧 ${d.clicks || 0}</div> <!-- UPTIME UDAH DIBUANG -->
+        <div class="meta">${d.coin} 💧 ${d.clicks || 0}</div>
       </div>
       <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">Claim</button>
     </div>
