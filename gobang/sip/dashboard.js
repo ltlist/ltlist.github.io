@@ -13,8 +13,8 @@ const firebaseConfig = {
   appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 
-// 1. ISI UID KAMU DI SINI DOANG
 const UID_ADMIN = "gZPXqeKPBAZfCzYXEcrGWMcSFHI2"; 
+const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
 let allFaucets = [];
 
 async function syncClicksFromKV() {
@@ -32,8 +32,6 @@ async function syncClicksFromKV() {
   }
 }
 
-const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -42,17 +40,15 @@ const listDiv = document.getElementById("list");
 const toastDiv = document.getElementById("toast");
 const modalDiv = document.getElementById("editModal");
 
-
 const showToast = (msg) => {
   toastDiv.textContent = msg;
   toastDiv.classList.add("show");
   setTimeout(() => toastDiv.classList.remove("show"), 2000);
 };
 
-// FUNGSI KUNCI BARU: Cek login + Cek UID
 function requireAdmin() {
   const user = auth.currentUser;
-  if (!user || user.uid !== UID_ADMIN) { // <- Cek UID di sini juga
+  if (!user || user.uid !== UID_ADMIN) {
     showToast("Akses ditolak. Bukan admin");
     return false;
   }
@@ -60,14 +56,13 @@ function requireAdmin() {
 }
 
 async function loadFaucets(){
-  if (!requireAdmin()) return; // cegah load kalo bukan admin
+  if (!requireAdmin()) return;
   const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
   const snap = await getDocs(q);
   allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-await syncClicksFromKV();
-
-render(allFaucets);
+  await syncClicksFromKV();
+  render(allFaucets);
 }
 
 function render(data){
@@ -76,7 +71,7 @@ function render(data){
     return;
   }
   listDiv.innerHTML = data.map(d => {
-    const uptimeColor = d.uptime >= 90 ? 'var(--green)' : d.uptime >= 50 ? 'var(--yellow)' : 'var(--red)';
+    // const uptimeColor = ... DIHAPUS
     return `
       <div class="card">
         <div class="card-left">
@@ -86,18 +81,13 @@ function render(data){
         <div class="card-mid">
           <div class="card-title" title="${d.name}">${d.name}</div>
           <div class="card-sub">${d.coin}</div>
-          <div class="card-stats">
-  ${d.clicks ?? 0} claims |
-  <span style="color:${uptimeColor}">
-    ${d.uptime ?? 0}%
-  </span>
-</div>
+          <div class="card-stats">${d.clicks ?? 0} claims</div> <!-- UPTIME DIHAPUS -->
         </div>
         <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
         <div class="card-right">
           <button class="btn-edit" onclick='openEdit(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button>
-          <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
-          <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button>
+          <button class="btn-toggle" onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button> <!-- KUNING -->
+          <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button> <!-- MERAH -->
         </div>
       </div>
     `;
@@ -121,7 +111,7 @@ window.addFaucet = async function(){
   const snap = await getDocs(collection(db, "faucets"));
   const nextRank = snap.size + 1;
   await addDoc(collection(db, "faucets"), { 
-    name, url, coin, status: "active", rank: nextRank, uptime: 100, clicks: 0
+    name, url, coin, status: "active", rank: nextRank, clicks: 0 // uptime: 100 DIHAPUS
   });
   document.getElementById("name").value = "";
   document.getElementById("url").value = "";
@@ -141,8 +131,8 @@ window.deleteFaucet = async function(id){
 window.toggleStatus = async function(id, status){
   if(!requireAdmin()) return; 
   const newStatus = status === "active" ? "inactive" : "active";
-  const newUptime = newStatus === "active" ? 100 : 0;
-  await updateDoc(doc(db, "faucets", id), { status: newStatus, uptime: newUptime });
+  // const newUptime = ... DIHAPUS
+  await updateDoc(doc(db, "faucets", id), { status: newStatus }); // uptime dihapus
   showToast(`Status: ${newStatus}`);
   loadFaucets();
 };
@@ -154,6 +144,7 @@ window.openEdit = function(data){
   document.getElementById("editUrl").value = data.url;
   document.getElementById("editCoin").value = data.coin;
   document.getElementById("editStatus").value = data.status;
+  // document.getElementById("editUptime").value = ... DIHAPUS
   modalDiv.classList.add("show");
 };
 
@@ -166,7 +157,7 @@ window.saveEdit = async function(){
     name: document.getElementById("editName").value.trim(),
     url: document.getElementById("editUrl").value.trim(),
     coin: document.getElementById("editCoin").value.trim().toUpperCase(),
-    uptime: parseInt(document.getElementById("editUptime").value) || 0,
+    // uptime: ... DIHAPUS
     status: document.getElementById("editStatus").value
   };
   await updateDoc(doc(db, "faucets", id), data);
@@ -209,10 +200,9 @@ window.addEventListener('scroll', () => {
   document.querySelector('.navbar')?.classList.toggle('scrolled', window.scrollY > 10);
 });
 
-// Redirect paksa kalo belum login / bukan admin
 onAuthStateChanged(auth, async (user) => {
-  if (!user || user.uid !== UID_ADMIN) { // <- PAKE VARIABEL + PETIK
-    if(user) await signOut(auth); // kick kalo UID salah
+  if (!user || user.uid !== UID_ADMIN) {
+    if(user) await signOut(auth);
     window.location.href = "login.html";
     return;
   }
