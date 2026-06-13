@@ -41,7 +41,7 @@ const auth = getAuth(app);
 const listDiv = document.getElementById("list");
 const toastDiv = document.getElementById("toast");
 const modalDiv = document.getElementById("editModal");
-let allFaucets = [];
+
 
 const showToast = (msg) => {
   toastDiv.textContent = msg;
