@@ -1,83 +1,60 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LTList</title>
-<style>
-  :root { --bg:#0b1220; --card:#111a2b; --accent:#00e5ff; --green:#0d9488; --text:#e5e7eb; --muted:#94a3b8; }
-  body { font-family: system-ui; background:var(--bg); color:var(--text); margin:0; }
-  header { display:flex; justify-content:space-between; align-items:center; padding:16px; border-bottom:1px solid #1f2937; background:var(--bg); }
-  header h1 { color:var(--accent); font-size:22px; margin:0; }
-.container { padding:16px; max-width:600px; margin:auto; }
-.card { background:var(--card); border:1px solid #1f2937; border-radius:16px; padding:14px; display:flex; align-items:center; gap:12px; margin-bottom:12px; }
-.rank { font-weight:bold; font-size:14px; color:var(--muted); width:24px; text-align:center; }
-.info { flex:1; }
-.info.name { font-weight:700; font-size:16px; }
-.info.meta { font-size:13px; color:var(--muted); display:flex; align-items:center; gap:4px; }
-.btn { background:var(--green); border:none; color:#fff; font-weight:700; padding:10px 22px; border-radius:12px; cursor:pointer; }
-.btn:disabled { background:#374151; }
-.loading { text-align:center; color:var(--muted); padding:20px; }
-.drop { width:14px; height:14px; }
-</style>
+
+<title>LTList Faucet</title>
+
+<meta name="description" content="Verified crypto faucets with active payouts and ranking.">
+<meta name="keywords" content="crypto faucet,litecoin faucet,doge faucet,faucetpay">
+<meta name="robots" content="index,follow">
+
+<meta property="og:title" content="LTList Faucet">
+<meta property="og:description" content="Verified Crypto Faucets">
+<meta property="og:type" content="website">
+
+<link rel="icon" href="favicon.png">
+<link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<header><h1>LTList</h1><div style="color:var(--accent); font-weight:700;">MARKET</div></header>
+
+<nav class="navbar">
+  <div class="nav-left">
+    <span class="logo">LTList</span>
+  </div>
+  <div class="nav-right">
+    <a href="https://ltlist.github.io/marketcap">MARKET</a>
+  </div>
+</nav>
 <div class="container">
-  <div id="list"><div class="loading">Loading...</div></div>
-</div>
-<script>
-const API_URL = "https://GANTI-DENGAN-URL-WORKER-KAMU.workers.dev"; // <-- WAJIB GANTI
 
-// Data Faucet Hardcode. Tinggal tambah di sini
-const FAUCETS = [
-  {id: 'viefaucet', name: 'Viefaucet', coin: 'MULTI', url: 'https://link-viefaucet-kamu.com'},
-  {id: 'zerads', name: 'Zerads', coin: 'ZER', url: 'https://link-zerads-kamu.com'},
-  {id: 'ltc-faucet', name: 'Litecoin faucet', coin: 'LTC', url: 'https://link-ltc-kamu.com'},
-  {id: 'shorlinks', name: 'Shorlinks Faucet', coin: 'LTC', url: 'https://link-shorlinks-kamu.com'},
-];
-let counts = {};
+  <h1>LTList Faucet</h1>
 
-async function loadCounts() {
-  const promises = FAUCETS.map(f => fetch(`${API_URL}/api/count?id=${f.id}`).then(r=>r.json()));
-  const results = await Promise.all(promises);
-  results.forEach((data, i) => counts[FAUCETS[i].id] = data.count || 0);
-  render();
-}
-
-function render() {
-  const sorted = FAUCETS.sort((a,b) => (counts[b.id]||0) - (counts[a.id]||0));
-  document.getElementById('list').innerHTML = sorted.map((f,i) => `
-    <div class="card">
-      <div class="rank">#${i + 1}</div>
-      <div class="info">
-        <div class="name">${f.name}</div>
-        <div class="meta">${f.coin} <svg class="drop" viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg> ${counts[f.id]||0}</div>
-      </div>
-      <button class="btn" id="btn-${f.id}" onclick="claim('${f.id}','${f.url}')">Claim</button>
-    </div>
-  `).join("");
-}
-
-async function claim(id, url) {
-  const btn = document.getElementById(`btn-${id}`);
-  btn.disabled = true; btn.textContent = '...';
+  <h2>🔥 Trending Faucets</h2>
+  <div id="trending"></div>
+  <div id="coinStats"></div>
+  <p id="totalFaucets"></p>
   
-  const res = await fetch(`${API_URL}/api/click`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({id}) });
-  const data = await res.json();
+  <input id="search" placeholder="Search faucet..." onkeyup="searchPublic()">
+  
+  <select id="coinFilter" onchange="filterCoin()">
+    <option value="all">All Coins</option>
+  </select>
 
-  if(!res.ok){
-    alert(data.error); // "Tunggu 42 menit lagi"
-    btn.disabled = false; btn.textContent = 'Claim';
-    return;
-  }
+  <div id="list"></div>
 
-  counts[id] = data.count; // Update angka langsung
-  render(); // Refresh urutan
-  window.open(url, "_blank"); // Buka link faucet
-  setTimeout(() => { btn.disabled = false; btn.textContent = 'Claim'; }, 1500);
-}
-loadCounts();
-</script>
+  <footer class="footer">
+    <p>
+    LTList provides a list of crypto faucets with a fast payout system to <a href="https://faucetpay.io/?r=5725">Faucetpay</a>. For the ZER coin, use the name<a href="https://zerochain.info/wallet">ZeroChain</a>. Daily updates for active faucets.
+    </p>
+    © LTList Faucet - All rights reserved
+  </footer>
+
+</div>
+
+<script type="module" src="public.js"></script>
+
 </body>
 </html>
