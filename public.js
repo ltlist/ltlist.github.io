@@ -19,11 +19,14 @@ const coinStatsDiv = document.getElementById("coinStats");
 const coinFilter = document.getElementById("coinFilter");
 const totalEl = document.getElementById("totalFaucets");
 
-// IMPORTANT: tanpa slash di akhir
+// IMPORTANT: tanpa slash
 const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
 
 let allFaucets = [];
 
+// =========================
+// LOAD DATA FIRESTORE
+// =========================
 async function loadFaucets() {
   const q = query(
     collection(db, "faucets"),
@@ -31,9 +34,16 @@ async function loadFaucets() {
   );
 
   const snap = await getDocs(q);
-  allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
+  allFaucets = snap.docs.map(d => ({
+    id: d.id,
+    ...d.data(),
+    clicks: 0 // default aman sebelum sync
+  }));
+
+  await syncClicks(); // ⭐ PENTING: ambil data KV
   sortAndRender();
+
   renderTrending();
   renderCoinStats();
   renderTotal();
@@ -41,7 +51,27 @@ async function loadFaucets() {
 }
 
 // =========================
-// SORT + RENDER UTAMA
+// SYNC DARI WORKER KV
+// =========================
+async function syncClicks() {
+  try {
+    const res = await fetch(`${API_URL}/api/get-clicks`);
+    const data = await res.json();
+
+    data.forEach(item => {
+      const f = allFaucets.find(x => x.id === item.id);
+      if (f) {
+        f.clicks = item.clicks;
+      }
+    });
+
+  } catch (e) {
+    console.log("sync error:", e);
+  }
+}
+
+// =========================
+// SORT + RENDER
 // =========================
 function sortAndRender() {
   allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
@@ -49,7 +79,7 @@ function sortAndRender() {
 }
 
 // =========================
-// CLICK SYSTEM (WORKER)
+// CLICK HANDLER
 // =========================
 window.visitFaucet = async function (id, url) {
   const btn = document.querySelector(`button[onclick*="${id}"]`);
@@ -67,7 +97,7 @@ window.visitFaucet = async function (id, url) {
 
     const data = await res.json();
 
-    if (!res.ok) {
+    if (!res.ok || !data.success) {
       alert(data.error || "Error");
       if (btn) {
         btn.disabled = false;
@@ -76,13 +106,13 @@ window.visitFaucet = async function (id, url) {
       return;
     }
 
-    // ✔ FIX: pakai data server (bukan fake local)
+    // ✔ update dari server (bukan local fake)
     const item = allFaucets.find(f => f.id === id);
     if (item) {
       item.clicks = data.count;
-      sortAndRender();
     }
 
+    sortAndRender();
     renderTrending();
     renderCoinStats();
 
@@ -186,6 +216,9 @@ function loadCoinFilter() {
   });
 }
 
+// =========================
+// SEARCH + FILTER
+// =========================
 window.searchPublic = function () {
   const q = document.getElementById("search")?.value.toLowerCase() || "";
   render(allFaucets.filter(f =>
@@ -200,4 +233,5 @@ window.filterCoin = function () {
   render(allFaucets.filter(f => f.coin === c));
 };
 
+// START
 loadFaucets();
