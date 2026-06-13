@@ -48,7 +48,10 @@ async function loadFaucets(){
   const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
   const snap = await getDocs(q);
   allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  render(allFaucets);
+
+await syncClicksFromKV();
+
+render(allFaucets);
 }
 
 function render(data){
