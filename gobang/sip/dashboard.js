@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy, increment
+  getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"; 
 
@@ -15,6 +15,8 @@ const firebaseConfig = {
 
 // 1. ISI UID KAMU DI SINI DOANG
 const UID_ADMIN = "gZPXqeKPBAZfCzYXEcrGWMcSFHI2"; 
+
+const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -79,8 +81,10 @@ function render(data){
 }
 
 window.addClick = async function(id){
-  if (!requireAdmin()) return;
-  await updateDoc(doc(db, "faucets", id), { clicks: increment(1) });
+  window.open(
+    document.querySelector(`a[onclick*="${id}"]`).href,
+    "_blank"
+  );
 };
 
 window.addFaucet = async function(){
