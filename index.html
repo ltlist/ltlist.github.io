@@ -6,9 +6,10 @@
   <title>LTList - Limit Click</title>
   <style>
     body { font-family: sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 40px; }
-    button { background: #3b82f6; color: white; border: none; padding: 14px 28px; border-radius: 10px; font-size: 16px; cursor: pointer; margin: 8px; }
-    button:disabled { background: #475569; cursor: not-allowed; }
+    button { background: #3b82f6; color: white; border: none; padding: 14px 28px; border-radius: 10px; font-size: 16px; cursor: pointer; margin: 8px; width: 200px; }
+    button:disabled { background: #475569; cursor: not-allowed; opacity: 0.6; }
     #pesan { margin-top: 20px; font-size: 14px; }
+    .soon { font-size: 11px; color: #94a3b8; margin-top: -4px; }
   </style>
 </head>
 <body>
@@ -16,8 +17,16 @@
   <p>Klik tombol di bawah. 1 IP = 1 jam cooldown per game.</p>
 
   <button onclick="kirimLimit('mlbb')">Limit MLBB</button>
-  <button onclick="kirimLimit('ff')">Limit Free Fire</button>
-  <button onclick="kirimLimit('pubg')">Limit PUBG</button>
+  
+  <div>
+    <button disabled>Limit Free Fire</button>
+    <div class="soon">Segera Hadir</div>
+  </div>
+  
+  <div>
+    <button disabled>Limit PUBG</button>
+    <div class="soon">Segera Hadir</div>
+  </div>
 
   <div id="pesan"></div>
 
@@ -39,7 +48,7 @@ async function kirimLimit(id) {
       pesan.textContent = `✅ Berhasil! Limit ${id.toUpperCase()} aktif 1 jam.`;
       pesan.style.color = "#4ade80";
     } else {
-      pesan.textContent = `❌ ${data.error}`; // "Tunggu 43 menit lagi"
+      pesan.textContent = `❌ ${data.error}`;
       pesan.style.color = "#f87171";
     }
   } catch (e) {
