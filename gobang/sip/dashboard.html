@@ -5,6 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard LTList</title>
   <link rel="stylesheet" href="dashb.css">
+  <style>
+    .card { background:#111a2b; border:1px solid #1f2937; border-radius:12px; padding:14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .info { flex:1; }
+    .info .name { font-weight:700; font-size:16px; }
+    .info .meta { font-size:13px; color:#94a3b8; }
+    .actions { display:flex; gap:8px; }
+    .btn-edit { background:#f59e0b; border:none; color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; }
+    .btn-del { background:#ef4444; border:none; color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; }
+    .form-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px; }
+    input, select, button { padding:10px; border-radius:8px; border:1px solid #374151; background:#0b1220; color:#e5e7eb; }
+    button { background:#0d9488; border:none; font-weight:700; cursor:pointer; }
+    #toast { position:fixed; bottom:20px; right:20px; background:#0d9488; color:#fff; padding:12px 18px; border-radius:8px; display:none; }
+  </style>
 </head>
 <body>
 
@@ -20,22 +33,26 @@
     <h1>Dashboard Admin</h1>
 
     <section class="add-form">
-      <h2>Tambah Faucet Baru</h2>
+      <h2 id="formTitle">Tambah Faucet Baru</h2>
       <div class="form-grid">
         <input id="name" placeholder="Nama Faucet" required>
         <input id="url" placeholder="URL Faucet https://..." required>
-        <input id="min" placeholder="Min Withdraw" required>
-        <input id="interval" placeholder="Interval" required>
+        <input id="coin" placeholder="Coin: BTC, LTC, USDT" required> <!-- KUNCI: Tambah coin -->
+        <input id="min" placeholder="Min Withdraw" type="number">
+        <input id="interval" placeholder="Interval Jam" type="number">
+        <input id="clicks" placeholder="Clicks Manual" type="number"> <!-- KUNCI: Bisa atur clicks buat rank -->
         <select id="status">
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </select>
-        <button onclick="addFaucet()">Tambah</button>
+        <input id="editId" type="hidden"> <!-- KUNCI: Buat simpen ID pas edit -->
+        <button id="btnSave" onclick="saveFaucet()">Tambah</button>
+        <button id="btnCancel" onclick="cancelEdit()" style="background:#374151; display:none;">Batal</button>
       </div>
     </section>
 
     <section>
-      <h2>Daftar Faucet</h2>
+      <h2>Daftar Faucet <small style="color:#94a3b8;">Urut otomatis by Clicks</small></h2>
       <div id="list" class="list"></div>
     </section>
   </main>
