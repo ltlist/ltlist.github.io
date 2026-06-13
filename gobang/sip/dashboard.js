@@ -160,21 +160,34 @@ window.saveEdit = async function () {
 // =========================
 // AUTH FIX (ANTI LOGOUT LOOP)
 // =========================
+import {
+  getAuth,
+  signOut,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+// WAJIB
+setPersistence(auth, browserLocalPersistence).catch(console.error);
+
 let authReady = false;
 
-onAuthStateChanged(auth, async (user) => {
+onAuthStateChanged(auth, (user) => {
   authReady = true;
 
   if (!user) {
-    window.location.href = "login.html";
+    if (authReady) {
+      window.location.replace("login.html");
+    }
     return;
   }
 
   if (user.uid !== UID_ADMIN) {
-    await signOut(auth);
-    window.location.href = "login.html";
+    signOut(auth);
+    window.location.replace("login.html");
     return;
   }
 
-  await loadFaucets();
+  loadFaucets();
 });
