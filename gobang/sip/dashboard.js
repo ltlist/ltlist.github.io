@@ -125,7 +125,6 @@ window.openEdit = function(data){
   document.getElementById("editName").value = data.name;
   document.getElementById("editUrl").value = data.url;
   document.getElementById("editCoin").value = data.coin;
-  document.getElementById("editUptime").value = data.uptime;
   document.getElementById("editStatus").value = data.status;
   modalDiv.classList.add("show");
 };
