@@ -94,8 +94,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// 🔥 FIX PENTING: SIMPAN LOGIN DI DEVICE (ANTI LOGOUT)
-setPersistence(auth, browserLocalPersistence).catch(console.error);
+// 🔥 WAJIB: tunggu persistence benar-benar aktif
+async function initAuth() {
+  try {
+    await setPersistence(auth, browserLocalPersistence);
+    console.log("Persistence OK");
+  } catch (e) {
+    console.log("Persistence error", e);
+  }
+}
+initAuth();
 
 window.login = async function () {
   const email = document.getElementById("email").value;
@@ -104,10 +112,10 @@ window.login = async function () {
   try {
     await signInWithEmailAndPassword(auth, email, password);
 
-    // kasih delay kecil biar auth ke-save dulu
+    // 🔥 FIX: kasih delay lebih lama biar session tersimpan
     setTimeout(() => {
-      window.location.href = "dashboard.html";
-    }, 300);
+      window.location.replace("dashboard.html");
+    }, 800);
 
   } catch (error) {
     document.getElementById("error").innerText = error.message;
