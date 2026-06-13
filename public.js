@@ -19,7 +19,7 @@ const coinStatsDiv = document.getElementById("coinStats");
 const coinFilter = document.getElementById("coinFilter");
 const totalEl = document.getElementById("totalFaucets");
 
-const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev/api/click"; // GANTI URL WORKER KAMU
+const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev/"; // GANTI URL WORKER KAMU
 
 let allFaucets = [];
 
