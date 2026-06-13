@@ -1,110 +1,46 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Login - LTList</title>
-
-<style>
-body{
-  font-family: Arial, sans-serif;
-  background:#0f172a;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  height:100vh;
-  margin:0;
-}
-
-.box{
-  background:#111827;
-  padding:25px;
-  border-radius:12px;
-  width:300px;
-  box-shadow:0 0 10px rgba(0,0,0,0.5);
-}
-
-h2{
-  color:#00ffcc;
-  text-align:center;
-}
-
-input{
-  width:100%;
-  padding:10px;
-  margin:10px 0;
-  border:none;
-  border-radius:8px;
-  outline:none;
-}
-
-button{
-  width:100%;
-  padding:10px;
-  background:#00ffcc;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-button:hover{
-  background:#00d6aa;
-}
-
-#error{
-  color:red;
-  font-size:13px;
-  text-align:center;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard LTList</title>
+  <link rel="stylesheet" href="dashb.css">
 </head>
-
 <body>
 
-<div class="box">
-  <h2>Admin Login</h2>
+  <nav class="navbar">
+    <div class="logo">LTList Admin</div>
+    <div class="nav-actions">
+      <a href="index.html" target="_blank" class="btn-site">Lihat Site</a>
+      <button onclick="logout()">Logout</button>
+    </div>
+  </nav>
 
-  <input type="email" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
+  <main class="container">
+    <h1>Dashboard Admin</h1>
 
-  <button onclick="login()">Login</button>
+    <section class="add-form">
+      <h2>Tambah Faucet Baru</h2>
+      <div class="form-grid">
+        <input id="name" placeholder="Nama Faucet" required>
+        <input id="url" placeholder="URL Faucet https://..." required>
+        <input id="min" placeholder="Min Withdraw" required>
+        <input id="interval" placeholder="Interval" required>
+        <select id="status">
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+        <button onclick="addFaucet()">Tambah</button>
+      </div>
+    </section>
 
-  <p id="error"></p>
-</div>
+    <section>
+      <h2>Daftar Faucet</h2>
+      <div id="list" class="list"></div>
+    </section>
+  </main>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
-// Firebase config kamu
-const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
-  authDomain: "ltlist-f.firebaseapp.com",
-  projectId: "ltlist-f",
-  storageBucket: "ltlist-f.firebasestorage.app",
-  messagingSenderId: "991011425656",
-  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
-};
-
-// INIT FIREBASE (INI YANG KAMU KURANG)
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// LOGIN FUNCTION
-window.login = function () {
-  const email = document.getElementById("email").value;
-  const password = document.getElementById("password").value;
-
-  signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-      window.location.href = "dashboard.html";
-    })
-    .catch((error) => {
-      document.getElementById("error").innerText = error.message;
-    });
-};
-</script>
-
+  <div id="toast"></div>
+  <script type="module" src="dashboard.js"></script>
 </body>
 </html>
