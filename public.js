@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWJ_Wj3iATEhj6UPetF-KXKDV75S8", // Ganti punyamu
+  apiKey: "AIzaSyAVokWJ_Wj3iATEhj6UPetF-KXKDV75S8", // GANTI PUNYAMU
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -19,12 +19,12 @@ const coinStatsDiv = document.getElementById("coinStats");
 const coinFilter = document.getElementById("coinFilter");
 const totalEl = document.getElementById("totalFaucets");
 
-const API_URL = "https://api.ltlist.workers.dev"; // GANTI URL WORKER KAMU
+const API_URL = "https://api.ltlist.workers.dev"; // WAJIB GANTI URL WORKER KAMU
 
 let allFaucets = [];
 
 async function loadFaucets() {
-  // KUNCI: Cuma where doang, gak pake orderBy. Biar gak perlu index
+  // 1. Ambil data active aja. Tanpa orderBy = tanpa perlu index
   const q = query(
     collection(db, "faucets"),
     where("status", "==", "active")
@@ -32,9 +32,9 @@ async function loadFaucets() {
   const snap = await getDocs(q);
   allFaucets = snap.docs.map(d => ({ id: d.id,...d.data() }));
 
-  // KUNCI: Urut manual di browser by clicks paling banyak
-  allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
-
+  // 2. Urut manual by clicks paling gede di atas
+  allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0)); 
+  
   render(allFaucets);
   renderTrending();
   renderCoinStats();
@@ -63,17 +63,17 @@ window.visitFaucet = async function (id, url) {
   }
 
   window.open(url, "_blank");
-  loadFaucets(); // Refresh biar clicks naik
+  loadFaucets(); // Refresh biar clicks naik & rank berubah
 }
 
 function render(data) {
   if (!listDiv) return;
-  listDiv.innerHTML = data.map(d => `
+  listDiv.innerHTML = data.map((d, i) => `
     <div class="card">
-      <div class="rank">#${d.rank || "-"}</div>
+      <div class="rank">#${i + 1}</div> <!-- RANK AUTO 1,2,3 -->
       <div class="info">
         <div class="name">${d.name || "-"}</div>
-        <div class="meta">${d.coin || "-"} 💧 ${d.clicks || 0}</div> <!-- UPTIME UDAH DIBUANG -->
+        <div class="meta">${d.coin || "-"} 💧 ${d.clicks || 0}</div>
       </div>
       <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">Claim</button>
     </div>
@@ -82,13 +82,13 @@ function render(data) {
 
 function renderTrending() {
   if (!trendingDiv) return;
-  const top = allFaucets.slice(0, 3); // Udah urut dari atas
+  const top = allFaucets.slice(0, 3); // Top 3 clicks
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
-      <div class="rank">🔥 ${i + 1}</div>
+      <div class="rank">🔥 ${i + 1}</div> <!-- RANK AUTO 1,2,3 -->
       <div class="info">
         <div class="name">${d.name}</div>
-        <div class="meta">${d.coin} 💧 ${d.clicks || 0}</div> <!-- UPTIME UDAH DIBUANG -->
+        <div class="meta">${d.coin} 💧 ${d.clicks || 0}</div>
       </div>
       <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">Claim</button>
     </div>
@@ -108,9 +108,9 @@ function renderCoinStats() {
     count[c] = (count[c] || 0) + 1;
   });
   coinStatsDiv.innerHTML = Object.keys(count)
-  .sort()
-  .map(c => `<span class="badge">${c} (${count[c]})</span>`)
-  .join("");
+ .sort()
+ .map(c => `<span class="badge">${c} (${count[c]})</span>`)
+ .join("");
 }
 
 function loadCoinFilter() {
