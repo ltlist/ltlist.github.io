@@ -14,7 +14,7 @@ const firebaseConfig = {
 };
 
 const UID_ADMIN = "gZPXqeKPBAZfCzYXEcrGWMcSFHI2"; 
-const API_URL = "https://api.ltlist.workers.dev";
+const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
