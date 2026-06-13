@@ -15,6 +15,22 @@ const firebaseConfig = {
 
 // 1. ISI UID KAMU DI SINI DOANG
 const UID_ADMIN = "gZPXqeKPBAZfCzYXEcrGWMcSFHI2"; 
+let allFaucets = [];
+
+async function syncClicksFromKV() {
+  try {
+    const res = await fetch(`${API_URL}/api/get-clicks`);
+    const clicks = await res.json();
+
+    allFaucets.forEach(f => {
+      const item = clicks.find(x => x.id === f.id);
+      f.clicks = item ? item.clicks : 0;
+    });
+
+  } catch (e) {
+    console.log(e);
+  }
+}
 
 const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
 
