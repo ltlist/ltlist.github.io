@@ -1,60 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>LTList Faucet</title>
-
-<meta name="description" content="Verified crypto faucets with active payouts and ranking.">
-<meta name="keywords" content="crypto faucet,litecoin faucet,doge faucet,faucetpay">
-<meta name="robots" content="index,follow">
-
-<meta property="og:title" content="LTList Faucet">
-<meta property="og:description" content="Verified Crypto Faucets">
-<meta property="og:type" content="website">
-
-<link rel="icon" href="favicon.png">
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LTList - Limit Click</title>
+  <style>
+    body { font-family: sans-serif; background: #0f172a; color: #fff; text-align: center; padding: 40px; }
+    button { background: #3b82f6; color: white; border: none; padding: 14px 28px; border-radius: 10px; font-size: 16px; cursor: pointer; margin: 8px; }
+    button:disabled { background: #475569; cursor: not-allowed; }
+    #pesan { margin-top: 20px; font-size: 14px; }
+  </style>
 </head>
-
 <body>
+  <h1>LTList Limit</h1>
+  <p>Klik tombol di bawah. 1 IP = 1 jam cooldown per game.</p>
 
-<nav class="navbar">
-  <div class="nav-left">
-    <span class="logo">LTList</span>
-  </div>
-  <div class="nav-right">
-    <a href="https://ltlist.github.io/marketcap">MARKET</a>
-  </div>
-</nav>
-<div class="container">
+  <button onclick="kirimLimit('mlbb')">Limit MLBB</button>
+  <button onclick="kirimLimit('ff')">Limit Free Fire</button>
+  <button onclick="kirimLimit('pubg')">Limit PUBG</button>
 
-  <h1>LTList Faucet</h1>
+  <div id="pesan"></div>
 
-  <h2>🔥 Trending Faucets</h2>
-  <div id="trending"></div>
-  <div id="coinStats"></div>
-  <p id="totalFaucets"></p>
-  
-  <input id="search" placeholder="Search faucet..." onkeyup="searchPublic()">
-  
-  <select id="coinFilter" onchange="filterCoin()">
-    <option value="all">All Coins</option>
-  </select>
+<script>
+const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev/api/click";
+const pesan = document.getElementById("pesan");
 
-  <div id="list"></div>
-
-  <footer class="footer">
-    <p>
-    LTList provides a list of crypto faucets with a fast payout system to <a href="https://faucetpay.io/?r=5725">Faucetpay</a>. For the ZER coin, use the name<a href="https://zerochain.info/wallet">ZeroChain</a>. Daily updates for active faucets.
-    </p>
-    © LTList Faucet - All rights reserved
-  </footer>
-
-</div>
-
-<script type="module" src="public.js"></script>
-
+async function kirimLimit(id) {
+  pesan.textContent = "Mengirim...";
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: id })
+    });
+    const data = await res.json();
+    
+    if (res.ok) {
+      pesan.textContent = `✅ Berhasil! Limit ${id.toUpperCase()} aktif 1 jam.`;
+      pesan.style.color = "#4ade80";
+    } else {
+      pesan.textContent = `❌ ${data.error}`; // "Tunggu 43 menit lagi"
+      pesan.style.color = "#f87171";
+    }
+  } catch (e) {
+    pesan.textContent = "❌ Gagal konek ke server";
+    pesan.style.color = "#f87171";
+  }
+}
+</script>
 </body>
 </html>
