@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy
+  getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"; 
 
@@ -21,14 +21,12 @@ async function syncClicksFromKV() {
   try {
     const res = await fetch(`${API_URL}/api/get-clicks`);
     const clicks = await res.json();
-
     allFaucets.forEach(f => {
       const item = clicks.find(x => x.id === f.id);
       f.clicks = item ? item.clicks : 0;
     });
-
   } catch (e) {
-    console.log(e);
+    console.log("KV Error:", e);
   }
 }
 
@@ -57,11 +55,12 @@ function requireAdmin() {
 
 async function loadFaucets(){
   if (!requireAdmin()) return;
-  const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
-  const snap = await getDocs(q);
+  const q = query(collection(db, "faucets"));
+  const snap = await getDocs(q); // Gak pake orderBy dulu, biar bisa di sort ulang
   allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  await syncClicksFromKV();
+  await autoRerank(); // 1. Auto beresin rank dulu
+  await syncClicksFromKV(); // 2. Baru ambil clicks dari KV
   render(allFaucets);
 }
 
@@ -71,23 +70,22 @@ function render(data){
     return;
   }
   listDiv.innerHTML = data.map(d => {
-    // const uptimeColor = ... DIHAPUS
     return `
       <div class="card">
         <div class="card-left">
-          <span class="rank-badge">#${d.rank ?? '-'}</span>
+          <span class="rank-badge">#${d.rank}</span> 
           <span class="status-badge ${d.status}">${d.status}</span>
         </div>
         <div class="card-mid">
           <div class="card-title" title="${d.name}">${d.name}</div>
           <div class="card-sub">${d.coin}</div>
-          <div class="card-stats">${d.clicks ?? 0} claims</div> <!-- UPTIME DIHAPUS -->
+          <div class="card-stats">${d.clicks ?? 0} claims</div>
         </div>
         <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
         <div class="card-right">
           <button class="btn-edit" onclick='openEdit(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button>
-          <button class="btn-toggle" onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button> <!-- KUNING -->
-          <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button> <!-- MERAH -->
+          <button class="btn-toggle" onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
+          <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button>
         </div>
       </div>
     `;
@@ -95,10 +93,7 @@ function render(data){
 }
 
 window.addClick = async function(id){
-  window.open(
-    document.querySelector(`a[onclick*="${id}"]`).href,
-    "_blank"
-  );
+  window.open(document.querySelector(`a[onclick*="${id}"]`).href, "_blank");
 };
 
 window.addFaucet = async function(){
@@ -108,33 +103,30 @@ window.addFaucet = async function(){
   const coin = document.getElementById("coin").value.trim().toUpperCase();
   if(!name || !url || !coin) return showToast("Isi Nama, URL, Coin dulu");
 
-  const snap = await getDocs(collection(db, "faucets"));
-  const nextRank = snap.size + 1;
   await addDoc(collection(db, "faucets"), { 
-    name, url, coin, status: "active", rank: nextRank, clicks: 0 // uptime: 100 DIHAPUS
+    name, url, coin, status: "active", clicks: 0 // rank gak diisi manual lagi
   });
   document.getElementById("name").value = "";
   document.getElementById("url").value = "";
   document.getElementById("coin").value = "";
-  showToast(`Ditambah. Rank: #${nextRank}`);
-  loadFaucets();
+  showToast(`Ditambah`);
+  await loadFaucets(); // Auto rerank di dalam
 };
 
 window.deleteFaucet = async function(id){
   if(!requireAdmin()) return; 
   if(!confirm("Yakin hapus?")) return;
   await deleteDoc(doc(db, "faucets", id));
-  showToast("Faucet dihapus. Merapikan rank...");
-  await rerank(true);
+  showToast("Faucet dihapus");
+  await loadFaucets(); // Auto rerank di dalam
 };
 
 window.toggleStatus = async function(id, status){
   if(!requireAdmin()) return; 
   const newStatus = status === "active" ? "inactive" : "active";
-  // const newUptime = ... DIHAPUS
-  await updateDoc(doc(db, "faucets", id), { status: newStatus }); // uptime dihapus
+  await updateDoc(doc(db, "faucets", id), { status: newStatus });
   showToast(`Status: ${newStatus}`);
-  loadFaucets();
+  await loadFaucets(); // Auto rerank di dalam
 };
 
 window.openEdit = function(data){
@@ -144,7 +136,6 @@ window.openEdit = function(data){
   document.getElementById("editUrl").value = data.url;
   document.getElementById("editCoin").value = data.coin;
   document.getElementById("editStatus").value = data.status;
-  // document.getElementById("editUptime").value = ... DIHAPUS
   modalDiv.classList.add("show");
 };
 
@@ -157,31 +148,44 @@ window.saveEdit = async function(){
     name: document.getElementById("editName").value.trim(),
     url: document.getElementById("editUrl").value.trim(),
     coin: document.getElementById("editCoin").value.trim().toUpperCase(),
-    // uptime: ... DIHAPUS
     status: document.getElementById("editStatus").value
   };
   await updateDoc(doc(db, "faucets", id), data);
   closeModal();
   showToast("Diupdate");
-  loadFaucets();
+  await loadFaucets(); // Auto rerank di dalam
 };
 
-window.rerank = async function(auto = false){
-  if(!requireAdmin()) return; 
-  if(!auto){
-    if(!confirm("Urutkan ulang rank 1,2,3...?")) return;
+// === KUNCI: RERANK OTOMATIS PAKE BATCH ===
+async function autoRerank(){
+  if(allFaucets.length === 0) return;
+
+  // 1. Sort dulu di memory. Aktif di atas, terus abcd
+  allFaucets.sort((a, b) => {
+    if (a.status === "active" && b.status !== "active") return -1;
+    if (a.status !== "active" && b.status === "active") return 1;
+    return a.name.localeCompare(b.name); // Urut nama biar konsisten
+  });
+
+  // 2. Cek apa perlu update. Biar gak spam write ke Firestore
+  const batch = writeBatch(db);
+  let needUpdate = false;
+
+  allFaucets.forEach((f, i) => {
+    const newRank = i + 1;
+    if (f.rank !== newRank) {
+      needUpdate = true;
+      const ref = doc(db, "faucets", f.id);
+      batch.update(ref, { rank: newRank });
+      f.rank = newRank; // Update di memory juga biar render langsung bener
+    }
+  });
+
+  if (needUpdate) {
+    await batch.commit(); // 1x write semua, hemat quota
+    console.log("Rank auto dirapikan");
   }
-  
-  const snap = await getDocs(query(collection(db, "faucets"), orderBy("rank", "asc")));
-  if(snap.empty) return loadFaucets();
-
-  let i = 1;
-  const updates = snap.docs.map(d => updateDoc(doc(db, "faucets", d.id), { rank: i++ }));
-  await Promise.all(updates);
-  
-  showToast(auto ? "Rank auto dirapikan" : "Rank sudah diurutkan ulang");
-  loadFaucets();
-};
+}
 
 window.searchFaucet = function(){
   const v = document.getElementById("search").value.toLowerCase();
@@ -206,6 +210,5 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "login.html";
     return;
   }
-  console.log("ADMIN LOGIN:", user.uid);
   await loadFaucets();
 });
