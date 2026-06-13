@@ -2,7 +2,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWJ_Wj3iATEhj6UPetF-KXKDV75S8", // Ganti punyamu
+  apiKey: "AIzaSyAVokJ_Wj3iATEhj6UPetF-KXKDV75S8",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -19,7 +19,8 @@ const coinStatsDiv = document.getElementById("coinStats");
 const coinFilter = document.getElementById("coinFilter");
 const totalEl = document.getElementById("totalFaucets");
 
-const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev"; // GANTI URL WORKER KAMU
+// IMPORTANT: tanpa slash di akhir
+const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
 
 let allFaucets = [];
 
@@ -28,46 +29,60 @@ async function loadFaucets() {
     collection(db, "faucets"),
     where("status", "==", "active")
   );
+
   const snap = await getDocs(q);
   allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-  // KUNCI 1: Urut manual di browser by clicks paling banyak
-  allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
-
-  render(allFaucets);
+  sortAndRender();
   renderTrending();
   renderCoinStats();
   renderTotal();
   loadCoinFilter();
 }
 
-// Klik Claim -> Nembak ke Worker biar anti spam 60mnt
+// =========================
+// SORT + RENDER UTAMA
+// =========================
+function sortAndRender() {
+  allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+  render(allFaucets);
+}
+
+// =========================
+// CLICK SYSTEM (WORKER)
+// =========================
 window.visitFaucet = async function (id, url) {
   const btn = document.querySelector(`button[onclick*="${id}"]`);
-  if(btn) { btn.disabled = true; btn.textContent = '...'; }
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "...";
+  }
 
   try {
     const res = await fetch(`${API_URL}/api/click`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({id})
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
     });
+
     const data = await res.json();
 
-    if(!res.ok){
-      alert(data.error); // "Tunggu 42 menit lagi"
-      if(btn) { btn.disabled = false; btn.textContent = 'Claim'; }
+    if (!res.ok) {
+      alert(data.error || "Error");
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Claim";
+      }
       return;
     }
-    
-    // KUNCI 2: Update local biar rank langsung geser tanpa reload Firebase
+
+    // ✔ FIX: pakai data server (bukan fake local)
     const item = allFaucets.find(f => f.id === id);
-    if(item) {
-      item.clicks = (item.clicks || 0) + 1;
-      allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0)); // Urut ulang
+    if (item) {
+      item.clicks = data.count;
+      sortAndRender();
     }
-    
-    render(allFaucets); // Render ulang biar rank #1 #2 #3 ke geser
+
     renderTrending();
     renderCoinStats();
 
@@ -77,15 +92,24 @@ window.visitFaucet = async function (id, url) {
   }
 
   window.open(url, "_blank");
-  if(btn) { setTimeout(() => { btn.disabled = false; btn.textContent = 'Claim'; }, 1500); }
-}
 
+  if (btn) {
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = "Claim";
+    }, 1200);
+  }
+};
+
+// =========================
+// RENDER LIST
+// =========================
 function render(data) {
   if (!listDiv) return;
-  // KUNCI 3: Pake `i` dari map, bukan `d.rank`
+
   listDiv.innerHTML = data.map((d, i) => `
     <div class="card">
-      <div class="rank">#${i + 1}</div> <!-- INI AUTO RANK 1,2,3 -->
+      <div class="rank">#${i + 1}</div>
       <div class="info">
         <div class="name">${d.name || "-"}</div>
         <div class="meta">${d.coin || "-"} 💧 ${d.clicks || 0}</div>
@@ -95,12 +119,19 @@ function render(data) {
   `).join("");
 }
 
+// =========================
+// TRENDING
+// =========================
 function renderTrending() {
   if (!trendingDiv) return;
-  const top = allFaucets.slice(0, 3); // Udah urut dari atas
+
+  const top = [...allFaucets]
+    .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
+    .slice(0, 3);
+
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
-      <div class="rank">🔥 ${i + 1}</div> <!-- INI JUGA AUTO -->
+      <div class="rank">🔥 ${i + 1}</div>
       <div class="info">
         <div class="name">${d.name}</div>
         <div class="meta">${d.coin} 💧 ${d.clicks || 0}</div>
@@ -110,29 +141,43 @@ function renderTrending() {
   `).join("");
 }
 
+// =========================
+// TOTAL
+// =========================
 function renderTotal() {
   if (!totalEl) return;
   totalEl.innerText = `📊 ${allFaucets.length} Active Faucets`;
 }
 
+// =========================
+// COIN STATS
+// =========================
 function renderCoinStats() {
   if (!coinStatsDiv) return;
+
   const count = {};
   allFaucets.forEach(f => {
     const c = (f.coin || "UNKNOWN").trim();
     count[c] = (count[c] || 0) + 1;
   });
+
   coinStatsDiv.innerHTML = Object.keys(count)
-  .sort()
-  .map(c => `<span class="badge">${c} (${count[c]})</span>`)
-  .join("");
+    .sort()
+    .map(c => `<span class="badge">${c} (${count[c]})</span>`)
+    .join("");
 }
 
+// =========================
+// FILTER
+// =========================
 function loadCoinFilter() {
   if (!coinFilter) return;
+
   coinFilter.innerHTML = `<option value="all">All Coins</option>`;
+
   const coins = [...new Set(allFaucets.map(f => (f.coin || "UNKNOWN").trim()))];
   coins.sort();
+
   coins.forEach(c => {
     const opt = document.createElement("option");
     opt.value = c;
