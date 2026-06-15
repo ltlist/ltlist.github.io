@@ -1,105 +1,233 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>LT Faucet PRO</title>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <style>
-body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
-.container{max-width:520px;margin:30px auto;padding:15px}
-.card{background:#111827;padding:18px;border-radius:12px;margin-bottom:12px}
-input,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none}
-button{background:#22c55e;font-weight:bold;cursor:pointer}
-.animalBox{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}
-.animal{background:#1e293b;padding:12px;border-radius:10px;text-align:center;cursor:pointer}
-.animal.active{background:#22c55e;color:#000}
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:#fff;
+}
+
+.container{
+  max-width:520px;
+  margin:30px auto;
+  padding:15px;
+}
+
+.card{
+  background:#111827;
+  padding:18px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+  font-size:15px;
+}
+
+button{
+  background:#22c55e;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:disabled{
+  opacity:0.5;
+}
+
+.small{
+  font-size:13px;
+  color:#94a3b8;
+  margin-top:6px;
+}
+
+#animalBox{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+  margin-top:12px;
+}
+
+.animal{
+  background:#1e293b;
+  border:2px solid #334155;
+  border-radius:14px;
+  padding:12px;
+  cursor:pointer;
+  text-align:center;
+  transition:0.2s;
+  user-select:none;
+}
+
+.animal:hover{
+  transform:scale(1.03);
+}
+
+.animal img{
+  width:70px;
+  height:70px;
+  object-fit:contain;
+  margin-bottom:6px;
+}
+
+.animal.active{
+  background:#22c55e;
+  border-color:#22c55e;
+  color:#000;
+}
+
+#result{
+  margin-top:10px;
+  min-height:20px;
+  font-weight:bold;
+}
 </style>
 </head>
 
 <body>
+
 <div class="container">
 
-<div class="card">
-<h2>🚀 LT Faucet PRO</h2>
-</div>
+  <div class="card">
+    <h2>🚀 LT Faucet PRO</h2>
+    <div class="small">60 min / claim • max 7/day • anti bot system</div>
+  </div>
 
-<div class="card">
-<input id="email" placeholder="Email">
-<input id="username" placeholder="FaucetPay Username">
+  <div class="card">
 
-<div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
+    <input id="email" placeholder="Email">
+    <input id="username" placeholder="FaucetPay Username">
 
-<button onclick="getChallenge()">GET CHALLENGE</button>
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
 
-<div id="q"></div>
-<input id="math" placeholder="Jawaban angka">
+    <button onclick="getChallenge()">GET CHALLENGE</button>
 
-<div class="animalBox" id="animals"></div>
+    <div class="small" id="question"></div>
 
-<button onclick="claim()">CLAIM</button>
+    <input id="mathAnswer" type="number" placeholder="Jawaban angka">
 
-<div id="res"></div>
-</div>
+    <div id="animalBox"></div>
+
+    <button onclick="claim()">CLAIM</button>
+
+    <div id="result"></div>
+
+  </div>
 
 </div>
 
 <script>
-const API = "https://calm-art-584f.cnamelist.workers.dev";
+const API = "https://YOUR-WORKER.workers.dev";
 
-let sessionId = "";
-let selected = "";
-
+/* =========================
+   ANIMAL ICON (IMAGE)
+========================= */
 const icons = {
- cat:"🐱", dog:"🐶", rabbit:"🐰", cow:"🐮", lion:"🦁"
+  cat: "https://cdn-icons-png.flaticon.com/512/616/616430.png",
+  dog: "https://cdn-icons-png.flaticon.com/512/616/616408.png",
+  rabbit: "https://cdn-icons-png.flaticon.com/512/3069/3069172.png",
+  cow: "https://cdn-icons-png.flaticon.com/512/1998/1998627.png",
+  lion: "https://cdn-icons-png.flaticon.com/512/1864/1864472.png"
 };
 
+let sessionId = "";
+let selectedAnimal = "";
+
+/* shuffle anti bot ringan */
+function shuffle(arr){
+  return arr.sort(()=>Math.random()-0.5);
+}
+
+/* =========================
+   GET CHALLENGE
+========================= */
 async function getChallenge(){
- const r = await fetch(API+"/api/challenge");
- const d = await r.json();
+  const r = await fetch(API + "/api/challenge");
+  const d = await r.json();
 
- sessionId = d.sessionId;
- selected = "";
+  sessionId = d.sessionId;
+  selectedAnimal = "";
 
- document.getElementById("q").innerHTML = "Soal: " + d.question;
+  document.getElementById("question").innerHTML =
+    "Solve: <b>" + d.question + "</b>";
 
- document.getElementById("animals").innerHTML =
- d.animals.map(a =>
- `<div class="animal" onclick="pick('${a}',this)">
- ${icons[a]} ${a}
- </div>`
- ).join("");
+  const animals = shuffle(d.animals);
+
+  document.getElementById("animalBox").innerHTML =
+    animals.map(a => `
+      <div class="animal" onclick="pickAnimal('${a}', this)">
+        <img src="${icons[a]}" />
+        <div>${a.toUpperCase()}</div>
+      </div>
+    `).join("");
 }
 
-function pick(a,el){
- selected = a;
- document.querySelectorAll(".animal").forEach(e=>e.classList.remove("active"));
- el.classList.add("active");
+/* =========================
+   PICK ANIMAL
+========================= */
+function pickAnimal(a, el){
+  selectedAnimal = a;
+
+  document.querySelectorAll(".animal")
+    .forEach(e => e.classList.remove("active"));
+
+  el.classList.add("active");
 }
 
+/* =========================
+   CLAIM
+========================= */
 async function claim(){
- const email = document.getElementById("email").value;
- const username = document.getElementById("username").value;
- const math = document.getElementById("math").value;
- const token = turnstile.getResponse();
+  const email = document.getElementById("email").value.trim();
+  const username = document.getElementById("username").value.trim();
+  const math = document.getElementById("mathAnswer").value;
+  const token = turnstile.getResponse();
 
- const r = await fetch(API+"/api/claim",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({
-    email, username, token,
-    sessionId,
-    mathAnswer: math,
-    animalAnswer: selected
-  })
- });
+  if(!email || !username || !math || !selectedAnimal || !token){
+    document.getElementById("result").innerHTML =
+      "❌ Lengkapi semua data";
+    return;
+  }
 
- const d = await r.json();
- document.getElementById("res").innerHTML =
- d.success ? "✅ " + d.message : "❌ " + d.error;
+  document.getElementById("result").innerHTML = "⏳ Processing...";
+
+  const r = await fetch(API + "/api/claim",{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({
+      email,
+      username,
+      token,
+      sessionId,
+      mathAnswer: math,
+      animalAnswer: selectedAnimal
+    })
+  });
+
+  const d = await r.json();
+
+  document.getElementById("result").innerHTML =
+    d.success ? "✅ " + d.message : "❌ " + d.error;
+
+  turnstile.reset();
+  getChallenge();
 }
+
+/* init */
+getChallenge();
 </script>
 
 </body>
