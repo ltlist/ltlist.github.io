@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>LT Faucet PRO</title>
 
-<!-- Turnstile -->
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <style>
@@ -53,6 +52,7 @@ button:disabled{
   font-size:13px;
   color:#94a3b8;
   margin-top:6px;
+  text-align:center;
 }
 
 #animalBox{
@@ -79,10 +79,17 @@ button:disabled{
   color:#000;
 }
 
+#questionIcon{
+  font-size:50px;
+  text-align:center;
+  margin-bottom:5px;
+}
+
 #result{
   margin-top:10px;
   min-height:20px;
   font-weight:bold;
+  text-align:center;
 }
 </style>
 </head>
@@ -92,25 +99,24 @@ button:disabled{
 <div class="container">
 
   <div class="card">
-    <h2>🚀 LT Faucet PRO</h2>
-    <div class="small">
-      60 menit / claim • max 7/hari • anti bot system
-    </div>
+    <h2 style="text-align:center">🚀 LT Faucet PRO</h2>
+    <div class="small">Email Mode • 60 menit • Max 7/day</div>
   </div>
 
   <div class="card">
 
-    <!-- USER -->
-    <input id="username" placeholder="FaucetPay Username">
+    <!-- EMAIL INPUT -->
+    <input id="email" placeholder="Email FaucetPay">
 
-    <!-- CAPTCHA (ONLY ONCE) -->
+    <!-- CAPTCHA -->
     <div class="cf-turnstile"
-      data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
+      data-sitekey="ISI_SITE_KEY_KAMU"></div>
 
     <!-- CHALLENGE -->
     <button onclick="getChallenge()">1. GET CHALLENGE</button>
 
-    <div id="question" class="small"></div>
+    <div id="questionIcon"></div>
+    <div id="questionText" class="small"></div>
 
     <input id="mathAnswer" type="number" placeholder="Jawaban angka">
 
@@ -123,7 +129,7 @@ button:disabled{
   </div>
 
   <div class="card">
-    <h3>📜 Latest Claims</h3>
+    <h3 style="text-align:center">📜 History</h3>
     <div id="history" class="small">Loading...</div>
   </div>
 
@@ -144,14 +150,11 @@ const animalIcons = {
 let sessionId = "";
 let selectedAnimal = "";
 
-function log(t){
-  document.getElementById("result").innerHTML = t;
-}
-
 /* =========================
    GET CHALLENGE
 ========================= */
 async function getChallenge(){
+
   try{
     const res = await fetch(API + "/api/challenge");
     const data = await res.json();
@@ -159,8 +162,12 @@ async function getChallenge(){
     sessionId = data.sessionId;
     selectedAnimal = "";
 
-    document.getElementById("question").innerHTML =
-      "Solve: <b>" + data.question + "</b>";
+    // ICON SOAL DI ATAS
+    document.getElementById("questionIcon").innerHTML =
+      animalIcons[data.animal] || "❓";
+
+    document.getElementById("questionText").innerHTML =
+      "Pilih hewan yang sesuai";
 
     const box = document.getElementById("animalBox");
     box.innerHTML = "";
@@ -174,9 +181,8 @@ async function getChallenge(){
 
       div.onclick = () => {
 
-        document.querySelectorAll(".animal").forEach(b=>{
-          b.classList.remove("active");
-        });
+        document.querySelectorAll(".animal")
+          .forEach(b => b.classList.remove("active"));
 
         div.classList.add("active");
         selectedAnimal = a;
@@ -186,7 +192,8 @@ async function getChallenge(){
     });
 
   }catch(e){
-    log("❌ Gagal load challenge");
+    document.getElementById("result").innerHTML =
+      "❌ Gagal load challenge";
   }
 }
 
@@ -195,17 +202,18 @@ async function getChallenge(){
 ========================= */
 async function claim(){
 
-  const username = document.getElementById("username").value.trim();
+  const email = document.getElementById("email").value.trim();
   const token = turnstile.getResponse();
   const mathAnswer = document.getElementById("mathAnswer").value;
 
-  if(!username || !token || !mathAnswer || !selectedAnimal){
-    log("❌ Lengkapi semua data");
+  if(!email || !token || !mathAnswer || !selectedAnimal){
+    document.getElementById("result").innerHTML =
+      "❌ Lengkapi semua data";
     return;
   }
 
   document.getElementById("claimBtn").disabled = true;
-  log("⏳ Processing...");
+  document.getElementById("result").innerHTML = "⏳ Processing...";
 
   try{
 
@@ -213,7 +221,7 @@ async function claim(){
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({
-        username,
+        email,
         token,
         sessionId,
         mathAnswer,
@@ -223,23 +231,17 @@ async function claim(){
 
     const data = await res.json();
 
-    log(
+    document.getElementById("result").innerHTML =
       data.success
         ? "✅ " + data.message + " | Sisa: " + data.remaining
-        : "❌ " + data.error
-    );
-
-    // reset state
-    selectedAnimal = "";
-    document.querySelectorAll(".animal").forEach(b=>{
-      b.classList.remove("active");
-    });
+        : "❌ " + data.error;
 
     turnstile.reset();
     getChallenge();
 
   }catch(e){
-    log("❌ Server error");
+    document.getElementById("result").innerHTML =
+      "❌ Server error";
   }
 
   document.getElementById("claimBtn").disabled = false;
