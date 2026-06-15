@@ -55,6 +55,18 @@ button:disabled{
   text-align:center;
 }
 
+#questionIcon{
+  font-size:55px;
+  text-align:center;
+  margin-top:10px;
+}
+
+#questionMath{
+  text-align:center;
+  font-size:18px;
+  margin-top:5px;
+}
+
 #animalBox{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -69,7 +81,7 @@ button:disabled{
   border-radius:12px;
   text-align:center;
   cursor:pointer;
-  font-size:22px;
+  font-size:20px;
   transition:0.2s;
 }
 
@@ -77,12 +89,6 @@ button:disabled{
   border-color:#22c55e;
   background:#22c55e;
   color:#000;
-}
-
-#questionIcon{
-  font-size:50px;
-  text-align:center;
-  margin-bottom:5px;
 }
 
 #result{
@@ -98,36 +104,45 @@ button:disabled{
 
 <div class="container">
 
+  <!-- HEADER -->
   <div class="card">
     <h2 style="text-align:center">🚀 LT Faucet PRO</h2>
-    <div class="small">Email Mode • 60 menit • Max 7/day</div>
+    <div class="small">Email Mode • 60 min cooldown • Max 7/day</div>
   </div>
 
+  <!-- MAIN -->
   <div class="card">
 
-    <!-- EMAIL INPUT -->
+    <!-- EMAIL -->
     <input id="email" placeholder="Email FaucetPay">
 
     <!-- CAPTCHA -->
     <div class="cf-turnstile"
-      data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
+      data-sitekey="ISI_SITE_KEY_KAMU"></div>
 
-    <!-- CHALLENGE -->
+    <!-- BUTTON -->
     <button onclick="getChallenge()">1. GET CHALLENGE</button>
 
+    <!-- ANIMAL ICON -->
     <div id="questionIcon"></div>
-    <div id="questionText" class="small"></div>
 
+    <!-- MATH QUESTION (FIX UTAMA) -->
+    <div id="questionMath"></div>
+
+    <!-- INPUT ANSWER -->
     <input id="mathAnswer" type="number" placeholder="Jawaban angka">
 
+    <!-- ANIMAL OPTIONS -->
     <div id="animalBox"></div>
 
+    <!-- CLAIM -->
     <button id="claimBtn" onclick="claim()">2. CLAIM</button>
 
     <div id="result"></div>
 
   </div>
 
+  <!-- HISTORY -->
   <div class="card">
     <h3 style="text-align:center">📜 History</h3>
     <div id="history" class="small">Loading...</div>
@@ -162,13 +177,15 @@ async function getChallenge(){
     sessionId = data.sessionId;
     selectedAnimal = "";
 
-    // ICON SOAL DI ATAS
+    // ICON ANIMAL (SOAL)
     document.getElementById("questionIcon").innerHTML =
       animalIcons[data.animal] || "❓";
 
-    document.getElementById("questionText").innerHTML =
-      "Pilih hewan yang sesuai";
+    // 🔥 FIX UTAMA: ANGKA SOAL
+    document.getElementById("questionMath").innerHTML =
+      "Soal: <b>" + data.question + "</b>";
 
+    // RESET OPTIONS
     const box = document.getElementById("animalBox");
     box.innerHTML = "";
 
