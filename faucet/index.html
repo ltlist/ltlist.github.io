@@ -1,17 +1,103 @@
 <!DOCTYPE html>
-<html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>LTFAUCET</title>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LT Faucet</title>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<style>body{font-family:system-ui;background:#0f172a;color:#e2e8f0;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0}.box{background:#1e293b;padding:24px;border-radius:16px;width:100%;max-width:400px}input,button{width:100%;padding:12px;border-radius:8px;border:0;margin-top:8px}input{background:#334155;color:#fff}button{background:#38bdf8;color:#0f172a;font-weight:700;cursor:pointer}#challengeBox{display:none;margin-top:12px}.animalBtn{width:32%;margin:4px 1%}</style>
-</head><body><div class="box"><h2>🚰 LTFAUCET</h2><p>Reward: 0.00000160 LTC / 60 Menit | Max 7/hari</p>
-<input id="user" placeholder="Username / Email FaucetPay">
-<div id="challengeBox"><p id="q"></p><input id="math" placeholder="Jawaban"><div id="animals"></div></div>
-<div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div> 
-<button id="btn">Claim</button><div id="log" style="margin-top:12px;font-size:14px"></div></div>
+<style>
+body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
+.container{max-width:500px;margin:40px auto;padding:20px}
+.card{background:#111827;padding:20px;border-radius:12px;margin-bottom:15px}
+input,button{width:100%;padding:10px;margin-top:10px;border-radius:8px;border:none}
+button{background:#22c55e;color:#000;font-weight:bold;cursor:pointer}
+button:disabled{opacity:0.5;cursor:not-allowed}
+.small{font-size:13px;color:#94a3b8}
+.animalBtn{width:32%;margin:4px 1%;background:#334155;color:#fff}
+.animalBtn.active{background:#22c55e;color:#000}
+#result{margin-top:10px;min-height:20px}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h2>🚀 LT Faucet</h2>
+    <div class="small">Reward: 0.00000160 LTC / 60 Menit | Max 7/hari</div>
+  </div>
+  <div class="card">
+    <input id="username" placeholder="FaucetPay Username / Email">
+    <div class="cf-turnstile" data-sitekey="ISI_SITE_KEY_KAMU_DISINI"></div>
+    
+    <div id="challengeBox" class="small" style="margin-top:10px;display:none"></div>
+    <input id="mathAnswer" placeholder="Jawaban angka" style="display:none">
+    <div id="animalBtns"></div>
+
+    <button id="claimBtn" onclick="claim()">2. CLAIM</button>
+    <div id="result" class="small"></div>
+  </div>
+  <div class="card">
+    <h3>📜 Latest Claims</h3>
+    <div id="history" class="small">Loading...</div>
+  </div>
+</div>
 <script>
-const API = 'https://calm-art-584f.cnamelist.workers.dev'; // <- INI URL WORKER KAMU
-let sessionId=null,pickedAnimal=null;
-const log=t=>document.getElementById('log').innerHTML=t+'<br>'+document.getElementById('log').innerHTML;
-async function loadChallenge(){const d=await(await fetch(API+'/api/challenge')).json();sessionId=d.sessionId;document.getElementById('q').innerText='Hitung: '+d.question;document.getElementById('animals').innerHTML=d.animals.map(a=>`<button type=button class=animalBtn onclick="pick('${a}')">${a}</button>`).join('');document.getElementById('challengeBox').style.display='block';}
-function pick(a){pickedAnimal=a;document.querySelectorAll('.animalBtn').forEach(b=>b.style.background=b.innerText===a?'#38bdf8':'#334155');}
-document.getElementById('btn').onclick=async()=>{const user=document.getElementById('user').value.trim(),token=turnstile.getResponse(),math=document.getElementById('math').value;if(!user||!token||!math||!pickedAnimal)return alert('Isi semua');document.getElementById('btn').disabled=true;const d=await(await fetch(API+'/api/claim',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user,token,sessionId,mathAnswer:math,animalAnswer:pickedAnimal})).json();log(d.success?'✅ '+d.message+' Sisa: '+d.remaining:'❌ '+d.error);turnstile.reset();loadChallenge();document.getElementById('btn').disabled=false;};
-loadChallenge();</script></body></html>
+const API = "https://calm-art-584f.cnamelist.workers.dev";
+let sessionId = "";
+let pickedAnimal = "";
+const log = (t) => { document.getElementById("result").innerHTML = t; };
+
+async function getChallenge(){
+  try{
+    const res = await fetch(API + "/api/challenge");
+    const data = await res.json();
+    sessionId = data.sessionId;
+    document.getElementById("challengeBox").innerHTML = "Soal: <b>" + data.question + "</b><br>Pilih Hewan:";
+    document.getElementById("challengeBox").style.display = 'block';
+    document.getElementById("mathAnswer").style.display = 'block';
+    document.getElementById("animalBtns").innerHTML = data.animals.map(a=>`<button type=button class=animalBtn onclick="pick('${a}')">${a}</button>`).join('');
+  }catch(e){ log('❌ Gagal load challenge. Cek URL Worker'); }
+}
+
+function pick(a){
+  pickedAnimal = a;
+  document.querySelectorAll('.animalBtn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+async function claim(){
+  const username = document.getElementById("username").value.trim();
+  const token = turnstile.getResponse();
+  const mathAnswer = document.getElementById("mathAnswer").value;
+  if(!username||!token||!mathAnswer||!pickedAnimal){ alert('Isi semua + centang captcha'); return; }
+  
+  document.getElementById("claimBtn").disabled = true;
+  log('⏳ Memproses...');
+
+  try{
+    const res = await fetch(API + "/api/claim", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, token, sessionId, mathAnswer, animalAnswer: pickedAnimal })
+    });
+    const data = await res.json();
+    log(data.success ? `✅ ${data.message} Sisa: ${data.remaining}/7` : `❌ ${data.error}`);
+  }catch(e){ log('❌ Koneksi ke Worker gagal'); }
+  
+  turnstile.reset();
+  getChallenge();
+  document.getElementById("claimBtn").disabled = false;
+}
+
+async function loadHistory(){
+  try{
+    const res = await fetch(API + "/api/history");
+    const data = await res.json();
+    document.getElementById("history").innerHTML = data.length ? data.map(h => `${h.user} | ${h.amount} | ${new Date(h.time).toLocaleTimeString()}`).join("<br>") : 'Belum ada claim';
+  }catch(e){ document.getElementById("history").innerHTML = 'Gagal load'; }
+}
+
+getChallenge(); // Auto load soal pas buka
+loadHistory();
+</script>
+</body>
+</html>
