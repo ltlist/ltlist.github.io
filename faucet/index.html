@@ -3,130 +3,218 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>LT Faucet</title>
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<title>LT Faucet PRO</title>
+
 <style>
-body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
-.container{max-width:500px;margin:40px auto;padding:20px}
-.card{background:#111827;padding:20px;border-radius:12px;margin-bottom:15px}
-input,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none;font-size:16px}
-button{background:#22c55e;color:#000;font-weight:bold;cursor:pointer}
-button:disabled{opacity:0.5;cursor:not-allowed}
-.small{font-size:13px;color:#94a3b8;margin-top:8px}
-#animalBtns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
-.animalBtn{
-  background:#1e293b; 
-  border:2px solid #334155;
-  border-radius:12px;
-  padding:14px 4px;
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#0f172a;
+  color:#e2e8f0;
+  display:flex;
+  justify-content:center;
+}
+
+.container{
+  width:100%;
+  max-width:500px;
+  padding:20px;
+}
+
+h1{
+  color:#5eead4;
   text-align:center;
-  cursor:pointer;
-  font-weight:600;
-  font-size:15px;
-  transition:0.2s;
 }
-.animalBtn:last-child{grid-column:1 / 3} /* Lion full 1 baris */
-.animalBtn.active{
+
+.card{
+  background:#111827;
+  padding:15px;
+  border-radius:10px;
+  margin-top:15px;
+}
+
+input, button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+  font-size:14px;
+}
+
+input{
+  background:#0b1220;
+  color:#fff;
+}
+
+button{
   background:#22c55e;
-  border-color:#22c55e;
-  color:#000;
+  cursor:pointer;
+  font-weight:bold;
 }
-#result{margin-top:10px;min-height:20px;font-weight:600}
+
+button:hover{
+  background:#16a34a;
+}
+
+.small{
+  font-size:13px;
+  color:#94a3b8;
+}
+
+.row{
+  display:flex;
+  gap:10px;
+}
+
+.row div{
+  flex:1;
+}
+
+#animalBox{
+  font-size:40px;
+  text-align:center;
+  margin:10px 0;
+}
+
+.history{
+  font-size:13px;
+  margin-top:10px;
+}
+
+.bad{
+  color:#f87171;
+}
+
+.good{
+  color:#4ade80;
+}
 </style>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
+
 <body>
 <div class="container">
-  <div class="card">
-    <h2>🚀 LT Faucet</h2>
-    <div class="small">Reward: 0.00000160 LTC / 60 Menit | Max 7/hari</div>
-  </div>
-  <div class="card">
-    <input id="username" placeholder="FaucetPay Email / Username">
-    <div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
-    
-    <div id="challengeBox" class="small" style="display:none">
-      Soal: <b id="qText"></b><br>Pilih Hewan:
-    </div>
-    <input id="mathAnswer" type="number" inputmode="numeric" placeholder="Jawaban angka" style="display:none">
-    <div id="animalBtns"></div>
 
-    <button id="claimBtn" onclick="claim()">2. CLAIM</button>
-    <div id="result" class="small"></div>
-  </div>
-  <div class="card">
-    <h3>📜 Latest Claims</h3>
-    <div id="history" class="small">Loading...</div>
-  </div>
+<h1>⚡ LT Faucet PRO</h1>
+
+<div class="card">
+  <div class="small">Reward: 0.00000160 LTC</div>
+  <div class="small" id="stats">Loading stats...</div>
 </div>
-<script>
-const API = "https://calm-art-584f.cnamelist.workers.dev"; // <- Ganti URL Worker kamu
 
-const animalIcons = { cat: "🐱", dog: "🐶", rabbit: "🐰", cow: "🐄", lion: "🦁" };
+<div class="card">
+
+  <div id="animalBox">❓</div>
+  <div id="question" class="small">Loading challenge...</div>
+
+  <div class="row">
+    <div>
+      <input id="mathAnswer" placeholder="Jawaban matematika">
+    </div>
+    <div>
+      <input id="animalAnswer" placeholder="hewan (cat/dog/dll)">
+    </div>
+  </div>
+
+  <input id="username" placeholder="FaucetPay Username">
+
+  <!-- TURNSTILE -->
+  <div style="margin-top:10px"
+       class="cf-turnstile"
+       data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
+
+  <button onclick="claim()">CLAIM</button>
+
+  <div id="msg" class="small"></div>
+</div>
+
+<div class="card">
+  <b>History</b>
+  <div id="history" class="history">Loading...</div>
+</div>
+
+</div>
+
+<script>
+const API = "";
 
 let sessionId = "";
-let pickedAnimal = "";
-const log = (t) => { document.getElementById("result").innerHTML = t; };
 
-async function getChallenge(){
-  try{
-    const res = await fetch(API + "/api/challenge");
-    const data = await res.json();
-    sessionId = data.sessionId;
-    document.getElementById("qText").innerText = data.question;
-    document.getElementById("challengeBox").style.display = 'block';
-    document.getElementById("mathAnswer").style.display = 'block';
-    document.getElementById("mathAnswer").value = '';
-    
-    // Bikin tombol: Emoji + Nama
-    document.getElementById("animalBtns").innerHTML = data.animals.map(a=>`
-      <div class="animalBtn" onclick="pick('${a}', this)">
-        ${animalIcons[a] || '❓'} ${a.charAt(0).toUpperCase() + a.slice(1)}
-      </div>
-    `).join('');
-    pickedAnimal = "";
-  }catch(e){ log('❌ Gagal load challenge'); }
+async function loadChallenge(){
+  const res = await fetch(API + "/api/challenge");
+  const data = await res.json();
+
+  sessionId = data.sessionId;
+
+  document.getElementById("question").innerText =
+    "Berapa hasil: " + data.question;
+
+  document.getElementById("animalBox").innerText = "🐾";
 }
 
-function pick(a, el){
-  pickedAnimal = a;
-  document.querySelectorAll('.animalBtn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-}
-
-async function claim(){
-  const username = document.getElementById("username").value.trim();
-  const token = turnstile.getResponse();
-  const mathAnswer = document.getElementById("mathAnswer").value;
-  if(!username||!token||!mathAnswer||!pickedAnimal){ alert('Isi Email + Jawaban + Pilih hewan'); return; }
-  
-  document.getElementById("claimBtn").disabled = true;
-  log('⏳ Memproses...');
-
-  try{
-    const res = await fetch(API + "/api/claim", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, token, sessionId, mathAnswer, animalAnswer: pickedAnimal })
-    });
-    const data = await res.json();
-    log(data.success ? `✅ ${data.message} Sisa: ${data.remaining}/7` : `❌ ${data.error}`);
-  }catch(e){ log('❌ Koneksi ke Worker gagal'); }
-  
-  turnstile.reset();
-  getChallenge(); // Refresh soal baru
-  document.getElementById("claimBtn").disabled = false;
+async function loadStats(){
+  const res = await fetch(API + "/api/stats");
+  const data = await res.json();
+  document.getElementById("stats").innerText =
+    "Total claim: " + data.claims;
 }
 
 async function loadHistory(){
-  try{
-    const res = await fetch(API + "/api/history");
-    const data = await res.json();
-    document.getElementById("history").innerHTML = data.length ? data.map(h => `${h.user} | ${h.amount} | ${new Date(h.time).toLocaleTimeString('id-ID')}`).join("<br>") : 'Belum ada claim';
-  }catch(e){ document.getElementById("history").innerHTML = 'Gagal load'; }
+  const res = await fetch(API + "/api/history");
+  const data = await res.json();
+
+  let html = "";
+  data.forEach(h=>{
+    html += `
+      <div>👤 ${h.user} | ${h.amount} | ${new Date(h.time).toLocaleString()}</div>
+    `;
+  });
+
+  document.getElementById("history").innerHTML = html || "Belum ada data";
 }
 
-getChallenge();
+async function claim(){
+
+  const username = document.getElementById("username").value;
+  const mathAnswer = document.getElementById("mathAnswer").value;
+  const animalAnswer = document.getElementById("animalAnswer").value;
+  const token = document.querySelector('[name="cf-turnstile-response"]').value;
+
+  document.getElementById("msg").innerText = "Processing...";
+
+  const res = await fetch(API + "/api/claim", {
+    method:"POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({
+      username,
+      sessionId,
+      mathAnswer,
+      animalAnswer,
+      token
+    })
+  });
+
+  const data = await res.json();
+
+  if(data.success){
+    document.getElementById("msg").innerHTML =
+      "<span class='good'>" + data.message + "</span>";
+
+    loadStats();
+    loadHistory();
+    loadChallenge();
+  }else{
+    document.getElementById("msg").innerHTML =
+      "<span class='bad'>" + data.error + "</span>";
+  }
+}
+
+loadChallenge();
+loadStats();
 loadHistory();
 </script>
+
 </body>
 </html>
