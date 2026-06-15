@@ -5,215 +5,264 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>LT Faucet PRO</title>
 
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 <style>
 body{
   margin:0;
-  font-family:Arial, sans-serif;
+  font-family:Arial;
   background:#0f172a;
-  color:#e2e8f0;
-  display:flex;
-  justify-content:center;
+  color:#fff;
 }
 
 .container{
-  width:100%;
-  max-width:500px;
-  padding:20px;
-}
-
-h1{
-  color:#5eead4;
-  text-align:center;
+  max-width:520px;
+  margin:30px auto;
+  padding:15px;
 }
 
 .card{
   background:#111827;
-  padding:15px;
-  border-radius:10px;
-  margin-top:15px;
+  padding:18px;
+  border-radius:12px;
+  margin-bottom:12px;
 }
 
-input, button{
+input,button{
   width:100%;
-  padding:10px;
+  padding:12px;
   margin-top:10px;
   border-radius:8px;
   border:none;
-  font-size:14px;
-}
-
-input{
-  background:#0b1220;
-  color:#fff;
+  font-size:15px;
 }
 
 button{
   background:#22c55e;
-  cursor:pointer;
+  color:#000;
   font-weight:bold;
+  cursor:pointer;
 }
 
-button:hover{
-  background:#16a34a;
+button:disabled{
+  opacity:0.5;
 }
 
 .small{
   font-size:13px;
   color:#94a3b8;
-}
-
-.row{
-  display:flex;
-  gap:10px;
-}
-
-.row div{
-  flex:1;
-}
-
-#animalBox{
-  font-size:40px;
+  margin-top:6px;
   text-align:center;
-  margin:10px 0;
 }
 
-.history{
-  font-size:13px;
+#questionIcon{
+  font-size:55px;
+  text-align:center;
   margin-top:10px;
 }
 
-.bad{
-  color:#f87171;
+#questionMath{
+  text-align:center;
+  font-size:18px;
+  margin-top:5px;
 }
 
-.good{
-  color:#4ade80;
+#animalBox{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin-top:10px;
+}
+
+.animal{
+  background:#1e293b;
+  border:2px solid #334155;
+  padding:14px;
+  border-radius:12px;
+  text-align:center;
+  cursor:pointer;
+  font-size:20px;
+}
+
+.animal.active{
+  border-color:#22c55e;
+  background:#22c55e;
+  color:#000;
+}
+
+#result{
+  margin-top:10px;
+  min-height:20px;
+  font-weight:bold;
+  text-align:center;
 }
 </style>
-
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 </head>
 
 <body>
+
 <div class="container">
 
-<h1>⚡ LT Faucet PRO</h1>
-
-<div class="card">
-  <div class="small">Reward: 0.00000160 LTC</div>
-  <div class="small" id="stats">Loading stats...</div>
-</div>
-
-<div class="card">
-
-  <div id="animalBox">❓</div>
-  <div id="question" class="small">Loading challenge...</div>
-
-  <div class="row">
-    <div>
-      <input id="mathAnswer" placeholder="Jawaban matematika">
-    </div>
-    <div>
-      <input id="animalAnswer" placeholder="hewan (cat/dog/dll)">
-    </div>
+  <div class="card">
+    <h2 style="text-align:center">🚀 LT Faucet PRO</h2>
+    <div class="small">Username Mode • 60 min cooldown • Max 7/day</div>
   </div>
 
-  <input id="username" placeholder="FaucetPay Username">
+  <div class="card">
 
-  <!-- TURNSTILE -->
-  <div style="margin-top:10px"
-       class="cf-turnstile"
-       data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
+    <!-- USERNAME (FIX UTAMA) -->
+    <input id="username" placeholder="FaucetPay Username">
 
-  <button onclick="claim()">CLAIM</button>
+    <!-- CAPTCHA -->
+    <div class="cf-turnstile"
+      data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
 
-  <div id="msg" class="small"></div>
-</div>
+    <button onclick="getChallenge()">1. GET CHALLENGE</button>
 
-<div class="card">
-  <b>History</b>
-  <div id="history" class="history">Loading...</div>
-</div>
+    <div id="questionIcon"></div>
+    <div id="questionMath"></div>
+
+    <input id="mathAnswer" type="number" placeholder="Jawaban angka">
+
+    <div id="animalBox"></div>
+
+    <button id="claimBtn" onclick="claim()">2. CLAIM</button>
+
+    <div id="result"></div>
+
+  </div>
+
+  <div class="card">
+    <h3 style="text-align:center">📜 History</h3>
+    <div id="history" class="small">Loading...</div>
+  </div>
 
 </div>
 
 <script>
-const API = "";
+
+const API = "https://calm-art-584f.cnamelist.workers.dev";
+
+const animalIcons = {
+  cat:"🐱",
+  dog:"🐶",
+  rabbit:"🐰",
+  cow:"🐮",
+  lion:"🦁"
+};
 
 let sessionId = "";
+let selectedAnimal = "";
 
-async function loadChallenge(){
+/* =========================
+   GET CHALLENGE
+========================= */
+async function getChallenge(){
+
   const res = await fetch(API + "/api/challenge");
   const data = await res.json();
 
   sessionId = data.sessionId;
+  selectedAnimal = "";
 
-  document.getElementById("question").innerText =
-    "Berapa hasil: " + data.question;
+  document.getElementById("questionIcon").innerHTML =
+    animalIcons[data.animal] || "❓";
 
-  document.getElementById("animalBox").innerText = "🐾";
+  document.getElementById("questionMath").innerHTML =
+    "Soal: <b>" + data.question + "</b>";
+
+  const box = document.getElementById("animalBox");
+  box.innerHTML = "";
+
+  data.animals.forEach(a => {
+
+    const div = document.createElement("div");
+    div.className = "animal";
+
+    div.innerHTML = animalIcons[a] + "<br>" + a;
+
+    div.onclick = () => {
+      document.querySelectorAll(".animal")
+        .forEach(b => b.classList.remove("active"));
+
+      div.classList.add("active");
+      selectedAnimal = a;
+    };
+
+    box.appendChild(div);
+  });
 }
 
-async function loadStats(){
-  const res = await fetch(API + "/api/stats");
-  const data = await res.json();
-  document.getElementById("stats").innerText =
-    "Total claim: " + data.claims;
+/* =========================
+   CLAIM (FIX UTAMA DI SINI)
+========================= */
+async function claim(){
+
+  const username = document.getElementById("username").value.trim();
+  const token = turnstile.getResponse();
+  const mathAnswer = document.getElementById("mathAnswer").value;
+
+  if(!username || !token || !mathAnswer || !selectedAnimal){
+    document.getElementById("result").innerHTML =
+      "❌ Lengkapi semua data";
+    return;
+  }
+
+  document.getElementById("claimBtn").disabled = true;
+  document.getElementById("result").innerHTML = "⏳ Processing...";
+
+  try{
+
+    const res = await fetch(API + "/api/claim", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        username,              // 🔥 FIX: pakai username (WAJIB)
+        token,
+        sessionId,
+        mathAnswer,
+        animalAnswer: selectedAnimal
+      })
+    });
+
+    const data = await res.json();
+
+    document.getElementById("result").innerHTML =
+      data.success
+        ? "✅ " + data.message + " | Sisa: " + data.remaining
+        : "❌ " + data.error;
+
+    turnstile.reset();
+    getChallenge();
+    loadHistory();
+
+  }catch(e){
+    document.getElementById("result").innerHTML =
+      "❌ Server error";
+  }
+
+  document.getElementById("claimBtn").disabled = false;
 }
 
+/* =========================
+   HISTORY
+========================= */
 async function loadHistory(){
+
   const res = await fetch(API + "/api/history");
   const data = await res.json();
 
-  let html = "";
-  data.forEach(h=>{
-    html += `
-      <div>👤 ${h.user} | ${h.amount} | ${new Date(h.time).toLocaleString()}</div>
-    `;
-  });
-
-  document.getElementById("history").innerHTML = html || "Belum ada data";
+  document.getElementById("history").innerHTML =
+    data.length
+      ? data.map(h =>
+        `${h.user} | ${h.amount} | ${new Date(h.time).toLocaleTimeString()}`
+      ).join("<br>")
+      : "Belum ada claim";
 }
 
-async function claim(){
-
-  const username = document.getElementById("username").value;
-  const mathAnswer = document.getElementById("mathAnswer").value;
-  const animalAnswer = document.getElementById("animalAnswer").value;
-  const token = document.querySelector('[name="cf-turnstile-response"]').value;
-
-  document.getElementById("msg").innerText = "Processing...";
-
-  const res = await fetch(API + "/api/claim", {
-    method:"POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({
-      username,
-      sessionId,
-      mathAnswer,
-      animalAnswer,
-      token
-    })
-  });
-
-  const data = await res.json();
-
-  if(data.success){
-    document.getElementById("msg").innerHTML =
-      "<span class='good'>" + data.message + "</span>";
-
-    loadStats();
-    loadHistory();
-    loadChallenge();
-  }else{
-    document.getElementById("msg").innerHTML =
-      "<span class='bad'>" + data.error + "</span>";
-  }
-}
-
-loadChallenge();
-loadStats();
+getChallenge();
 loadHistory();
+
 </script>
 
 </body>
