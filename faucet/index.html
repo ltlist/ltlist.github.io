@@ -1,234 +1,132 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>LT Faucet PRO</title>
-
+<title>LT Faucet</title>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#0f172a;
-  color:#fff;
-}
-
-.container{
-  max-width:520px;
-  margin:30px auto;
-  padding:15px;
-}
-
-.card{
-  background:#111827;
-  padding:18px;
-  border-radius:12px;
-  margin-bottom:12px;
-}
-
-input,button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:8px;
-  border:none;
-  font-size:15px;
-}
-
-button{
-  background:#22c55e;
-  color:#000;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-button:disabled{
-  opacity:0.5;
-}
-
-.small{
-  font-size:13px;
-  color:#94a3b8;
-  margin-top:6px;
-}
-
-#animalBox{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:12px;
-  margin-top:12px;
-}
-
-.animal{
-  background:#1e293b;
+body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
+.container{max-width:500px;margin:40px auto;padding:20px}
+.card{background:#111827;padding:20px;border-radius:12px;margin-bottom:15px}
+input,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none;font-size:16px}
+button{background:#22c55e;color:#000;font-weight:bold;cursor:pointer}
+button:disabled{opacity:0.5;cursor:not-allowed}
+.small{font-size:13px;color:#94a3b8;margin-top:8px}
+#animalBtns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+.animalBtn{
+  background:#1e293b; 
   border:2px solid #334155;
-  border-radius:14px;
-  padding:12px;
-  cursor:pointer;
+  border-radius:12px;
+  padding:14px 4px;
   text-align:center;
+  cursor:pointer;
+  font-weight:600;
+  font-size:15px;
   transition:0.2s;
-  user-select:none;
 }
-
-.animal:hover{
-  transform:scale(1.03);
-}
-
-.animal img{
-  width:70px;
-  height:70px;
-  object-fit:contain;
-  margin-bottom:6px;
-}
-
-.animal.active{
+.animalBtn:last-child{grid-column:1 / 3} /* Lion full 1 baris */
+.animalBtn.active{
   background:#22c55e;
   border-color:#22c55e;
   color:#000;
 }
-
-#result{
-  margin-top:10px;
-  min-height:20px;
-  font-weight:bold;
-}
+#result{margin-top:10px;min-height:20px;font-weight:600}
 </style>
 </head>
-
 <body>
-
 <div class="container">
-
   <div class="card">
-    <h2>🚀 LT Faucet PRO</h2>
-    <div class="small">60 min / claim • max 7/day • anti bot system</div>
+    <h2>🚀 LT Faucet</h2>
+    <div class="small">Reward: 0.00000160 LTC / 60 Menit | Max 7/hari</div>
   </div>
-
   <div class="card">
+    <input id="username" placeholder="FaucetPay Email / Username">
+    <div class="cf-turnstile" data-sitekey="ISI_SITE_KEY_KAMU"></div>
+    
+    <div id="challengeBox" class="small" style="display:none">
+      Soal: <b id="qText"></b><br>Pilih Hewan:
+    </div>
+    <input id="mathAnswer" type="number" inputmode="numeric" placeholder="Jawaban angka" style="display:none">
+    <div id="animalBtns"></div>
 
-    <input id="email" placeholder="Email">
-    <input id="username" placeholder="FaucetPay Username">
-
-    <div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
-
-    <button onclick="getChallenge()">GET CHALLENGE</button>
-
-    <div class="small" id="question"></div>
-
-    <input id="mathAnswer" type="number" placeholder="Jawaban angka">
-
-    <div id="animalBox"></div>
-
-    <button onclick="claim()">CLAIM</button>
-
-    <div id="result"></div>
-
+    <button id="claimBtn" onclick="claim()">2. CLAIM</button>
+    <div id="result" class="small"></div>
   </div>
-
+  <div class="card">
+    <h3>📜 Latest Claims</h3>
+    <div id="history" class="small">Loading...</div>
+  </div>
 </div>
-
 <script>
-const API = "https://calm-art-584f.cnamelist.workers.dev";
+const API = "https://calm-art-584f.cnamelist.workers.dev"; // <- Ganti URL Worker kamu
 
-/* =========================
-   ANIMAL ICON (IMAGE)
-========================= */
-const icons = {
-  cat: "https://cdn-icons-png.flaticon.com/512/616/616430.png",
-  dog: "https://cdn-icons-png.flaticon.com/512/616/616408.png",
-  rabbit: "https://cdn-icons-png.flaticon.com/512/3069/3069172.png",
-  cow: "https://cdn-icons-png.flaticon.com/512/1998/1998627.png",
-  lion: "https://cdn-icons-png.flaticon.com/512/1864/1864472.png"
-};
+const animalIcons = { cat: "🐱", dog: "🐶", rabbit: "🐰", cow: "🐄", lion: "🦁" };
 
 let sessionId = "";
-let selectedAnimal = "";
+let pickedAnimal = "";
+const log = (t) => { document.getElementById("result").innerHTML = t; };
 
-/* shuffle anti bot ringan */
-function shuffle(arr){
-  return arr.sort(()=>Math.random()-0.5);
-}
-
-/* =========================
-   GET CHALLENGE
-========================= */
 async function getChallenge(){
-  const r = await fetch(API + "/api/challenge");
-  const d = await r.json();
-
-  sessionId = d.sessionId;
-  selectedAnimal = "";
-
-  document.getElementById("question").innerHTML =
-    "Solve: <b>" + d.question + "</b>";
-
-  const animals = shuffle(d.animals);
-
-  document.getElementById("animalBox").innerHTML =
-    animals.map(a => `
-      <div class="animal" onclick="pickAnimal('${a}', this)">
-        <img src="${icons[a]}" />
-        <div>${a.toUpperCase()}</div>
+  try{
+    const res = await fetch(API + "/api/challenge");
+    const data = await res.json();
+    sessionId = data.sessionId;
+    document.getElementById("qText").innerText = data.question;
+    document.getElementById("challengeBox").style.display = 'block';
+    document.getElementById("mathAnswer").style.display = 'block';
+    document.getElementById("mathAnswer").value = '';
+    
+    // Bikin tombol: Emoji + Nama
+    document.getElementById("animalBtns").innerHTML = data.animals.map(a=>`
+      <div class="animalBtn" onclick="pick('${a}', this)">
+        ${animalIcons[a] || '❓'} ${a.charAt(0).toUpperCase() + a.slice(1)}
       </div>
-    `).join("");
+    `).join('');
+    pickedAnimal = "";
+  }catch(e){ log('❌ Gagal load challenge'); }
 }
 
-/* =========================
-   PICK ANIMAL
-========================= */
-function pickAnimal(a, el){
-  selectedAnimal = a;
-
-  document.querySelectorAll(".animal")
-    .forEach(e => e.classList.remove("active"));
-
-  el.classList.add("active");
+function pick(a, el){
+  pickedAnimal = a;
+  document.querySelectorAll('.animalBtn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
 }
 
-/* =========================
-   CLAIM
-========================= */
 async function claim(){
-  const email = document.getElementById("email").value.trim();
   const username = document.getElementById("username").value.trim();
-  const math = document.getElementById("mathAnswer").value;
   const token = turnstile.getResponse();
+  const mathAnswer = document.getElementById("mathAnswer").value;
+  if(!username||!token||!mathAnswer||!pickedAnimal){ alert('Isi Email + Jawaban + Pilih hewan'); return; }
+  
+  document.getElementById("claimBtn").disabled = true;
+  log('⏳ Memproses...');
 
-  if(!email || !username || !math || !selectedAnimal || !token){
-    document.getElementById("result").innerHTML =
-      "❌ Lengkapi semua data";
-    return;
-  }
-
-  document.getElementById("result").innerHTML = "⏳ Processing...";
-
-  const r = await fetch(API + "/api/claim",{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body:JSON.stringify({
-      email,
-      username,
-      token,
-      sessionId,
-      mathAnswer: math,
-      animalAnswer: selectedAnimal
-    })
-  });
-
-  const d = await r.json();
-
-  document.getElementById("result").innerHTML =
-    d.success ? "✅ " + d.message : "❌ " + d.error;
-
+  try{
+    const res = await fetch(API + "/api/claim", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, token, sessionId, mathAnswer, animalAnswer: pickedAnimal })
+    });
+    const data = await res.json();
+    log(data.success ? `✅ ${data.message} Sisa: ${data.remaining}/7` : `❌ ${data.error}`);
+  }catch(e){ log('❌ Koneksi ke Worker gagal'); }
+  
   turnstile.reset();
-  getChallenge();
+  getChallenge(); // Refresh soal baru
+  document.getElementById("claimBtn").disabled = false;
 }
 
-/* init */
-getChallenge();
-</script>
+async function loadHistory(){
+  try{
+    const res = await fetch(API + "/api/history");
+    const data = await res.json();
+    document.getElementById("history").innerHTML = data.length ? data.map(h => `${h.user} | ${h.amount} | ${new Date(h.time).toLocaleTimeString('id-ID')}`).join("<br>") : 'Belum ada claim';
+  }catch(e){ document.getElementById("history").innerHTML = 'Gagal load'; }
+}
 
+getChallenge();
+loadHistory();
+</script>
 </body>
 </html>
