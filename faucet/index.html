@@ -9,28 +9,31 @@
 body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
 .container{max-width:500px;margin:40px auto;padding:20px}
 .card{background:#111827;padding:20px;border-radius:12px;margin-bottom:15px}
-input,button{width:100%;padding:10px;margin-top:10px;border-radius:8px;border:none}
+input,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none;font-size:16px}
 button{background:#22c55e;color:#000;font-weight:bold;cursor:pointer}
 button:disabled{opacity:0.5;cursor:not-allowed}
 .small{font-size:13px;color:#94a3b8}
-.animalBtn{width:32%;margin:4px 1%;background:#334155;color:#fff}
-.animalBtn.active{background:#22c55e;color:#000}
-#result{margin-top:10px;min-height:20px}
-
-</style>
-</head>.animalBtn{
-  width:32%;
-  margin:4px 1%;
-  background:#334155; 
-  color:#fff;
-  border:1px solid #475569; /* Kasih garis biar keliatan kotak */
-  padding:10px 0;
+#animalBtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.animalBtn{
+  flex:1 1 30%; 
+  background:#1e293b; 
+  border:2px solid #334155;
+  border-radius:12px;
+  padding:12px 4px;
+  text-align:center;
+  cursor:pointer;
+  transition:0.2s;
 }
+.animalBtn img{width:40px;height:40px;display:block;margin:0 auto 4px}
+.animalBtn span{font-size:13px;font-weight:600}
 .animalBtn.active{
-  background:#22c55e; /* Hijau kalau kepilih */
-  color:#000;
-  border:1px solid #22c55e;
+  background:#22c55e;
+  border-color:#22c55e;
+  transform:scale(1.05);
 }
+#result{margin-top:10px;min-height:20px;font-weight:600}
+</style>
+</head>
 <body>
 <div class="container">
   <div class="card">
@@ -39,10 +42,12 @@ button:disabled{opacity:0.5;cursor:not-allowed}
   </div>
   <div class="card">
     <input id="username" placeholder="FaucetPay Username / Email">
-    <div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
+    <div class="cf-turnstile" data-sitekey="ISI_SITE_KEY_KAMU_DISINI"></div>
     
-    <div id="challengeBox" class="small" style="margin-top:10px;display:none"></div>
-    <input id="mathAnswer" placeholder="Jawaban angka" style="display:none">
+    <div id="challengeBox" class="small" style="margin-top:12px;display:none">
+      Soal: <b id="qText"></b><br>Pilih Hewan:
+    </div>
+    <input id="mathAnswer" type="number" inputmode="numeric" placeholder="Jawaban angka" style="display:none">
     <div id="animalBtns"></div>
 
     <button id="claimBtn" onclick="claim()">2. CLAIM</button>
@@ -55,6 +60,13 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 </div>
 <script>
 const API = "https://calm-art-584f.cnamelist.workers.dev";
+
+// Map nama hewan -> emoji gambar
+const animalIcons = {
+  cat: "🐱", dog: "🐶", rabbit: "🐰", cow: "🐄", lion: "🦁",
+  fox: "🦊", pig: "🐷", monkey: "🐒", bear: "🐻", tiger: "🐯"
+};
+
 let sessionId = "";
 let pickedAnimal = "";
 const log = (t) => { document.getElementById("result").innerHTML = t; };
@@ -64,24 +76,32 @@ async function getChallenge(){
     const res = await fetch(API + "/api/challenge");
     const data = await res.json();
     sessionId = data.sessionId;
-    document.getElementById("challengeBox").innerHTML = "Soal: <b>" + data.question + "</b><br>Pilih Hewan:";
+    document.getElementById("qText").innerText = data.question;
     document.getElementById("challengeBox").style.display = 'block';
     document.getElementById("mathAnswer").style.display = 'block';
-    document.getElementById("animalBtns").innerHTML = data.animals.map(a=>`<button type=button class=animalBtn onclick="pick('${a}')">${a}</button>`).join('');
+    
+    // Bikin tombol gambar
+    document.getElementById("animalBtns").innerHTML = data.animals.map(a=>`
+      <div class="animalBtn" onclick="pick('${a}', this)">
+        <img src="https://placehold.co/40x40/1e293b/fff?text=${animalIcons[a]||'❓'}" alt="${a}">
+        <span>${a}</span>
+      </div>
+    `).join('');
+    pickedAnimal = ""; // reset pilihan
   }catch(e){ log('❌ Gagal load challenge. Cek URL Worker'); }
 }
 
-function pick(a){
+function pick(a, el){
   pickedAnimal = a;
   document.querySelectorAll('.animalBtn').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
+  el.classList.add('active');
 }
 
 async function claim(){
   const username = document.getElementById("username").value.trim();
   const token = turnstile.getResponse();
   const mathAnswer = document.getElementById("mathAnswer").value;
-  if(!username||!token||!mathAnswer||!pickedAnimal){ alert('Isi semua + centang captcha'); return; }
+  if(!username||!token||!mathAnswer||!pickedAnimal){ alert('Isi semua + pilih hewan'); return; }
   
   document.getElementById("claimBtn").disabled = true;
   log('⏳ Memproses...');
@@ -109,7 +129,7 @@ async function loadHistory(){
   }catch(e){ document.getElementById("history").innerHTML = 'Gagal load'; }
 }
 
-getChallenge(); // Auto load soal pas buka
+getChallenge();
 loadHistory();
 </script>
 </body>
