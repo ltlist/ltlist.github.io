@@ -13,7 +13,7 @@ const HTML = `<!DOCTYPE html>
 </head><body><div class="box"><h2>🚰 LTFAUCET</h2><p>Reward: ${REWARD} LTC / 60 Menit | Max 7/hari</p>
 <input id="user" placeholder="Username / Email FaucetPay">
 <div id="challengeBox"><p id="q"></p><input id="math" placeholder="Jawaban"><div id="animals"></div></div>
-<div class="cf-turnstile" data-sitekey="PASTE_SITE_KEY_KAMU_DISINI"></div> 
+<div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div> 
 <button id="btn">Claim</button><div id="log" style="margin-top:12px;font-size:14px"></div></div>
 <script>
 const API = '${WORKER_URL}';let sessionId=null,pickedAnimal=null;
