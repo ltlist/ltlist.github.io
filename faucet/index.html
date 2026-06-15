@@ -24,8 +24,8 @@ button:disabled{opacity:0.5;cursor:not-allowed}
   cursor:pointer;
   transition:0.2s;
 }
-.animalBtn img{width:40px;height:40px;display:block;margin:0 auto 4px}
-.animalBtn span{font-size:13px;font-weight:600}
+.animalBtn img{font-size:28px;display:block;margin:0 auto 4px} /* Emoji dibesarin */
+.animalBtn span{font-size:13px;font-weight:600;text-transform:capitalize}
 .animalBtn.active{
   background:#22c55e;
   border-color:#22c55e;
@@ -42,7 +42,7 @@ button:disabled{opacity:0.5;cursor:not-allowed}
   </div>
   <div class="card">
     <input id="username" placeholder="FaucetPay Username / Email">
-    <div class="cf-turnstile" data-sitekey="ISI_SITE_KEY_KAMU_DISINI"></div>
+    <div class="cf-turnstile" data-sitekey="ISI_SITE_KEY_KAMU"></div>
     
     <div id="challengeBox" class="small" style="margin-top:12px;display:none">
       Soal: <b id="qText"></b><br>Pilih Hewan:
@@ -61,11 +61,8 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 <script>
 const API = "https://calm-art-584f.cnamelist.workers.dev";
 
-// Map nama hewan -> emoji gambar
-const animalIcons = {
-  cat: "🐱", dog: "🐶", rabbit: "🐰", cow: "🐄", lion: "🦁",
-  fox: "🦊", pig: "🐷", monkey: "🐒", bear: "🐻", tiger: "🐯"
-};
+// Map nama -> emoji
+const animalIcons = { cat: "🐱", dog: "🐶", rabbit: "🐰", cow: "🐄", lion: "🦁" };
 
 let sessionId = "";
 let pickedAnimal = "";
@@ -80,15 +77,15 @@ async function getChallenge(){
     document.getElementById("challengeBox").style.display = 'block';
     document.getElementById("mathAnswer").style.display = 'block';
     
-    // Bikin tombol gambar
+    // Bikin tombol emoji
     document.getElementById("animalBtns").innerHTML = data.animals.map(a=>`
       <div class="animalBtn" onclick="pick('${a}', this)">
-        <img src="https://placehold.co/40x40/1e293b/fff?text=${animalIcons[a]||'❓'}" alt="${a}">
+        <img>${animalIcons[a] || '❓'}</img>
         <span>${a}</span>
       </div>
     `).join('');
-    pickedAnimal = ""; // reset pilihan
-  }catch(e){ log('❌ Gagal load challenge. Cek URL Worker'); }
+    pickedAnimal = "";
+  }catch(e){ log('❌ Gagal load challenge'); }
 }
 
 function pick(a, el){
