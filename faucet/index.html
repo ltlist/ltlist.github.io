@@ -12,24 +12,24 @@ body{margin:0;font-family:Arial;background:#0f172a;color:#fff}
 input,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;border:none;font-size:16px}
 button{background:#22c55e;color:#000;font-weight:bold;cursor:pointer}
 button:disabled{opacity:0.5;cursor:not-allowed}
-.small{font-size:13px;color:#94a3b8}
-#animalBtns{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.small{font-size:13px;color:#94a3b8;margin-top:8px}
+#animalBtns{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
 .animalBtn{
-  flex:1 1 30%; 
   background:#1e293b; 
   border:2px solid #334155;
   border-radius:12px;
-  padding:12px 4px;
+  padding:14px 4px;
   text-align:center;
   cursor:pointer;
+  font-weight:600;
+  font-size:15px;
   transition:0.2s;
 }
-.animalBtn img{font-size:28px;display:block;margin:0 auto 4px} /* Emoji dibesarin */
-.animalBtn span{font-size:13px;font-weight:600;text-transform:capitalize}
+.animalBtn:last-child{grid-column:1 / 3} /* Lion full 1 baris */
 .animalBtn.active{
   background:#22c55e;
   border-color:#22c55e;
-  transform:scale(1.05);
+  color:#000;
 }
 #result{margin-top:10px;min-height:20px;font-weight:600}
 </style>
@@ -44,7 +44,7 @@ button:disabled{opacity:0.5;cursor:not-allowed}
     <input id="username" placeholder="FaucetPay Username / Email">
     <div class="cf-turnstile" data-sitekey="ISI_SITE_KEY_KAMU"></div>
     
-    <div id="challengeBox" class="small" style="margin-top:12px;display:none">
+    <div id="challengeBox" class="small" style="display:none">
       Soal: <b id="qText"></b><br>Pilih Hewan:
     </div>
     <input id="mathAnswer" type="number" inputmode="numeric" placeholder="Jawaban angka" style="display:none">
@@ -61,7 +61,7 @@ button:disabled{opacity:0.5;cursor:not-allowed}
 <script>
 const API = "https://calm-art-584f.cnamelist.workers.dev";
 
-// Map nama -> emoji
+// Emoji lengkap sesuai SS kamu
 const animalIcons = { cat: "🐱", dog: "🐶", rabbit: "🐰", cow: "🐄", lion: "🦁" };
 
 let sessionId = "";
@@ -77,11 +77,10 @@ async function getChallenge(){
     document.getElementById("challengeBox").style.display = 'block';
     document.getElementById("mathAnswer").style.display = 'block';
     
-    // Bikin tombol emoji
+    // Bikin tombol: Emoji + Nama. Huruf besar
     document.getElementById("animalBtns").innerHTML = data.animals.map(a=>`
       <div class="animalBtn" onclick="pick('${a}', this)">
-        <img>${animalIcons[a] || '❓'}</img>
-        <span>${a}</span>
+        ${animalIcons[a] || '❓'} ${a.charAt(0).toUpperCase() + a.slice(1)}
       </div>
     `).join('');
     pickedAnimal = "";
