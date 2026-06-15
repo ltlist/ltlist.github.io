@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>LT Faucet PRO</title>
 
+<!-- Turnstile -->
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <style>
@@ -92,19 +93,24 @@ button:disabled{
 
   <div class="card">
     <h2>🚀 LT Faucet PRO</h2>
-    <div class="small">60 menit / claim • max 7/hari • anti bot system</div>
+    <div class="small">
+      60 menit / claim • max 7/hari • anti bot system
+    </div>
   </div>
 
   <div class="card">
 
+    <!-- USER -->
     <input id="username" placeholder="FaucetPay Username">
 
-    <div style="margin-top:10px" class="cf-turnstile"
+    <!-- CAPTCHA (ONLY ONCE) -->
+    <div class="cf-turnstile"
       data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
 
+    <!-- CHALLENGE -->
     <button onclick="getChallenge()">1. GET CHALLENGE</button>
 
-    <div class="small" id="question"></div>
+    <div id="question" class="small"></div>
 
     <input id="mathAnswer" type="number" placeholder="Jawaban angka">
 
@@ -142,14 +148,10 @@ function log(t){
   document.getElementById("result").innerHTML = t;
 }
 
-window.onload = function () {
-  turnstile.render(".cf-turnstile", {
-    sitekey: "ISI_SITE_KEY_KAMU"
-  });
-};
-
+/* =========================
+   GET CHALLENGE
+========================= */
 async function getChallenge(){
-
   try{
     const res = await fetch(API + "/api/challenge");
     const data = await res.json();
@@ -188,6 +190,9 @@ async function getChallenge(){
   }
 }
 
+/* =========================
+   CLAIM
+========================= */
 async function claim(){
 
   const username = document.getElementById("username").value.trim();
@@ -218,9 +223,10 @@ async function claim(){
 
     const data = await res.json();
 
-    log(data.success
-      ? "✅ " + data.message + " | Sisa: " + data.remaining
-      : "❌ " + data.error
+    log(
+      data.success
+        ? "✅ " + data.message + " | Sisa: " + data.remaining
+        : "❌ " + data.error
     );
 
     // reset state
@@ -240,6 +246,9 @@ async function claim(){
   loadHistory();
 }
 
+/* =========================
+   HISTORY
+========================= */
 async function loadHistory(){
 
   try{
@@ -254,7 +263,8 @@ async function loadHistory(){
         : "Belum ada claim";
 
   }catch(e){
-    document.getElementById("history").innerHTML = "Gagal load history";
+    document.getElementById("history").innerHTML =
+      "Gagal load history";
   }
 }
 
