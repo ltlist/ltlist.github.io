@@ -1,21 +1,161 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Faucet LTC List</title>
-<link rel="stylesheet" href="main.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LT Faucet</title>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0f172a;
+  color:#fff;
+}
+
+.container{
+  max-width:500px;
+  margin:40px auto;
+  padding:20px;
+}
+
+.card{
+  background:#111827;
+  padding:20px;
+  border-radius:12px;
+  margin-bottom:15px;
+}
+
+input,button,select{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+}
+
+button{
+  background:#22c55e;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#16a34a;
+}
+
+.small{
+  font-size:13px;
+  color:#94a3b8;
+}
+
+#history{
+  font-size:13px;
+}
+</style>
 </head>
+
 <body>
-<div class="card">
-  <h2>Claim Faucet Gratis</h2>
-  <select id="faucetSelect"></select>
-  <input id="address" placeholder="Masukkan Alamat FaucetPay">
-  <button id="btnClaim">Claim Sekarang</button>
-  <p id="msg"></p>
-  <p class="small">Total Claim: <span id="totalClaims">0</span></p>
-  <a href="login.html" class="admin-link">Admin</a>
+
+<div class="container">
+
+  <div class="card">
+    <h2>🚀 LT Faucet</h2>
+    <div class="small">Claim LTC otomatis via FaucetPay</div>
+  </div>
+
+  <!-- USER INPUT -->
+  <div class="card">
+    <input id="username" placeholder="FaucetPay Username">
+
+    <div style="margin-top:10px">
+      <div id="turnstile"></div>
+    </div>
+
+    <button onclick="getChallenge()">1. Get Challenge</button>
+
+    <div id="challengeBox" class="small"></div>
+
+    <input id="mathAnswer" placeholder="Jawaban angka">
+    <input id="animalAnswer" placeholder="Jawaban hewan">
+
+    <button onclick="claim()">2. CLAIM</button>
+
+    <div id="result" class="small"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="card">
+    <h3>📜 Latest Claims</h3>
+    <div id="history"></div>
+  </div>
+
 </div>
-<script type="module" src="app.js"></script>
+
+<script>
+const API = "https://calm-art-584f.cnamelist.workers.dev";
+
+let sessionId = "";
+let expectedAnimals = [];
+
+async function getChallenge(){
+  const res = await fetch(API + "/api/challenge");
+  const data = await res.json();
+
+  sessionId = data.sessionId;
+  expectedAnimals = data.animals;
+
+  document.getElementById("challengeBox").innerHTML =
+    "Solve: <b>" + data.question + "</b><br>Animals: " + data.animals.join(", ");
+}
+
+async function claim(){
+
+  const username = document.getElementById("username").value;
+  const token = document.querySelector('[name="cf-turnstile-response"]').value;
+  const mathAnswer = document.getElementById("mathAnswer").value;
+  const animalAnswer = document.getElementById("animalAnswer").value;
+
+  const res = await fetch(API + "/api/claim", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username,
+      token,
+      sessionId,
+      mathAnswer,
+      animalAnswer
+    })
+  });
+
+  const data = await res.json();
+
+  document.getElementById("result").innerHTML =
+    data.success
+      ? "✅ Success: " + data.reward
+      : "❌ Error: " + data.error;
+
+  loadHistory();
+}
+
+async function loadHistory(){
+  const res = await fetch(API + "/api/history");
+  const data = await res.json();
+
+  document.getElementById("history").innerHTML =
+    data.map(h =>
+      `${h.user} | ${h.amount} | ${new Date(h.time).toLocaleTimeString()}`
+    ).join("<br>");
+}
+
+// auto load history
+loadHistory();
+</script>
+
 </body>
 </html>
