@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let zerAdsLoaded = false;
 
+  const isMobile = window.innerWidth <= 600;
+
   // =========================
   // BAIT ELEMENT
   // =========================
@@ -23,29 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // =========================
   document.querySelectorAll(".ad-slot").forEach(el => {
 
-    const network = el.dataset.network;
-
     let iframe = "";
 
-    // Desktop
-    if (network === "zerads-468") {
-
-      iframe = `
-        <iframe
-          class="ad-frame"
-          src="https://zerads.com/ad/ad.php?width=468&ref=11338"
-          width="468"
-          height="60"
-          scrolling="no"
-          frameborder="0"
-          style="border:0;overflow:hidden;">
-        </iframe>
-      `;
-
-    }
-
-    // Mobile
-    else if (network === "zerads-300") {
+    if (isMobile) {
 
       iframe = `
         <iframe
@@ -55,7 +37,21 @@ document.addEventListener("DOMContentLoaded", () => {
           height="250"
           scrolling="no"
           frameborder="0"
-          style="border:0;overflow:hidden;">
+          style="border:0;overflow:hidden;max-width:100%;">
+        </iframe>
+      `;
+
+    } else {
+
+      iframe = `
+        <iframe
+          class="ad-frame"
+          src="https://zerads.com/ad/ad.php?width=468&ref=11338"
+          width="468"
+          height="60"
+          scrolling="no"
+          frameborder="0"
+          style="border:0;overflow:hidden;max-width:100%;">
         </iframe>
       `;
 
@@ -66,11 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const frame = el.querySelector(".ad-frame");
 
     if (frame) {
-
       frame.onload = () => {
         zerAdsLoaded = true;
       };
-
     }
 
   });
@@ -83,18 +77,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const blockedByBait =
       bait.offsetHeight === 0 ||
       bait.offsetWidth === 0 ||
-      getComputedStyle(bait).display === "none" ||
-      getComputedStyle(bait).visibility === "hidden";
+      getComputedStyle(bait).display === "none";
 
     if (!zerAdsLoaded || blockedByBait) {
 
       const overlay = document.createElement("div");
 
-      overlay.id = "adblock-overlay";
-
       overlay.style.cssText = `
         position:fixed;
-        inset:0;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
         background:rgba(0,0,0,.9);
         z-index:999999;
         display:flex;
@@ -116,8 +110,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           <p>
             Please disable AdBlock, AdGuard,
-            Brave Shields or similar extensions
-            to continue using this faucet.
+            Brave Shields, or similar tools.
           </p>
 
           <button
@@ -127,7 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
               border:none;
               border-radius:8px;
               cursor:pointer;
-              margin-top:10px;
             ">
             Reload Page
           </button>
@@ -135,7 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
 
       document.body.appendChild(overlay);
-
       document.body.style.overflow = "hidden";
     }
 
