@@ -144,31 +144,6 @@ select:focus{
   margin:15px 0;
 }
 
-.ad-slot iframe{
-  border:0;
-  overflow:hidden;
-}
-
-/* Desktop */
-[data-network="zerads-468"]{
-  display:flex;
-}
-
-/* Mobile */
-[data-network="zerads-300"]{
-  display:none;
-}
-
-@media(max-width:600px){
-
-  [data-network="zerads-468"]{
-    display:none;
-  }
-
-  [data-network="zerads-300"]{
-    display:flex;
-  }
-
 #adblock-overlay{
   position:fixed;
   inset:0;
