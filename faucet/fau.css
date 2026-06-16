@@ -46,45 +46,43 @@ button:disabled{
 }
 
 #questionIcon{
-  font-size:20px;
-  text-align:center;
-  margin-top:10px;
+  display:none; /* <--- DISEMBUNYIKAN, KARENA UDAH GABUNG KE MATH */
 }
 
 #questionMath{
   text-align:center;
   font-size:18px;
-  margin-top:5px;
+  margin:10px 0; /* <--- Jarak atas bawah */
 }
 
-/* ===== ANIMAL BOX 3 BARIS ===== */
+/* ===== ANIMAL BOX 5 KOLOM SEJAJAR ===== */
 #animalBox{
   display:grid;
-  grid-template-columns:repeat(5,1fr); /* <--- 5 KOLOM SEJAJAR */
-  gap:6px; /* <--- Jarak dikecilin biar muat di HP */
+  grid-template-columns:repeat(5,1fr); 
+  gap:6px; 
   margin-top:10px;
 }
 
 .animal{
   background:#1e293b;
   border:2px solid #334155;
-  padding:6px 4px; /* <--- KOTAKNYA DIKOMPRES BANGET */
+  padding:6px 4px; 
   border-radius:10px;
   text-align:center;
   cursor:pointer;
-  font-size:11px; /* <--- TEKSNYA DIKECILIN */
+  font-size:11px; 
   display:flex;
-  flex-direction:column; /* <--- Emoji di atas, teks di bawah */
+  flex-direction:column; 
   align-items:center;
-  gap:2px; /* <--- Jarak dikit aja */
+  gap:2px; 
   user-select:none;
-  min-height:55px; /* <--- Biar tinggi semua sama */
+  min-height:55px; 
   justify-content:center;
 }
 
 .animal::before{ 
   content: attr(data-emoji);
-  font-size:22px; /* <--- Emoji dikecilin dikit biar muat */
+  font-size:22px; 
   line-height:1;
 }
 
@@ -93,10 +91,45 @@ button:disabled{
   background:#22c55e;
   color:#000;
 }
+/* ======================================== */
 
 #result{
   margin-top:10px;
   min-height:20px;
   font-weight:bold;
   text-align:center;
+}
+
+/* ===== HISTORY LIST BARU ===== */
+#history{
+  list-style:none; 
+  padding:0;
+  margin:8px 0 0 0;
+  max-height:220px; /* Biar scroll kalau > 10 data */
+  overflow-y:auto;
+}
+
+#history li{
+  background:#1e293b;
+  padding:10px 12px;
+  margin-bottom:8px;
+  border-radius:8px;
+  font-size:13px;
+  display:flex;
+  justify-content:space-between; /* User kiri, nominal kanan */
+  align-items:center;
+}
+
+#history li span.user{
+  font-weight:bold;
+  color:#fff;
+  max-width:100px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+
+#history li span.detail{
+  color:#94a3b8;
+  font-size:12px;
 }
