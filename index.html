@@ -57,24 +57,6 @@
 </div>
 
 <script type="module" src="public.js"></script>
-
-  <div class="ad-slot" data-network="ads"></div>
-
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".ad-slot").forEach(el => {
-      const network = el.getAttribute("data-network");
-      let iframe = "";
-      if (network === "zerads") {
-        iframe = `<iframe src="https://zerads.com/ad.php?width=468&ref=11338" width="468" height="60" scrolling="no" frameborder="0" style="border:0;overflow:hidden;"></iframe>`;
-      } else if (network === "aads") {
-        iframe = `<iframe src="https://a-ads.com/your-ad-link" width="300" height="250" scrolling="no" frameborder="0" style="border:0;overflow:hidden;"></iframe>`;
-      } else if (network === "faucetpayads") {
-        iframe = `<iframe src="https://faucetpay.io/advertise" width="468" height="60" scrolling="no" frameborder="0" style="border:0;overflow:hidden;"></iframe>`;
-      }
-      el.innerHTML = `<div class="ad-banner"><div class="ad-label">Advertisement</div><div class="ad-box">${iframe}</div></div>`;
-    });
-  });
-  </script>
+  <script src="ads.js"></script>
 </body>
 </html>
