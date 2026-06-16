@@ -135,7 +135,6 @@ select:focus{
   text-decoration: underline;
 }
 
-
 .ad-slot{
   width:100%;
   display:flex;
@@ -144,33 +143,8 @@ select:focus{
   margin:15px 0;
 }
 
-#adblock-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.85);
-  z-index:999999;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-}
-
-.adb-box{
-  background:#111827;
-  color:#fff;
-  padding:25px;
-  border-radius:12px;
-  text-align:center;
-  max-width:350px;
-  width:90%;
-}
-
-.adb-box h2{
-  margin-top:0;
-}
-
-.adb-box button{
-  padding:10px 20px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
+.ad-slot iframe{
+  border:0;
+  overflow:hidden;
+  max-width:100%;
 }
