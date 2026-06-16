@@ -60,29 +60,31 @@ button:disabled{
 /* ===== ANIMAL BOX 3 BARIS ===== */
 #animalBox{
   display:grid;
-  grid-template-columns:1fr; /* <--- DARI repeat(3,1fr) JADI 1 KOLOM */
-  gap:8px; 
+  grid-template-columns:repeat(5,1fr); /* <--- 5 KOLOM SEJAJAR */
+  gap:6px; /* <--- Jarak dikecilin biar muat di HP */
   margin-top:10px;
 }
 
 .animal{
   background:#1e293b;
   border:2px solid #334155;
-  padding:10px 12px; /* <--- Bikin agak lebar biar gak terlalu gepeng */
-  border-radius:12px;
-  text-align:left; /* <--- Rata kiri biar rapi */
+  padding:6px 4px; /* <--- KOTAKNYA DIKOMPRES BANGET */
+  border-radius:10px;
+  text-align:center;
   cursor:pointer;
-  font-size:14px; 
+  font-size:11px; /* <--- TEKSNYA DIKECILIN */
   display:flex;
-  flex-direction:row; /* <--- DARI column JADI row. Emoji di kiri, teks di kanan */
+  flex-direction:column; /* <--- Emoji di atas, teks di bawah */
   align-items:center;
-  gap:10px; /* <--- Jarak emoji sama teks */
+  gap:2px; /* <--- Jarak dikit aja */
   user-select:none;
+  min-height:55px; /* <--- Biar tinggi semua sama */
+  justify-content:center;
 }
 
 .animal::before{ 
   content: attr(data-emoji);
-  font-size:24px; /* <--- Emoji dikecilin dikit biar pas sama 1 baris */
+  font-size:22px; /* <--- Emoji dikecilin dikit biar muat */
   line-height:1;
 }
 
