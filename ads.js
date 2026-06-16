@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // =========================
     // FAUCETPAY ADS
     // =========================
-    else if (network === "faucetpay") {
+    else if (network === "faucetpayads") {
       iframe = `
         <iframe
           src="https://faucetpay.io/advertise"
