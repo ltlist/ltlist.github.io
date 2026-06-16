@@ -6,137 +6,46 @@
 <title>LT Faucet PRO</title>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
-<style>
-body{ margin:0; font-family:Arial; background:#0f172a; color:#fff; }
-.container{ max-width:520px; margin:30px auto; padding:15px; }
-.card{ background:#111827; padding:18px; border-radius:12px; margin-bottom:12px; }
-input,button{ width:100%; padding:12px; margin-top:10px; border-radius:8px; border:none; font-size:15px; }
-button{ background:#22c55e; color:#000; font-weight:bold; cursor:pointer; }
-button:disabled{ opacity:0.5; }
-.small{ font-size:13px; color:#94a3b8; margin-top:6px; text-align:center; }
-#questionIcon{ font-size:55px; text-align:center; margin-top:10px; }
-#questionMath{ text-align:center; font-size:18px; margin-top:5px; }
-#animalBox{ display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:10px; }
-.animal{ background:#1e293b; border:2px solid #334155; padding:14px; border-radius:12px; text-align:center; cursor:pointer; font-size:20px; }
-.animal.active{ border-color:#22c55e; background:#22c55e; color:#000; }
-#result{ margin-top:10px; min-height:20px; font-weight:bold; text-align:center; }
-</style>
+<link rel="stylesheet" href="fau.css"> <!-- Link ke CSS -->
 </head>
 
 <body>
 <div class="container">
+
+  <!-- HEADER -->
   <div class="card">
     <h2 style="text-align:center">🚀 LT Faucet PRO</h2>
-    <div class="small">Email Mode • 60 min cooldown • Max 7/day</div> <!-- 1. GANTI TEXT -->
+    <div class="small">Username Mode • 60 min cooldown • Max 7/day</div>
   </div>
 
+  <!-- MAIN -->
   <div class="card">
-    <input id="email" placeholder="Email FaucetPay" type="email"> <!-- 2. GANTI ID + PLACEHOLDER -->
+    <input id="username" placeholder="FaucetPay Username">
 
     <div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
+
     <button onclick="getChallenge()">1. GET CHALLENGE</button>
 
     <div id="questionIcon"></div>
     <div id="questionMath"></div>
+
     <input id="mathAnswer" type="number" placeholder="Jawaban angka">
+
     <div id="animalBox"></div>
+
     <button id="claimBtn" onclick="claim()">2. CLAIM</button>
+
     <div id="result"></div>
   </div>
 
+  <!-- HISTORY -->
   <div class="card">
     <h3 style="text-align:center">📜 History</h3>
     <div id="history" class="small">Loading...</div>
   </div>
+
 </div>
 
-<script>
-const API = "https://calm-art-584f.cnamelist.workers.dev";
-const animalIcons = { cat:"🐱", dog:"🐶", rabbit:"🐰", cow:"🐮", lion:"🦁" };
-let sessionId = "";
-let selectedAnimal = "";
-
-/* =========================
-   GET CHALLENGE
-========================= */
-async function getChallenge(){
-  try{
-    const res = await fetch(API + "/api/challenge");
-    const data = await res.json();
-    sessionId = data.sessionId;
-    selectedAnimal = "";
-    document.getElementById("questionIcon").innerHTML = animalIcons[data.animal] || "❓";
-    document.getElementById("questionMath").innerHTML = "Soal: <b>" + data.question + "</b>";
-    const box = document.getElementById("animalBox");
-    box.innerHTML = "";
-    data.animals.forEach(a => {
-      const div = document.createElement("div");
-      div.className = "animal";
-      div.innerHTML = animalIcons[a] + "<br>" + a;
-      div.onclick = () => {
-        document.querySelectorAll(".animal").forEach(b => b.classList.remove("active"));
-        div.classList.add("active");
-        selectedAnimal = a;
-      };
-      box.appendChild(div);
-    });
-  }catch(e){ document.getElementById("result").innerHTML = "❌ Gagal load challenge"; }
-}
-
-/* =========================
-   CLAIM
-========================= */
-async function claim(){
-  const email = document.getElementById("email").value.trim(); // 3. GANTI VARIABEL
-  const token = window.turnstile? turnstile.getResponse() : null;
-  const mathAnswer = document.getElementById("mathAnswer").value;
-
-  // Validasi Email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!email){ document.getElementById("result").innerHTML = "❌ Email FaucetPay jangan kosong"; return; }
-  if(!emailRegex.test(email)){ document.getElementById("result").innerHTML = "❌ Format email salah"; return; }
-  if(!token ||!mathAnswer ||!selectedAnimal){ document.getElementById("result").innerHTML = "❌ Lengkapi semua data"; return; }
-
-  document.getElementById("claimBtn").disabled = true;
-  document.getElementById("result").innerHTML = "⏳ Processing...";
-
-  try{
-    const res = await fetch(API + "/api/claim", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        email, // <- KIRIMNYA EMAIL
-        token,
-        sessionId,
-        mathAnswer,
-        animalAnswer: selectedAnimal
-      })
-    });
-    const data = await res.json();
-    document.getElementById("result").innerHTML = data.success? "✅ " + data.message + " | Sisa: " + data.remaining : "❌ " + data.error;
-    if(window.turnstile) window.turnstile.reset();
-    getChallenge();
-  }catch(e){ document.getElementById("result").innerHTML = "❌ Server error"; }
-  finally {
-    document.getElementById("claimBtn").disabled = false;
-    loadHistory();
-  }
-}
-
-/* =========================
-   HISTORY
-========================= */
-async function loadHistory(){
-  try{
-    const res = await fetch(API + "/api/history");
-    const data = await res.json();
-    document.getElementById("history").innerHTML = data.length? data.map(h => `${h.user} | ${h.amount} | ${new Date(h.time).toLocaleTimeString()}`).join("<br>") : "Belum ada claim";
-  }catch(e){ document.getElementById("history").innerHTML = "Gagal load history"; }
-}
-
-getChallenge();
-loadHistory();
-</script>
+<script src="script.js"></script> <!-- Link ke JS -->
 </body>
 </html>
