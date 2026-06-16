@@ -1,4 +1,4 @@
-// adblock.js
+// src.js
 
 window.addEventListener("load", function () {
 
