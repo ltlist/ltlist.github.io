@@ -66,6 +66,28 @@ button:disabled{ opacity:0.5; }
 #history li span.user{ font-weight:bold; color:#fff; flex: 0 1 60px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #history li span.detail{ color:var(--muted); font-size:11px; flex-shrink: 0; }
 
-.footer{ padding:20px 15px 40px 15px; text-align:center; font-size:12px; color:var(--muted); border-top:1px solid #1e293b; margin-top:20px; }
-.footer p{ margin:8px 0; }
-.footer span{ color:var(--accent); font-weight:bold; }
+/* ===== FOOTER LINK HIJAU TOSCA ===== */
+.footer{ 
+  text-align:center; 
+  color:#64748b; 
+  font-size:13px; 
+  padding:20px 0; 
+  margin-top:30px; 
+  border-top:1px solid #1e293b; 
+}
+
+.footer a{
+  color: #2dd4bf; /* <--- HIJAU TOSCA */
+  text-decoration: none; /* <--- BUANG GARIS BAWAH UNGU */
+  font-weight: 600;
+}
+
+.footer a:visited{
+  color: #2dd4bf; /* <--- BIAR GA JADI UNGU SETELAH DIKLIK */
+}
+
+.footer a:hover{
+  color: #5eead4; /* <--- HIJAU LEBIH TERANG PAS HOVER */
+  text-decoration: underline; /* <--- MUNCUL GARIS BAWAH PAS HOVER */
+}
+/* ================================== */
