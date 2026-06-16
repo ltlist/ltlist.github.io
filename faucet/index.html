@@ -10,15 +10,20 @@
 </head>
 
 <body>
+
+<!-- ===== NAVBAR KAYAK SS ===== -->
+<header class="navbar">
+  <div class="nav-brand">LTList</div>
+  <div class="nav-link">MARKET</div>
+</header>
+<!-- ============================ -->
+
 <div class="container">
 
-  <!-- HEADER -->
-  <div class="card">
-    <h2 style="text-align:center">🚀 LT Faucet PRO</h2>
-    <div class="small">Username Mode • 60 min cooldown • Max 7/day</div>
-  </div>
+  <h1 class="page-title">🚀 LT Faucet PRO</h1>
+  <div class="small" style="margin-bottom:20px;">Username Mode • 60 min cooldown • Max 7/day</div>
 
-  <!-- MAIN -->
+  <!-- MAIN CARD -->
   <div class="card">
     <input id="username" placeholder="FaucetPay Username">
 
@@ -26,11 +31,11 @@
 
     <button onclick="getChallenge()">1. GET CHALLENGE</button>
 
-    <div id="questionMath"></div> <!-- <--- SOAL + EMOJI JADI 1 -->
+    <div id="questionMath"></div>
 
     <input id="mathAnswer" type="number" placeholder="Jawaban angka">
 
-    <div id="animalBox"></div> <!-- <--- 5 KOLOM SEJAJAR -->
+    <div id="animalBox"></div>
 
     <button id="claimBtn" onclick="claim()">2. CLAIM</button>
 
@@ -40,10 +45,17 @@
   <!-- HISTORY -->
   <div class="card">
     <h3 style="text-align:center">📜 History</h3>
-    <ul id="history"></ul> <!-- <--- UL BUKAN DIV -->
+    <ul id="history"></ul>
   </div>
 
 </div>
+
+<!-- ===== FOOTER KAYAK SS ===== -->
+<footer class="footer">
+  <p>LTList provides a list of crypto faucets with a fast payout system to <span>Faucetpay</span>. Daily updates for active faucets.</p>
+  <p>© LTList Faucet - All rights reserved</p>
+</footer>
+<!-- ============================ -->
 
 <script src="scrip.js"></script>
 </body>
