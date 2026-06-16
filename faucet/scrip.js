@@ -1,27 +1,25 @@
 document.addEventListener("DOMContentLoaded", () => {
+const API = "https://calm-art-584f.cnamelist.workers.dev";
 const COOLDOWN = 60 * 60 * 1000; // 60 minutes
-const REWARD = 160;
-const API_KEY = "0x4AAAAAADk00FmP5a2Feee3"; // <-- REPLACE THIS
-
-const emojis = [{name:'cat', icon:'🐱'}, {name:'dog', icon:'🐶'}, {name:'rabbit', icon:'🐰'}, {name:'cow', icon:'🐮'}, {name:'lion', icon:'🦁'}];
-let correctNum, correctEmoji, chosenEmoji = '';
+const animalIcons = { cat:"🐱", dog:"🐶", rabbit:"🐰", cow:"🐮", lion:"🦁" };
+let sessionId = "";
+let selectedAnimal = "";
 
 const modal = document.getElementById('claimModal');
-const mainBtn = document.getElementById('mainClaimBtn'); // NEXT Button
+const mainBtn = document.getElementById('mainClaimBtn'); // Tombol NEXT di luar
 const closeBtn = document.getElementById('closeModal');
-const resultDiv = document.getElementById('result');
+const finalBtn = document.getElementById('finalClaimBtn'); // Tombol CLAIM di popup
 
-// Check Cooldown on load
+// ===== 1. CEK COOLDOWN SAAT BUKA HALAMAN =====
 function checkCooldown(){
   const endTime = localStorage.getItem("ltcCooldown");
   if(endTime && new Date().getTime() < endTime){
-    startTimer(endTime);
+    startTimer(parseInt(endTime));
   } else {
     mainBtn.innerText = "NEXT"; 
     mainBtn.disabled = false;
   }
 }
-checkCooldown();
 
 function startTimer(endTime){
   mainBtn.disabled = true;
@@ -40,81 +38,106 @@ function startTimer(endTime){
   }, 1000);
 }
 
-// 1. Click NEXT = Open Modal. No cooldown check here.
+// ===== 2. KLIK NEXT = CEK EMAIL + BUKA POPUP =====
 mainBtn.onclick = () => {
-  let a = Math.floor(Math.random() * 10);
-  let b = Math.floor(Math.random() * 10);
-  correctNum = a + b;
-  document.getElementById('mathQ').innerText = `${a} + ${b}`;
-
-  let pick = emojis[Math.floor(Math.random() * emojis.length)];
-  correctEmoji = pick.name;
-  document.getElementById('emojiQ').innerText = pick.icon;
-  
-  let shuffled = [...emojis].sort(() => 0.5 - Math.random());
-  document.getElementById('animalBox').innerHTML = shuffled.map(e => `<button class="emojiBtn" data-name="${e.name}">${e.icon}<br>${e.name}</button>`).join('');
-  
-  document.getElementById('mathAnswer').value = ''; // Reset input
-  chosenEmoji = '';
-  modal.style.display = 'flex';
+  const username = document.getElementById("username").value.trim();
+  if(!username || username.length < 3){ 
+    document.getElementById("result").innerHTML = "❌ Masukkan Email FaucetPay min 3 huruf"; 
+    return; 
+  }
+  document.getElementById("result").innerHTML = ""; // Hapus error
+  modal.style.display = "flex";
+  getChallenge(); // Ambil soal baru tiap buka popup
 }
 
 // Close Modal
 closeBtn.onclick = () => modal.style.display = 'none';
 window.onclick = e => { if(e.target == modal) modal.style.display = 'none'; }
 
-// Select Emoji
-document.addEventListener('click', e => {
-  if(e.target.classList.contains('emojiBtn')){
-    document.querySelectorAll('.emojiBtn').forEach(b => b.classList.remove('active'));
-    e.target.classList.add('active');
-    chosenEmoji = e.target.dataset.name;
-  }
-});
-
-// 2. Click CLAIM in Popup = Verify + Start Cooldown
-document.getElementById('finalClaimBtn').onclick = async () => {
-  const email = document.getElementById('username').value;
-  if(!email) return alert('Please enter your FaucetPay Email first!');
-  if(!turnstile.getResponse()) return alert('Please complete the Cloudflare verification first!');
-  if(parseInt(document.getElementById('mathAnswer').value) !== correctNum) return alert('Wrong math answer! Click NEXT to try again.');
-  if(chosenEmoji !== correctEmoji) return alert('Wrong emoji! Click NEXT to try again.');
-
-  modal.style.display = 'none';
-  resultDiv.innerText = "Sending to Faucetpay...";
-  mainBtn.disabled = true; 
-
-  try {
-    const res = await fetch(`https://faucetpay.io/api/v1/send?api_key=${API_KEY}&to=${email}&amount=${REWARD}&currency=LTC`);
+// ===== 3. LOGIC KAMU YANG LAMA, DIPINDAH KE DALAM POPUP =====
+async function getChallenge(){
+  try{
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("mathAnswer").value = "";
+    selectedAnimal = "";
+    const res = await fetch(API + "/api/challenge");
     const data = await res.json();
+    sessionId = data.sessionId;
+    // ID di HTML kamu: mathQ dan emojiQ, bukan questionMath
+    document.getElementById("mathQ").innerText = data.question;
+    document.getElementById("emojiQ").innerText = animalIcons[data.animal];
+
+    const box = document.getElementById("animalBox");
+    box.innerHTML = "";
+    data.animals.forEach(a => {
+      const div = document.createElement("div");
+      div.className = "animal"; // CSS kamu udah ada
+      div.setAttribute("data-emoji", animalIcons[a]); // Biar icon muncul dari CSS ::before
+      div.innerHTML = a;
+      div.onclick = () => {
+        document.querySelectorAll(".animal").forEach(b => b.classList.remove("active"));
+        div.classList.add("active");
+        selectedAnimal = a;
+      };
+      box.appendChild(div);
+    });
+  }catch(e){ document.getElementById("result").innerHTML = "❌ Gagal load challenge"; }
+}
+
+async function claim(){
+  const username = document.getElementById("username").value.trim();
+  const token = window.turnstile? turnstile.getResponse() : null;
+  const mathAnswer = document.getElementById("mathAnswer").value;
+
+  if(!token ||!mathAnswer ||!selectedAnimal){ 
+    document.getElementById("result").innerHTML = "❌ Lengkapi semua data"; 
+    return; 
+  }
+
+  finalBtn.disabled = true;
+  document.getElementById("result").innerHTML = "⏳ Processing...";
+
+  try{
+    const res = await fetch(API + "/api/claim", {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ email: username, token, sessionId, mathAnswer, animalAnswer: selectedAnimal })
+    });
+    const data = await res.json();
+    document.getElementById("result").innerHTML = data.success? "✅ " + data.message + " | Sisa: " + data.remaining : "❌ " + data.error;
     
-    if(data.status === 200){
-      resultDiv.innerText = `Success! ${REWARD} Litoshi sent.`;
-      addHistory(email, REWARD);
-      // ===== COOLDOWN ONLY SETS HERE ON SUCCESS =====
+    if(data.success){
+      modal.style.display = "none"; // Tutup popup kalau sukses
+      // ===== SET COOLDOWN CUMA KALAU SUKSES =====
       const endTime = new Date().getTime() + COOLDOWN;
       localStorage.setItem("ltcCooldown", endTime);
       startTimer(endTime);
     } else {
-      resultDiv.innerText = `Failed: ${data.message}`;
-      mainBtn.disabled = false; // Failed = NEXT button active again
+      if(window.turnstile) window.turnstile.reset();
+      getChallenge(); // Ganti soal baru kalau gagal
     }
-  } catch(err){
-    resultDiv.innerText = "API connection error.";
-    mainBtn.disabled = false;
+  }catch(e){ document.getElementById("result").innerHTML = "❌ Server error"; }
+  finally {
+    finalBtn.disabled = false;
+    loadHistory();
   }
-};
+}
 
-function addHistory(email, amount){
-  let history = JSON.parse(localStorage.getItem("ltcHistory") || "[]");
-  history.unshift({user: email.slice(0,4)+'***', amount: amount/100000, time: new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'})});
-  if(history.length > 5) history.pop();
-  localStorage.setItem("ltcHistory", JSON.stringify(history));
-  document.getElementById('history').innerHTML = history.map(h => `<li class="small">${h.user} ${h.amount} | ${h.time}</li>`).join('');
+finalBtn.onclick = claim; // Sambungin tombol CLAIM di popup
+
+async function loadHistory(){
+  try{
+    const res = await fetch(API + "/api/history");
+    const data = await res.json();
+    const historyEl = document.getElementById("history");
+    if(data.length){
+      historyEl.innerHTML = data.map(h => `<li><span class="user">${h.user}</span><span class="detail">${h.amount} | ${new Date(h.time).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit', hour12:false})}</span></li>`).join("");
+    } else {
+      historyEl.innerHTML = `<li style="background:transparent; justify-content:center; color:#94a3b8">Belum ada claim</li>`;
+    }
+  }catch(e){ document.getElementById("history").innerHTML = `<li style="background:transparent; justify-content:center; color:#f87171">Gagal load history</li>`; }
 }
+
 loadHistory();
-function loadHistory(){
-  let history = JSON.parse(localStorage.getItem("ltcHistory") || "[]");
-  document.getElementById('history').innerHTML = history.map(h => `<li class="small">${h.user} ${h.amount} | ${h.time}</li>`).join('');
-}
+checkCooldown(); // Jalanin pas pertama load
 });
