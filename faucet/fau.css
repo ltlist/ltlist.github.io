@@ -142,3 +142,33 @@ button:disabled{ opacity:0.5; }
   overflow:hidden;
   max-width:100%;
 }
+
+#adblock-overlay{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#0f172a;
+  z-index:999999;
+  justify-content:center;
+  align-items:center;
+}
+
+.adb-box{
+  background:#1e293b;
+  padding:25px;
+  border-radius:12px;
+  text-align:center;
+  max-width:400px;
+  color:#fff;
+}
+
+.adb-box button{
+  margin:8px;
+  padding:12px 20px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
