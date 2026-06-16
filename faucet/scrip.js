@@ -42,7 +42,7 @@ function startTimer(endTime){
 mainBtn.onclick = () => {
   const username = document.getElementById("username").value.trim();
   if(!username || username.length < 3){ 
-    document.getElementById("result").innerHTML = "❌ Masukkan Email FaucetPay min 3 huruf"; 
+    document.getElementById("result").innerHTML = "❌ FaucetPay Email"; 
     return; 
   }
   document.getElementById("result").innerHTML = ""; // Hapus error
@@ -81,7 +81,7 @@ async function getChallenge(){
       };
       box.appendChild(div);
     });
-  }catch(e){ document.getElementById("result").innerHTML = "❌ Gagal load challenge"; }
+  }catch(e){ document.getElementById("result").innerHTML = "❌ Load challenge"; }
 }
 
 async function claim(){
@@ -90,7 +90,7 @@ async function claim(){
   const mathAnswer = document.getElementById("mathAnswer").value;
 
   if(!token ||!mathAnswer ||!selectedAnimal){ 
-    document.getElementById("result").innerHTML = "❌ Lengkapi semua data"; 
+    document.getElementById("result").innerHTML = "❌ Complete all data"; 
     return; 
   }
 
