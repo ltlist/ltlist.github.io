@@ -10,7 +10,7 @@ async function getChallenge(){
     sessionId = data.sessionId;
     selectedAnimal = "";
     document.getElementById("questionMath").innerHTML = "Soal: <b>" + data.question + "</b> | " + animalIcons[data.animal];
-    
+
     const box = document.getElementById("animalBox");
     box.innerHTML = "";
     data.animals.forEach(a => {
@@ -29,7 +29,7 @@ async function getChallenge(){
 }
 
 async function claim(){
-  const username = document.getElementById("username").value.trim(); // <--- GANTI
+  const username = document.getElementById("username").value.trim();
   const token = window.turnstile? turnstile.getResponse() : null;
   const mathAnswer = document.getElementById("mathAnswer").value;
 
@@ -44,7 +44,7 @@ async function claim(){
       method:"POST",
       headers:{ "Content-Type":"application/json" },
       body: JSON.stringify({
-        email: username, // <--- WORKER MAU NYA EMAIL
+        email: username,
         token,
         sessionId,
         mathAnswer,
