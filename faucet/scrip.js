@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 const COOLDOWN = 60 * 60 * 1000; // 60 minutes
 const REWARD = 160;
-const API_KEY = "PASTE_YOUR_FAUCETPAY_API_KEY"; // <-- REPLACE THIS
+const API_KEY = "0x4AAAAAADk00FmP5a2Feee3"; // <-- REPLACE THIS
 
 const emojis = [{name:'cat', icon:'🐱'}, {name:'dog', icon:'🐶'}, {name:'rabbit', icon:'🐰'}, {name:'cow', icon:'🐮'}, {name:'lion', icon:'🦁'}];
 let correctNum, correctEmoji, chosenEmoji = '';
