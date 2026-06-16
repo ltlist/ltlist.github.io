@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const network = el.dataset.network;
     let iframe = "";
 
-    if (network === "zerads-st") {
+    if (network === "zerads-468") {
       iframe = `
         <iframe
           class="ad-frame"
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }
 
-    else if (network === "zerads-kv") {
+    else if (network === "zerads-300") {
       iframe = `
         <iframe
           class="ad-frame"
