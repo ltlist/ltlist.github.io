@@ -12,8 +12,7 @@ async function getChallenge(){
     const data = await res.json();
     sessionId = data.sessionId;
     selectedAnimal = "";
-    document.getElementById("questionIcon").innerHTML = animalIcons[data.animal] || "❓";
-    document.getElementById("questionMath").innerHTML = "Soal: <b>" + data.question + "</b>";
+    document.getElementById("questionMath").innerHTML = "Soal: <b>" + data.question + "</b> | " + animalIcons[data.animal]; // <-- GABUNG JADI 1 BARIS 
     const box = document.getElementById("animalBox");
     box.innerHTML = "";
     data.animals.forEach(a => {
