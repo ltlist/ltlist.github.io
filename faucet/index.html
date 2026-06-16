@@ -6,7 +6,7 @@
 <title>LT Faucet PRO</title>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<link rel="stylesheet" href="fau.css"> <!-- Link ke CSS -->
+<link rel="stylesheet" href="fau.css">
 </head>
 
 <body>
@@ -26,12 +26,11 @@
 
     <button onclick="getChallenge()">1. GET CHALLENGE</button>
 
-    <div id="questionIcon"></div>
-    <div id="questionMath"></div>
+    <div id="questionMath"></div> <!-- <--- SOAL + EMOJI JADI 1 -->
 
     <input id="mathAnswer" type="number" placeholder="Jawaban angka">
 
-    <div id="animalBox"></div>
+    <div id="animalBox"></div> <!-- <--- 5 KOLOM SEJAJAR -->
 
     <button id="claimBtn" onclick="claim()">2. CLAIM</button>
 
@@ -41,11 +40,11 @@
   <!-- HISTORY -->
   <div class="card">
     <h3 style="text-align:center">📜 History</h3>
-    <div id="history" class="small">Loading...</div>
+    <ul id="history"></ul> <!-- <--- UL BUKAN DIV -->
   </div>
 
 </div>
 
-<script src="scrip.js"></script> <!-- Link ke JS -->
+<script src="scrip.js"></script>
 </body>
 </html>
