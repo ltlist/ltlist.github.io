@@ -128,3 +128,17 @@ button:disabled{ opacity:0.5; }
 .cf-turnstile { margin: 15px auto; display:flex; justify-content:center; }
 #mathAnswer{ width:100%; margin:10px 0; padding:10px; border-radius:8px; border:1px solid #334155; background:#0f172a; color:#fff; }
 /* ================================== */
+
+.ad-slot{
+  width:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin:15px 0;
+}
+
+.ad-slot iframe{
+  border:0;
+  overflow:hidden;
+  max-width:100%;
+}
