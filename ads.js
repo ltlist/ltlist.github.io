@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", function () {
     else if (network === "aads") {
       iframe = `
         <iframe
-          src="https://a-ads.com/your-ad-link"
+          src="https://zerads.com/ad/ad.php?width=300&ref=11338"
           width="300"
           height="250"
           scrolling="no"
