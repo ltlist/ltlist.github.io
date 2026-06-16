@@ -1,20 +1,3 @@
-
-// === ANTI-ADBLOCK DETECTOR ===
-function checkAdblock(){
-  // Tunggu 1.5 detik biar Turnstile sempat load
-  setTimeout(() => {
-    // Kalau object 'turnstile' gak ada = ke-block
-    if(typeof turnstile === 'undefined'){
-      document.getElementById('adblockWarn').style.display = 'flex'; // Munculin popup
-    }
-  }, 1500);
-}
-
-// Jalanin pas web dibuka
-document.addEventListener("DOMContentLoaded", checkAdblock);
-
-
-
 document.addEventListener("DOMContentLoaded", () => {
 const API = "https://calm-art-584f.cnamelist.workers.dev";
 const COOLDOWN = 60 * 60 * 1000; // 60 minutes
