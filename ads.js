@@ -5,78 +5,78 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".ad-slot").forEach(el => {
 
     const network = el.dataset.network;
+
     let iframe = "";
 
+    // =========================
+    // ZerAds 468x60
+    // =========================
     if (network === "zerads-468") {
+
       iframe = `
         <iframe
           class="ad-frame"
           src="https://zerads.com/ad/ad.php?width=468&ref=11338"
           width="468"
           height="60"
-          frameborder="0"
-          scrolling="no">
+          scrolling="no"
+          frameborder="0">
         </iframe>
       `;
+
     }
 
+    // =========================
+    // ZerAds 300x250
+    // =========================
     else if (network === "zerads-300") {
+
       iframe = `
         <iframe
           class="ad-frame"
           src="https://zerads.com/ad/ad.php?width=300&ref=11338"
           width="300"
           height="250"
-          frameborder="0"
-          scrolling="no">
+          scrolling="no"
+          frameborder="0">
         </iframe>
       `;
+
     }
 
     el.innerHTML = iframe;
 
     const frame = el.querySelector(".ad-frame");
 
-    if (frame) {
+    if(frame){
+
       frame.onload = () => {
         zerAdsLoaded = true;
       };
+
     }
 
   });
 
+  // Cek setelah 5 detik
   setTimeout(() => {
 
-    if (!zerAdsLoaded) {
+    if(!zerAdsLoaded){
 
       const overlay = document.createElement("div");
 
-      overlay.style.cssText = `
-        position:fixed;
-        top:0;
-        left:0;
-        width:100%;
-        height:100%;
-        background:rgba(0,0,0,.85);
-        z-index:999999;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-      `;
+      overlay.id = "adblock-overlay";
 
       overlay.innerHTML = `
-        <div style="
-          background:#111827;
-          color:#fff;
-          padding:20px;
-          border-radius:12px;
-          text-align:center;
-          max-width:350px;
-        ">
-          <h2>AdBlock Detected</h2>
-          <p>Please disable AdBlock and reload page.</p>
+        <div class="adb-box">
+          <h2>⚠ AdBlock Detected</h2>
+          <p>
+            Please disable AdBlock or Brave Shields
+            to continue using this faucet.
+          </p>
+
           <button onclick="location.reload()">
-            Reload
+            Reload Page
           </button>
         </div>
       `;
