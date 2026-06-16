@@ -169,7 +169,6 @@ select:focus{
     display:flex;
   }
 
-}
 #adblock-overlay{
   position:fixed;
   inset:0;
