@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // INSERT INTO PAGE
     el.innerHTML = `
       <div class="ad-banner">
-        <div class="ad-label">Advertisement</div>
+        
         <div class="ad-box">
           ${iframe}
         </div>
