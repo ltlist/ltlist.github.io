@@ -76,8 +76,22 @@ async function loadHistory(){
   try{
     const res = await fetch(API + "/api/history");
     const data = await res.json();
-    document.getElementById("history").innerHTML = data.length? data.map(h => `${h.user} | ${h.amount} | ${new Date(h.time).toLocaleTimeString()}`).join("<br>") : "Belum ada claim";
-  }catch(e){ document.getElementById("history").innerHTML = "Gagal load history"; }
+    const historyEl = document.getElementById("history");
+
+    if(data.length){
+      historyEl.innerHTML = data.map(h => `
+        <li>
+          <span class="user">${h.user}</span> 
+          <span class="detail">${h.amount} | ${new Date(h.time).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})}</span>
+        </li>
+      `).join("");
+    } else {
+      historyEl.innerHTML = `<li style="background:transparent; justify-content:center; color:#94a3b8">Belum ada claim</li>`;
+    }
+
+  }catch(e){
+    document.getElementById("history").innerHTML = `<li style="background:transparent; justify-content:center; color:#f87171">Gagal load history</li>`;
+  }
 }
 
 getChallenge();
