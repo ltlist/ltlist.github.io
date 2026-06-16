@@ -1,73 +1,90 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
+
+  let zerAdsLoaded = false;
 
   document.querySelectorAll(".ad-slot").forEach(el => {
 
-    const network = el.getAttribute("data-network");
-
+    const network = el.dataset.network;
     let iframe = "";
 
-    // =========================
-    // ZERADS
-    // =========================
-    if (network === "zerads") {
+    if (network === "zerads-468") {
       iframe = `
         <iframe
+          class="ad-frame"
           src="https://zerads.com/ad/ad.php?width=468&ref=11338"
-          marginwidth="0"
-          marginheight="0"
           width="468"
           height="60"
-          scrolling="no"
           frameborder="0"
-          style="border:0;overflow:hidden;">
+          scrolling="no">
         </iframe>
       `;
     }
 
-    // =========================
-    // A-ADS
-    // =========================
-    else if (network === "aads") {
+    else if (network === "zerads-300") {
       iframe = `
         <iframe
+          class="ad-frame"
           src="https://zerads.com/ad/ad.php?width=300&ref=11338"
           width="300"
           height="250"
-          scrolling="no"
           frameborder="0"
-          marginwidth="0"
-          marginheight="0"
-          style="border:0;overflow:hidden;">
+          scrolling="no">
         </iframe>
       `;
     }
 
-    // =========================
-    // FAUCETPAY ADS
-    // =========================
-    else if (network === "faucetpayads") {
-      iframe = `
-        <iframe
-          src="https://faucetpay.io/advertise"
-          width="468"
-          height="60"
-          scrolling="no"
-          frameborder="0"
-          style="border:0;overflow:hidden;">
-        </iframe>
-      `;
-    }
+    el.innerHTML = iframe;
 
-    // INSERT INTO PAGE
-    el.innerHTML = `
-      <div class="ad-banner">
-        
-        <div class="ad-box">
-          ${iframe}
-        </div>
-      </div>
-    `;
+    const frame = el.querySelector(".ad-frame");
+
+    if (frame) {
+      frame.onload = () => {
+        zerAdsLoaded = true;
+      };
+    }
 
   });
+
+  setTimeout(() => {
+
+    if (!zerAdsLoaded) {
+
+      const overlay = document.createElement("div");
+
+      overlay.style.cssText = `
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,.85);
+        z-index:999999;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+      `;
+
+      overlay.innerHTML = `
+        <div style="
+          background:#111827;
+          color:#fff;
+          padding:20px;
+          border-radius:12px;
+          text-align:center;
+          max-width:350px;
+        ">
+          <h2>AdBlock Detected</h2>
+          <p>Please disable AdBlock and reload page.</p>
+          <button onclick="location.reload()">
+            Reload
+          </button>
+        </div>
+      `;
+
+      document.body.appendChild(overlay);
+
+    }
+
+  }, 5000);
 
 });
