@@ -2,59 +2,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let zerAdsLoaded = false;
 
-  const isMobile = window.innerWidth <= 600;
-
-  // =========================
-  // BAIT ELEMENT
-  // =========================
-  const bait = document.createElement("div");
-
-  bait.className = "ads adsbox ad-banner ad-container sponsored";
-
-  bait.style.cssText = `
-    position:absolute;
-    left:-9999px;
-    width:1px;
-    height:1px;
-  `;
-
-  document.body.appendChild(bait);
-
-  // =========================
-  // INSERT ADS
-  // =========================
   document.querySelectorAll(".ad-slot").forEach(el => {
 
+    const network = el.dataset.network;
     let iframe = "";
 
-    if (isMobile) {
-
-      iframe = `
-        <iframe
-          class="ad-frame"
-          src="https://zerads.com/ad/ad.php?width=300&ref=11338"
-          width="300"
-          height="250"
-          scrolling="no"
-          frameborder="0"
-          style="border:0;overflow:hidden;max-width:100%;">
-        </iframe>
-      `;
-
-    } else {
-
+    if (network === "zerads-st") {
       iframe = `
         <iframe
           class="ad-frame"
           src="https://zerads.com/ad/ad.php?width=468&ref=11338"
           width="468"
           height="60"
-          scrolling="no"
           frameborder="0"
-          style="border:0;overflow:hidden;max-width:100%;">
+          scrolling="no">
         </iframe>
       `;
+    }
 
+    else if (network === "zerads-kv") {
+      iframe = `
+        <iframe
+          class="ad-frame"
+          src="https://zerads.com/ad/ad.php?width=300&ref=11338"
+          width="300"
+          height="250"
+          frameborder="0"
+          scrolling="no">
+        </iframe>
+      `;
     }
 
     el.innerHTML = iframe;
@@ -69,17 +45,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   });
 
-  // =========================
-  // CHECK ADBLOCK
-  // =========================
   setTimeout(() => {
 
-    const blockedByBait =
-      bait.offsetHeight === 0 ||
-      bait.offsetWidth === 0 ||
-      getComputedStyle(bait).display === "none";
-
-    if (!zerAdsLoaded || blockedByBait) {
+    if (!zerAdsLoaded) {
 
       const overlay = document.createElement("div");
 
@@ -89,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
         left:0;
         width:100%;
         height:100%;
-        background:rgba(0,0,0,.9);
+        background:rgba(0,0,0,.85);
         z-index:999999;
         display:flex;
         justify-content:center;
@@ -100,34 +68,21 @@ document.addEventListener("DOMContentLoaded", () => {
         <div style="
           background:#111827;
           color:#fff;
-          padding:25px;
+          padding:20px;
           border-radius:12px;
           text-align:center;
-          max-width:380px;
-          width:90%;
+          max-width:350px;
         ">
-          <h2>⚠ AdBlock Detected</h2>
-
-          <p>
-            Please disable AdBlock, AdGuard,
-            Brave Shields, or similar tools.
-          </p>
-
-          <button
-            onclick="location.reload()"
-            style="
-              padding:10px 20px;
-              border:none;
-              border-radius:8px;
-              cursor:pointer;
-            ">
-            Reload Page
+          <h2>AdBlock Detected</h2>
+          <p>Please disable AdBlock and reload page.</p>
+          <button onclick="location.reload()">
+            Reload
           </button>
         </div>
       `;
 
       document.body.appendChild(overlay);
-      document.body.style.overflow = "hidden";
+
     }
 
   }, 5000);
