@@ -15,22 +15,19 @@ const firebaseConfig = {
 
 const UID_ADMIN = "gZPXqeKPBAZfCzYXEcrGWMcSFHI2"; 
 const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
+
 let allFaucets = [];
 
-async function syncClicksFromKV() {
-  try {
-    const res = await fetch(`${API_URL}/api/get-clicks`);
-    const clicks = await res.json();
-    allFaucets.forEach(f => {
-      const item = clicks.find(x => x.id === f.id);
-      f.clicks = item ? item.clicks : 0;
-    });
-  } catch (e) {
-    console.log("KV Error:", e);
-  }
-}
 
+// ===============================
+// PUBLISH KE GITHUB CARDS.JSON
+// ===============================
 window.publishGithub = async function(){
+
+  if(allFaucets.length === 0){
+    showToast("Tidak ada data untuk dipublish");
+    return;
+  }
 
   const data = allFaucets.map(f=>({
     name:f.name,
@@ -40,9 +37,11 @@ window.publishGithub = async function(){
     rank:f.rank
   }));
 
+  console.log("Publish data:", data);
+
   try{
 
-    await fetch(`${API_URL}/publish`,{
+    const res = await fetch(`${API_URL}/publish`,{
       method:"POST",
       headers:{
         "Content-Type":"application/json"
@@ -50,12 +49,61 @@ window.publishGithub = async function(){
       body:JSON.stringify(data)
     });
 
-    showToast("JSON berhasil diupdate");
 
-  }catch(e){
-    console.log(e);
+    const result = await res.json();
+
+    console.log("Worker response:", result);
+
+
+    if(result.success){
+
+      showToast("JSON berhasil diupdate");
+
+    }else{
+
+      showToast("Gagal update JSON");
+
+    }
+
+
+  }catch(err){
+
+    console.log("Publish error:",err);
     showToast("Publish gagal");
+
   }
+
+}
+
+
+
+// ===============================
+// LOAD FIRESTORE
+// ===============================
+async function loadFaucets(){
+
+  if(!requireAdmin()) return;
+
+
+  const snap = await getDocs(
+    collection(db,"faucets")
+  );
+
+
+  allFaucets = snap.docs.map(d=>({
+    id:d.id,
+    ...d.data()
+  }));
+
+
+  console.log("Firestore data:",allFaucets);
+
+
+
+  await autoRerank();
+
+
+  render(allFaucets);
 
 }
 
