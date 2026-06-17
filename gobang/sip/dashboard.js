@@ -30,6 +30,35 @@ async function syncClicksFromKV() {
   }
 }
 
+window.publishGithub = async function(){
+
+  const data = allFaucets.map(f=>({
+    name:f.name,
+    url:f.url,
+    coin:f.coin,
+    status:f.status,
+    rank:f.rank
+  }));
+
+  try{
+
+    await fetch(`${API_URL}/publish`,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify(data)
+    });
+
+    showToast("JSON berhasil diupdate");
+
+  }catch(e){
+    console.log(e);
+    showToast("Publish gagal");
+  }
+
+}
+
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
