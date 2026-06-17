@@ -245,3 +245,26 @@ async function shuffleTop3() {
 
   showToast("✅ Top 3 Trending sudah diacak. Klik Publish JSON biar masuk ke web"); // <- ganti alert -> showToast
 }
+
+window.moveRank = async function(id, direction){ // direction: -1 = naik, 1 = turun
+  if(!requireAdmin()) return;
+
+  const idx = allFaucets.findIndex(f => f.id === id);
+  if(idx === -1) return;
+
+  const newIdx = idx + direction;
+  if(newIdx < 0 || newIdx >= allFaucets.length) return; // udah paling atas/bawah
+
+  // Tukar posisi di array
+  [allFaucets[idx], allFaucets[newIdx]] = [allFaucets[newIdx], allFaucets[idx]];
+
+  // Rerank ulang semua biar rapi 1,2,3...
+  allFaucets.forEach((f, i) => f.rank = i + 1);
+
+  // Update ke Firebase semua sekaligus
+  const updates = allFaucets.map(f => updateDoc(doc(db, "faucets", f.id), { rank: f.rank }));
+  await Promise.all(updates);
+
+  showToast(`Rank diupdate`);
+  render(allFaucets); // render ulang tanpa reload
+};
