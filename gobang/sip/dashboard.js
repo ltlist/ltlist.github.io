@@ -196,7 +196,7 @@ onAuthStateChanged(auth, async (user) => {
 // URL Worker kamu. Ganti punya kamu
 const WORKER_URL = "https://misty-truth-00e3.cnamelist.workers.dev/publish"; 
 
-window.publishGithub = async function(){
+window.publishBtn = async function(){
   if(!requireAdmin()) return;
   
   if(!confirm("Yakin publish semua data faucet ke cards.json GitHub?")) return;
