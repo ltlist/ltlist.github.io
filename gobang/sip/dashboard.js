@@ -195,25 +195,24 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 
-// URL Worker kamu. Ganti punya kamu
-const WORKER_URL = "https://misty-truth-00e3.cnamelist.workers.dev/publish";
-
-async function publishBtn(){ // <- ini doang yang diganti
+window.publishGithub = async function(){
   if(!requireAdmin()) return;
-
   if(!confirm("Yakin publish semua data faucet ke cards.json GitHub?")) return;
-
+  
   showToast("Mengirim ke GitHub...");
-
+  
   try{
+    // Hapus `id` biar file json nya rapi
+    const cleanData = allFaucets.map(({id, ...rest}) => rest);
+    
     const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(allFaucets)
+      body: JSON.stringify(cleanData) // kirim yg udah bersih
     });
-
+    
     const result = await res.json();
-
+    
     if(result.success){
       showToast("✅ Berhasil publish cards.json");
     } else {
@@ -226,45 +225,31 @@ async function publishBtn(){ // <- ini doang yang diganti
   }
 };
 
-document.getElementById("publishBtn").addEventListener("click", publishBtn); // <- tambahin baris ini
-document.getElementById("shuffleBtn").addEventListener("click", shuffleTop3);
-
 async function shuffleTop3() {
-  if (allFaucets.length < 3) return showToast("Data kurang dari 3, gak bisa diacak"); // <- ganti cards -> allFaucets, alert -> showToast
+  if (allFaucets.length < 3) return showToast("Data kurang dari 3, gak bisa diacak"); // <- ganti cards -> allFaucets
+
   if (!confirm("Acak 3 Faucet teratas untuk Trending?")) return;
 
+  // 1. Ambil 3 data teratas
   const top3 = allFaucets.slice(0, 3); // <- ganti cards -> allFaucets
 
+  // 2. Acak urutannya
   for (let i = top3.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [top3[i], top3[j]] = [top3[j], top3[i]];
   }
 
+  // 3. Tempel lagi ke posisi 0,1,2 dan rapihin rank
+  top3.forEach((f, i) => f.rank = i + 1); // rank jadi 1,2,3
   allFaucets.splice(0, 3,...top3); // <- ganti cards -> allFaucets
-  render(allFaucets); // <- ganti render() -> render(allFaucets)
 
-  showToast("✅ Top 3 Trending sudah diacak. Klik Publish JSON biar masuk ke web"); // <- ganti alert -> showToast
-}
-
-window.moveRank = async function(id, direction){ // direction: -1 = naik, 1 = turun
-  if(!requireAdmin()) return;
-
-  const idx = allFaucets.findIndex(f => f.id === id);
-  if(idx === -1) return;
-
-  const newIdx = idx + direction;
-  if(newIdx < 0 || newIdx >= allFaucets.length) return; // udah paling atas/bawah
-
-  // Tukar posisi di array
-  [allFaucets[idx], allFaucets[newIdx]] = [allFaucets[newIdx], allFaucets[idx]];
-
-  // Rerank ulang semua biar rapi 1,2,3...
+  // 4. Update rank sisanya biar gak tabrakan
   allFaucets.forEach((f, i) => f.rank = i + 1);
 
-  // Update ke Firebase semua sekaligus
+  // 5. Simpen ke Firebase langsung
   const updates = allFaucets.map(f => updateDoc(doc(db, "faucets", f.id), { rank: f.rank }));
   await Promise.all(updates);
 
-  showToast(`Rank diupdate`);
-  render(allFaucets); // render ulang tanpa reload
-};
+  render(allFaucets); // <- kirim allFaucets
+  showToast("✅ Top 3 Trending sudah diacak. Klik Publish JSON"); // <- ganti alert -> showToast
+}
