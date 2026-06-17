@@ -1,11 +1,24 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import {
-  getFirestore, collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy, writeBatch
+  getFirestore, 
+  collection, 
+  getDocs, 
+  addDoc, 
+  deleteDoc, 
+  doc, 
+  updateDoc, 
+  writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"; 
+
+import { 
+  getAuth, 
+  signOut, 
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"; 
+
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
+  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S",
   authDomain: "ltlist-f.firebaseapp.com",
   projectId: "ltlist-f",
   storageBucket: "ltlist-f.firebasestorage.app",
@@ -13,97 +26,77 @@ const firebaseConfig = {
   appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 
+
 const UID_ADMIN = "gZPXqeKPBAZfCzYXEcrGWMcSFHI2"; 
 const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
 
 let allFaucets = [];
 
 
-// ===============================
-// PUBLISH KE GITHUB CARDS.JSON
-// ===============================
-window.publishGithub = async function(){
-
-  if(allFaucets.length === 0){
-    showToast("Tidak ada data untuk dipublish");
-    return;
-  }
-
-  const data = allFaucets.map(f=>({
-    name:f.name,
-    url:f.url,
-    coin:f.coin,
-    status:f.status,
-    rank:f.rank
-  }));
-
-  console.log("Publish data:", data);
-
-  try{
-
-    const res = await fetch(`${API_URL}/publish`,{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify(data)
-    });
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 
-    const result = await res.json();
-
-    console.log("Worker response:", result);
-
-
-    if(result.success){
-
-      showToast("JSON berhasil diupdate");
-
-    }else{
-
-      showToast("Gagal update JSON");
-
-    }
+const listDiv = document.getElementById("list");
+const toastDiv = document.getElementById("toast");
+const modalDiv = document.getElementById("editModal");
 
 
-  }catch(err){
 
-    console.log("Publish error:",err);
-    showToast("Publish gagal");
+const showToast = (msg)=>{
+  toastDiv.textContent = msg;
+  toastDiv.classList.add("show");
 
-  }
+  setTimeout(()=>{
+    toastDiv.classList.remove("show");
+  },2000);
+};
+
+
+
+function requireAdmin(){
+
+ const user = auth.currentUser;
+
+ if(!user || user.uid !== UID_ADMIN){
+   showToast("Akses ditolak");
+   return false;
+ }
+
+ return true;
 
 }
 
 
 
 // ===============================
-// LOAD FIRESTORE
+// LOAD FIRESTORE SATU SAJA
 // ===============================
+
 async function loadFaucets(){
 
-  if(!requireAdmin()) return;
+ if(!requireAdmin()) return;
 
 
-  const snap = await getDocs(
-    collection(db,"faucets")
-  );
+ const snap = await getDocs(
+   collection(db,"faucets")
+ );
 
 
-  allFaucets = snap.docs.map(d=>({
+ allFaucets = snap.docs.map(d=>({
     id:d.id,
     ...d.data()
-  }));
+ }));
 
 
-  console.log("Firestore data:",allFaucets);
+ console.log("DATA:",allFaucets);
 
 
+ await autoRerank();
 
-  await autoRerank();
 
-
-  render(allFaucets);
+ render(allFaucets);
 
 }
 
