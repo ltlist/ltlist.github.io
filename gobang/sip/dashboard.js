@@ -13,7 +13,6 @@ const firebaseConfig = {
   appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
 };
 
-// 1. ISI UID KAMU DI SINI DOANG
 const UID_ADMIN = "gZPXqeKPBAZfCzYXEcrGWMcSFHI2"; 
 
 const app = initializeApp(firebaseConfig);
@@ -31,10 +30,9 @@ const showToast = (msg) => {
   setTimeout(() => toastDiv.classList.remove("show"), 2000);
 };
 
-// FUNGSI KUNCI BARU: Cek login + Cek UID
 function requireAdmin() {
   const user = auth.currentUser;
-  if (!user || user.uid !== UID_ADMIN) { // <- Cek UID di sini juga
+  if (!user || user.uid !== UID_ADMIN) {
     showToast("Akses ditolak. Bukan admin");
     return false;
   }
@@ -42,7 +40,7 @@ function requireAdmin() {
 }
 
 async function loadFaucets(){
-  if (!requireAdmin()) return; // cegah load kalo bukan admin
+  if (!requireAdmin()) return;
   const q = query(collection(db, "faucets"), orderBy("rank", "asc"));
   const snap = await getDocs(q);
   allFaucets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -55,17 +53,17 @@ function render(data){
     return;
   }
   listDiv.innerHTML = data.map(d => {
-    const uptimeColor = d.uptime >= 90? 'var(--green)' : d.uptime >= 50? 'var(--yellow)' : 'var(--red)';
+    const uptimeColor = d.uptime >= 90 ? 'var(--green)' : d.uptime >= 50 ? 'var(--yellow)' : 'var(--red)';
     return `
       <div class="card">
         <div class="card-left">
-          <span class="rank-badge">#${d.rank?? '-'}</span>
+          <span class="rank-badge">#${d.rank ?? '-'}</span>
           <span class="status-badge ${d.status}">${d.status}</span>
         </div>
         <div class="card-mid">
           <div class="card-title" title="${d.name}">${d.name}</div>
           <div class="card-sub">${d.coin}</div>
-          <div class="card-stats">${d.clicks?? 0} claims | <span style="color:${uptimeColor}">${d.uptime?? 0}%</span></div>
+          <div class="card-stats">${d.clicks ?? 0} claims | <span style="color:${uptimeColor}">${d.uptime ?? 0}%</span></div>
         </div>
         <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
         <div class="card-right">
@@ -79,6 +77,23 @@ function render(data){
     `;
   }).join("");
 }
+
+window.moveRank = async function(id, direction){
+  if(!requireAdmin()) return;
+  const idx = allFaucets.findIndex(f => f.id === id);
+  if(idx === -1) return;
+  const newIdx = idx + direction;
+  if(newIdx < 0 || newIdx >= allFaucets.length) return;
+
+  [allFaucets[idx], allFaucets[newIdx]] = [allFaucets[newIdx], allFaucets[idx]];
+  allFaucets.forEach((f, i) => f.rank = i + 1);
+
+  const updates = allFaucets.map(f => updateDoc(doc(db, "faucets", f.id), { rank: f.rank }));
+  await Promise.all(updates);
+
+  showToast(`Rank diupdate`);
+  render(allFaucets);
+};
 
 window.addClick = async function(id){
   if (!requireAdmin()) return;
@@ -128,6 +143,7 @@ window.openEdit = function(data){
   document.getElementById("editUrl").value = data.url;
   document.getElementById("editCoin").value = data.coin;
   document.getElementById("editStatus").value = data.status;
+  document.getElementById("editUptime").value = data.uptime ?? 0;
   modalDiv.classList.add("show");
 };
 
@@ -154,14 +170,9 @@ window.rerank = async function(auto = false){
   if(!auto){
     if(!confirm("Urutkan ulang rank 1,2,3...?")) return;
   }
-  
-  const snap = await getDocs(query(collection(db, "faucets"), orderBy("rank", "asc")));
-  if(snap.empty) return loadFaucets();
-
   let i = 1;
-  const updates = snap.docs.map(d => updateDoc(doc(db, "faucets", d.id), { rank: i++ }));
+  const updates = allFaucets.map(d => updateDoc(doc(db, "faucets", d.id), { rank: i++ }));
   await Promise.all(updates);
-  
   showToast(auto ? "Rank auto dirapikan" : "Rank sudah diurutkan ulang");
   loadFaucets();
 };
@@ -183,10 +194,9 @@ window.addEventListener('scroll', () => {
   document.querySelector('.navbar')?.classList.toggle('scrolled', window.scrollY > 10);
 });
 
-// Redirect paksa kalo belum login / bukan admin
 onAuthStateChanged(auth, async (user) => {
-  if (!user || user.uid !== UID_ADMIN) { // <- PAKE VARIABEL + PETIK
-    if(user) await signOut(auth); // kick kalo UID salah
+  if (!user || user.uid !== UID_ADMIN) {
+    if(user) await signOut(auth);
     window.location.href = "login.html";
     return;
   }
@@ -194,62 +204,30 @@ onAuthStateChanged(auth, async (user) => {
   await loadFaucets();
 });
 
+// === TOMBOL 2 AJA === //
+const WORKER_URL = "https://misty-truth-00e3.cnamelist.workers.dev/publish"; 
 
-window.publishGithub = async function(){
+document.getElementById("publishBtn").addEventListener("click", publishBtn); // Tombol 1
+
+async function publishBtn(){
   if(!requireAdmin()) return;
   if(!confirm("Yakin publish semua data faucet ke cards.json GitHub?")) return;
   
   showToast("Mengirim ke GitHub...");
   
   try{
-    // Hapus `id` biar file json nya rapi
-    const cleanData = allFaucets.map(({id, ...rest}) => rest);
-    
     const res = await fetch(WORKER_URL, {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(cleanData) // kirim yg udah bersih
+      body: JSON.stringify(allFaucets)
     });
-    
     const result = await res.json();
-    
     if(result.success){
       showToast("✅ Berhasil publish cards.json");
     } else {
       showToast("❌ Gagal: " + JSON.stringify(result.error));
-      console.error(result.error);
     }
   } catch(err){
     showToast("❌ Error koneksi Worker");
-    console.error(err);
   }
-};
-
-async function shuffleTop3() {
-  if (allFaucets.length < 3) return showToast("Data kurang dari 3, gak bisa diacak"); // <- ganti cards -> allFaucets
-
-  if (!confirm("Acak 3 Faucet teratas untuk Trending?")) return;
-
-  // 1. Ambil 3 data teratas
-  const top3 = allFaucets.slice(0, 3); // <- ganti cards -> allFaucets
-
-  // 2. Acak urutannya
-  for (let i = top3.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [top3[i], top3[j]] = [top3[j], top3[i]];
-  }
-
-  // 3. Tempel lagi ke posisi 0,1,2 dan rapihin rank
-  top3.forEach((f, i) => f.rank = i + 1); // rank jadi 1,2,3
-  allFaucets.splice(0, 3,...top3); // <- ganti cards -> allFaucets
-
-  // 4. Update rank sisanya biar gak tabrakan
-  allFaucets.forEach((f, i) => f.rank = i + 1);
-
-  // 5. Simpen ke Firebase langsung
-  const updates = allFaucets.map(f => updateDoc(doc(db, "faucets", f.id), { rank: f.rank }));
-  await Promise.all(updates);
-
-  render(allFaucets); // <- kirim allFaucets
-  showToast("✅ Top 3 Trending sudah diacak. Klik Publish JSON"); // <- ganti alert -> showToast
 }
