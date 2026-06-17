@@ -1,17 +1,5 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAVokWj_l3aITEhj6UPetF-MGQXKdv75S8",
-  authDomain: "ltlist-f.firebaseapp.com",
-  projectId: "ltlist-f",
-  storageBucket: "ltlist-f.firebasestorage.app",
-  messagingSenderId: "991011425656",
-  appId: "1:991011425656:web:d8f4da4e5c4b4ab9aacc8d"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const API_URL = "https://api.ltlist.workers.dev"; // URL Worker kamu buat /api/click
+const CARDS_URL = "https://ltlist.github.io/cards.json"; // <-- INI KUNCINYA
 
 const listDiv = document.getElementById("list");
 const trendingDiv = document.getElementById("trending");
@@ -19,100 +7,54 @@ const coinStatsDiv = document.getElementById("coinStats");
 const coinFilter = document.getElementById("coinFilter");
 const totalEl = document.getElementById("totalFaucets");
 
-// IMPORTANT: tanpa slash
-const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
-
 let allFaucets = [];
 
-// =========================
-// LOAD DATA FIRESTORE
-// =========================
 async function loadFaucets() {
-  const q = query(
-    collection(db, "faucets"),
-    where("status", "==", "active")
-  );
+  // HAPUS SEMUA FIREBASE. GANTI JADI FETCH CARDS.JSON
+  const res = await fetch(CARDS_URL + '?t=' + Date.now()); // +t biar gak ke-cache
+  if (!res.ok) {
+    listDiv.innerHTML = `<p style="color:red">Gagal load data</p>`;
+    return;
+  }
+  allFaucets = await res.json();
 
-  const snap = await getDocs(q);
+  // Urut manual by clicks paling banyak
+  allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
 
-  allFaucets = snap.docs.map(d => ({
-    id: d.id,
-    ...d.data(),
-    clicks: 0 // default aman sebelum sync
-  }));
-
-  await syncClicks(); // ⭐ PENTING: ambil data KV
-  sortAndRender();
-
+  render(allFaucets);
   renderTrending();
   renderCoinStats();
   renderTotal();
   loadCoinFilter();
 }
 
-// =========================
-// SYNC DARI WORKER KV
-// =========================
-async function syncClicks() {
-  try {
-    const res = await fetch(`${API_URL}/api/get-clicks`);
-    const data = await res.json();
-
-    data.forEach(item => {
-      const f = allFaucets.find(x => x.id === item.id);
-      if (f) {
-        f.clicks = item.clicks;
-      }
-    });
-
-  } catch (e) {
-    console.log("sync error:", e);
-  }
-}
-
-// =========================
-// SORT + RENDER
-// =========================
-function sortAndRender() {
-  allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
-  render(allFaucets);
-}
-
-// =========================
-// CLICK HANDLER
-// =========================
+// Klik Claim -> Nembak ke Worker biar anti spam 60mnt
 window.visitFaucet = async function (id, url) {
   const btn = document.querySelector(`button[onclick*="${id}"]`);
-  if (btn) {
-    btn.disabled = true;
-    btn.textContent = "...";
-  }
+  if(btn) { btn.disabled = true; btn.textContent = '...'; }
 
   try {
     const res = await fetch(`${API_URL}/api/click`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id })
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({id})
     });
-
     const data = await res.json();
 
-    if (!res.ok || !data.success) {
-      alert(data.error || "Error");
-      if (btn) {
-        btn.disabled = false;
-        btn.textContent = "Claim";
-      }
+    if(!res.ok){
+      alert(data.error); // "Tunggu 42 menit lagi"
+      if(btn) { btn.disabled = false; btn.textContent = 'Claim'; }
       return;
     }
-
-    // ✔ update dari server (bukan local fake)
+    
+    // Update local biar rank langsung geser tanpa reload
     const item = allFaucets.find(f => f.id === id);
-    if (item) {
-      item.clicks = data.count;
+    if(item) {
+      item.clicks = (item.clicks || 0) + 1;
+      allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
     }
-
-    sortAndRender();
+    
+    render(allFaucets); 
     renderTrending();
     renderCoinStats();
 
@@ -122,92 +64,62 @@ window.visitFaucet = async function (id, url) {
   }
 
   window.open(url, "_blank");
+  if(btn) { setTimeout(() => { btn.disabled = false; btn.textContent = 'Claim'; }, 1500); }
+}
 
-  if (btn) {
-    setTimeout(() => {
-      btn.disabled = false;
-      btn.textContent = "Claim";
-    }, 1200);
-  }
-};
-
-// =========================
-// RENDER LIST
-// =========================
 function render(data) {
   if (!listDiv) return;
-
+  // MAP FIELD: admin pake `title, link`, public pake `name, url`
   listDiv.innerHTML = data.map((d, i) => `
     <div class="card">
       <div class="rank">#${i + 1}</div>
       <div class="info">
-        <div class="name">${d.name || "-"}</div>
+        <div class="name">${d.title || d.name || "-"}</div>
         <div class="meta">${d.coin || "-"} 💧 ${d.clicks || 0}</div>
       </div>
-      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">Claim</button>
+      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.link || d.url}')">Claim</button>
     </div>
   `).join("");
 }
 
-// =========================
-// TRENDING
-// =========================
 function renderTrending() {
   if (!trendingDiv) return;
-
-  const top = [...allFaucets]
-    .sort((a, b) => (b.clicks || 0) - (a.clicks || 0))
-    .slice(0, 3);
-
+  const top = allFaucets.slice(0, 3);
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
       <div class="rank">🔥 ${i + 1}</div>
       <div class="info">
-        <div class="name">${d.name}</div>
+        <div class="name">${d.title || d.name}</div>
         <div class="meta">${d.coin} 💧 ${d.clicks || 0}</div>
       </div>
-      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.url}')">Claim</button>
+      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.link || d.url}')">Claim</button>
     </div>
   `).join("");
 }
 
-// =========================
-// TOTAL
-// =========================
 function renderTotal() {
   if (!totalEl) return;
   totalEl.innerText = `📊 ${allFaucets.length} Active Faucets`;
 }
 
-// =========================
-// COIN STATS
-// =========================
 function renderCoinStats() {
   if (!coinStatsDiv) return;
-
   const count = {};
   allFaucets.forEach(f => {
     const c = (f.coin || "UNKNOWN").trim();
     count[c] = (count[c] || 0) + 1;
   });
-
   coinStatsDiv.innerHTML = Object.keys(count)
-    .sort()
-    .map(c => `<span class="badge">${c} (${count[c]})</span>`)
-    .join("");
+  .sort()
+  .map(c => `<span class="badge">${c} (${count[c]})</span>`)
+  .join("");
 }
 
-// =========================
-// FILTER
-// =========================
 function loadCoinFilter() {
   if (!coinFilter) return;
-
   coinFilter.innerHTML = `<option value="all">All Coins</option>`;
-
   const coins = [...new Set(allFaucets.map(f => (f.coin || "UNKNOWN").trim()))];
   coins.sort();
-
   coins.forEach(c => {
     const opt = document.createElement("option");
     opt.value = c;
@@ -216,13 +128,10 @@ function loadCoinFilter() {
   });
 }
 
-// =========================
-// SEARCH + FILTER
-// =========================
 window.searchPublic = function () {
   const q = document.getElementById("search")?.value.toLowerCase() || "";
   render(allFaucets.filter(f =>
-    (f.name || "").toLowerCase().includes(q) ||
+    (f.title || f.name || "").toLowerCase().includes(q) ||
     (f.coin || "").toLowerCase().includes(q)
   ));
 };
@@ -233,5 +142,4 @@ window.filterCoin = function () {
   render(allFaucets.filter(f => f.coin === c));
 };
 
-// START
 loadFaucets();
