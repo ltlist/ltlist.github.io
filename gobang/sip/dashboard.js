@@ -70,8 +70,8 @@ function render(data){
         <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
         <div class="card-right">
           <button class="btn-edit" onclick='openEdit(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button>
-          <button onclick="moveRank('${d.id}', -1)" title="Naikin">⬆️</button> // <- tombol baru
-          <button onclick="moveRank('${d.id}', 1)" title="Turunin">⬇️</button> // <- tombol baru
+          <button onclick="moveRank('${d.id}', -1)" title="Naikin">⬆️</button>
+          <button onclick="moveRank('${d.id}', 1)" title="Turunin">⬇️</button>
           <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
           <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button>
         </div>
