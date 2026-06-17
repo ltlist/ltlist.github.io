@@ -24,43 +24,7 @@ const listDiv = document.getElementById("list");
 const toastDiv = document.getElementById("toast");
 const modalDiv = document.getElementById("editModal");
 let allFaucets = [];
-const API_URL = "https://misty-truth-00e3.cnamelist.workers.dev";
 
-window.publishGithub = async function(){
-
-  const data = allFaucets.map(f=>({
-    name:f.name,
-    url:f.url,
-    coin:f.coin,
-    status:f.status,
-    rank:f.rank
-  }));
-
-  try{
-
-    const res = await fetch(`${API_URL}/publish`,{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json"
-      },
-      body:JSON.stringify(data)
-    });
-
-    const result = await res.json();
-
-    if(result.success){
-      showToast("cards.json berhasil update");
-    }else{
-      showToast("Gagal update");
-      console.log(result);
-    }
-
-  }catch(e){
-    console.log(e);
-    showToast("Publish error");
-  }
-
-};
 const showToast = (msg) => {
   toastDiv.textContent = msg;
   toastDiv.classList.add("show");
@@ -227,3 +191,36 @@ onAuthStateChanged(auth, async (user) => {
   console.log("ADMIN LOGIN:", user.uid);
   await loadFaucets();
 });
+
+
+// URL Worker kamu. Ganti punya kamu
+const WORKER_URL = "https://misty-truth-00e3.cnamelist.workers.dev/publish"; 
+
+window.publishGithub = async function(){
+  if(!requireAdmin()) return;
+  
+  if(!confirm("Yakin publish semua data faucet ke cards.json GitHub?")) return;
+  
+  showToast("Mengirim ke GitHub...");
+  
+  try{
+    // Kirim semua data allFaucets ke Worker
+    const res = await fetch(WORKER_URL, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(allFaucets) // langsung kirim array nya
+    });
+    
+    const result = await res.json();
+    
+    if(result.success){
+      showToast("✅ Berhasil publish cards.json");
+    } else {
+      showToast("❌ Gagal: " + JSON.stringify(result.error));
+      console.error(result.error);
+    }
+  } catch(err){
+    showToast("❌ Error koneksi Worker");
+    console.error(err);
+  }
+};
