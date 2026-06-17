@@ -55,21 +55,23 @@ function render(data){
     return;
   }
   listDiv.innerHTML = data.map(d => {
-    const uptimeColor = d.uptime >= 90 ? 'var(--green)' : d.uptime >= 50 ? 'var(--yellow)' : 'var(--red)';
+    const uptimeColor = d.uptime >= 90? 'var(--green)' : d.uptime >= 50? 'var(--yellow)' : 'var(--red)';
     return `
       <div class="card">
         <div class="card-left">
-          <span class="rank-badge">#${d.rank ?? '-'}</span>
+          <span class="rank-badge">#${d.rank?? '-'}</span>
           <span class="status-badge ${d.status}">${d.status}</span>
         </div>
         <div class="card-mid">
           <div class="card-title" title="${d.name}">${d.name}</div>
           <div class="card-sub">${d.coin}</div>
-          <div class="card-stats">${d.clicks ?? 0} claims | <span style="color:${uptimeColor}">${d.uptime ?? 0}%</span></div>
+          <div class="card-stats">${d.clicks?? 0} claims | <span style="color:${uptimeColor}">${d.uptime?? 0}%</span></div>
         </div>
         <a href="${d.url}" target="_blank" rel="noopener" class="claim-btn" onclick="addClick('${d.id}')">Claim</a>
         <div class="card-right">
           <button class="btn-edit" onclick='openEdit(${JSON.stringify(d).replace(/'/g, "&apos;")})'>Edit</button>
+          <button onclick="moveRank('${d.id}', -1)" title="Naikin">⬆️</button> // <- tombol baru
+          <button onclick="moveRank('${d.id}', 1)" title="Turunin">⬇️</button> // <- tombol baru
           <button onclick="toggleStatus('${d.id}','${d.status}')">Toggle</button>
           <button class="btn-delete" onclick="deleteFaucet('${d.id}')">Hapus</button>
         </div>
