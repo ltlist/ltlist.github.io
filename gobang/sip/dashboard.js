@@ -224,3 +224,27 @@ window.publishGithub = async function(){
     console.error(err);
   }
 };
+
+document.getElementById("shuffleBtn").addEventListener("click", shuffleTop3);
+
+async function shuffleTop3() {
+  if (cards.length < 3) return alert("Data kurang dari 3, gak bisa diacak");
+  if (!confirm("Acak 3 Faucet teratas untuk Trending?")) return;
+
+  // 1. Potong 3 data teratas
+  const top3 = cards.slice(0, 3);
+
+  // 2. Acak urutannya
+  for (let i = top3.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [top3[i], top3[j]] = [top3[j], top3[i]];
+  }
+
+  // 3. Tempel lagi ke posisi 0,1,2
+  cards.splice(0, 3,...top3);
+
+  // 4. Render ulang tabel biar langsung keliatan berubah
+  render(); 
+
+  alert("✅ Top 3 Trending sudah diacak. Sekarang klik Publish JSON biar masuk ke web");
+}
