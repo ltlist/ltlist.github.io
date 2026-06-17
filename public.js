@@ -1,5 +1,4 @@
-const API_URL = "https://api.ltlist.workers.dev"; // URL Worker kamu buat /api/click
-const CARDS_URL = "https://ltlist.github.io/cards.json"; // <-- INI KUNCINYA
+const CARDS_URL = "https://ltlist.github.io/cards.json"; // + ?t= biar gak ke-cache
 
 const listDiv = document.getElementById("list");
 const trendingDiv = document.getElementById("trending");
@@ -10,89 +9,49 @@ const totalEl = document.getElementById("totalFaucets");
 let allFaucets = [];
 
 async function loadFaucets() {
-  // HAPUS SEMUA FIREBASE. GANTI JADI FETCH CARDS.JSON
-  const res = await fetch(CARDS_URL + '?t=' + Date.now()); // +t biar gak ke-cache
-  if (!res.ok) {
-    listDiv.innerHTML = `<p style="color:red">Gagal load data</p>`;
-    return;
-  }
+  const res = await fetch(CARDS_URL + '?t=' + Date.now());
+  if (!res.ok) return listDiv.innerHTML = `<p style="color:red">Gagal load data</p>`;
+  
   allFaucets = await res.json();
-
-  // Urut manual by clicks paling banyak
-  allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
+  // GAK ADA SORT BY CLICKS LAGI. Urutan = urutan dari dashboard kamu
 
   render(allFaucets);
-  renderTrending();
+  renderTrending(); // Trending = 3 teratas dari dashboard
   renderCoinStats();
   renderTotal();
   loadCoinFilter();
 }
 
-// Klik Claim -> Nembak ke Worker biar anti spam 60mnt
-window.visitFaucet = async function (id, url) {
-  const btn = document.querySelector(`button[onclick*="${id}"]`);
-  if(btn) { btn.disabled = true; btn.textContent = '...'; }
-
-  try {
-    const res = await fetch(`${API_URL}/api/click`, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({id})
-    });
-    const data = await res.json();
-
-    if(!res.ok){
-      alert(data.error); // "Tunggu 42 menit lagi"
-      if(btn) { btn.disabled = false; btn.textContent = 'Claim'; }
-      return;
-    }
-    
-    // Update local biar rank langsung geser tanpa reload
-    const item = allFaucets.find(f => f.id === id);
-    if(item) {
-      item.clicks = (item.clicks || 0) + 1;
-      allFaucets.sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
-    }
-    
-    render(allFaucets); 
-    renderTrending();
-    renderCoinStats();
-
-  } catch (e) {
-    console.log(e);
-    alert("Gagal connect server");
-  }
-
+// Langsung buka link, tanpa /api/click
+window.visitFaucet = function (url) {
   window.open(url, "_blank");
-  if(btn) { setTimeout(() => { btn.disabled = false; btn.textContent = 'Claim'; }, 1500); }
 }
 
 function render(data) {
   if (!listDiv) return;
-  // MAP FIELD: admin pake `title, link`, public pake `name, url`
   listDiv.innerHTML = data.map((d, i) => `
     <div class="card">
       <div class="rank">#${i + 1}</div>
       <div class="info">
         <div class="name">${d.title || d.name || "-"}</div>
-        <div class="meta">${d.coin || "-"} 💧 ${d.clicks || 0}</div>
+        <div class="meta">${d.coin || "-"}</div> <!-- clicks dibuang -->
       </div>
-      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.link || d.url}')">Claim</button>
+      <button class="visit-btn" onclick="visitFaucet('${d.link || d.url}')">Claim</button> <!-- id dibuang -->
     </div>
   `).join("");
 }
 
 function renderTrending() {
   if (!trendingDiv) return;
-  const top = allFaucets.slice(0, 3);
+  const top = allFaucets.slice(0, 3); // 3 teratas = yang kamu taruh paling atas di dashboard
   trendingDiv.innerHTML = top.map((d, i) => `
     <div class="card">
       <div class="rank">🔥 ${i + 1}</div>
       <div class="info">
         <div class="name">${d.title || d.name}</div>
-        <div class="meta">${d.coin} 💧 ${d.clicks || 0}</div>
+        <div class="meta">${d.coin}</div>
       </div>
-      <button class="visit-btn" onclick="visitFaucet('${d.id}','${d.link || d.url}')">Claim</button>
+      <button class="visit-btn" onclick="visitFaucet('${d.link || d.url}')">Claim</button>
     </div>
   `).join("");
 }
