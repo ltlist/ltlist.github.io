@@ -1,105 +1,105 @@
 [
   {
     "id": "sQKSabtyZ3XcvnFtq7gy",
-    "coin": "LTC",
+    "rank": 1,
+    "url": "https://ltlist.github.io/faucet",
+    "clicks": 1,
     "uptime": 100,
     "status": "active",
-    "clicks": 0,
     "name": "LTlist",
-    "rank": 1,
-    "url": "https://ltlist.github.io/faucet"
+    "coin": "LTC"
   },
   {
     "id": "SrWBjgtbQ8M5auQJaNXj",
+    "coin": "MULTI",
     "status": "active",
-    "clicks": 1,
-    "rank": 2,
-    "url": "https://viefaucet.com?r=628a3fcce668400634e6c96d",
     "name": "Viefaucet",
-    "coin": "MULTI"
+    "url": "https://viefaucet.com?r=628a3fcce668400634e6c96d",
+    "clicks": 1,
+    "rank": 2
   },
   {
     "id": "3H0kW9giVBmLkHxsjxF1",
     "coin": "ZER",
     "status": "active",
     "name": "Zerads",
-    "rank": 3,
-    "url": "https://zerads.com/?view=join&ref=Muda1"
+    "url": "https://zerads.com/?view=join&ref=Muda1",
+    "rank": 3
   },
   {
     "id": "Ev08HGJIcApt0NzIDYWv",
-    "url": "https://spaceshooter.net/?r=9141",
-    "rank": 4,
+    "coin": "MULTI",
     "name": "Spaceshooter",
-    "clicks": 0,
     "status": "active",
     "uptime": 100,
-    "coin": "MULTI"
+    "url": "https://spaceshooter.net/?r=9141",
+    "clicks": 0,
+    "rank": 4
   },
   {
     "id": "rhqQDNru83mWv1DYzcAJ",
-    "uptime": 100,
-    "coin": "MULTI",
-    "name": "Altcryp",
     "rank": 5,
-    "url": "https://altcryp.com/?r=15308",
     "clicks": 0,
-    "status": "active"
+    "url": "https://altcryp.com/?r=15308",
+    "uptime": 100,
+    "name": "Altcryp",
+    "status": "active",
+    "coin": "MULTI"
   },
   {
     "id": "NpyKV5kC3SN8adwdSAM2",
-    "status": "active",
-    "name": "Coindiversity",
-    "rank": 6,
     "url": "https://coindiversity.io/free-coins?r=DPzcoFNUGajmhEfhptz3FSFsFTidRtGAy4",
-    "coin": "DOGE"
+    "rank": 6,
+    "coin": "DOGE",
+    "status": "active",
+    "name": "Coindiversity"
   },
   {
     "id": "i1n80DjfKIuMiuVtjGWb",
     "rank": 7,
-    "name": "Cryptofun",
     "url": "https://cryptofun.space/?r=qqrsygvth6rdma596a5dc50nzjkmkasl9smqn543c4",
     "status": "active",
+    "name": "Cryptofun",
     "coin": "BCH"
   },
   {
     "id": "ZGwDvPIzqF3ORTnm5SgC",
+    "coin": "TRX",
     "status": "active",
-    "url": "https://bitcoincuba.net/freetrx/?r=TUNh4pDqox9ThJJEaooDUMscEHYMfkSdQ2",
-    "rank": 8,
     "name": "Bitcoincuna",
-    "coin": "TRX"
+    "url": "https://bitcoincuba.net/freetrx/?r=TUNh4pDqox9ThJJEaooDUMscEHYMfkSdQ2",
+    "rank": 8
   },
   {
     "id": "SCGW0LHIR5aJpuaiBtWo",
-    "url": "https://faucetbr.tk/?r=qqrsygvth6rdma596a5dc50nzjkmkasl9smqn543c4",
-    "rank": 9,
     "name": "FaucetBr",
     "status": "active",
-    "coin": "BCH"
+    "coin": "BCH",
+    "rank": 9,
+    "url": "https://faucetbr.tk/?r=qqrsygvth6rdma596a5dc50nzjkmkasl9smqn543c4"
   },
   {
     "id": "hElGlRhIC71qtNZhqC97",
-    "coin": "DOGE",
+    "name": "Freecoin",
     "status": "active",
+    "coin": "DOGE",
     "rank": 10,
-    "url": "http://freecoin.in.ua/?r=DPzcoFNUGajmhEfhptz3FSFsFTidRtGAy4",
-    "name": "Freecoin"
+    "url": "http://freecoin.in.ua/?r=DPzcoFNUGajmhEfhptz3FSFsFTidRtGAy4"
   },
   {
     "id": "sUPjnMXVaeOYKYLYaDvk",
-    "rank": 11,
-    "url": "http://freecoin.in.ua/?r=DPzcoFNUGajmhEfhptz3FSFsFTidRtGAy4",
-    "name": "Freecoin",
+    "coin": "DOGE",
     "status": "active",
-    "coin": "DOGE"
+    "name": "Freecoin",
+    "url": "http://freecoin.in.ua/?r=DPzcoFNUGajmhEfhptz3FSFsFTidRtGAy4",
+    "rank": 11
   },
   {
     "id": "apYT9ceAyv2cQYq1sKTj",
-    "url": "https://getfree.co.in/litecoin/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV",
     "rank": 12,
-    "name": "Getfree",
+    "url": "https://getfree.co.in/litecoin/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV",
     "status": "active",
+    "name": "Getfree",
     "coin": "LTC"
   },
   {
@@ -112,104 +112,96 @@
   },
   {
     "id": "75kd0pTHXfdkPfByw6UO",
+    "name": "Litecoin faucet",
+    "status": "active",
     "coin": "LTC",
     "rank": 14,
-    "url": "https://litecoinfaucet.com/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV",
-    "name": "Litecoin faucet",
-    "status": "active"
+    "url": "https://litecoinfaucet.com/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV"
   },
   {
     "id": "DmrMfJZOfIMWeM1mdTgb",
-    "rank": 15,
     "url": "https://naticrypto.com/tron/?r=TUNh4pDqox9ThJJEaooDUMscEHYMfkSdQ2",
-    "name": "Naticrypto",
     "clicks": 0,
-    "status": "active",
-    "coin": "TRX"
+    "rank": 15,
+    "coin": "TRX",
+    "name": "Naticrypto",
+    "status": "active"
   },
   {
     "id": "OUNquwmW1ywdntXG7jqx",
-    "status": "active",
-    "rank": 16,
-    "url": "https://rimicoins.com/?ref=78",
+    "coin": "ZER",
     "name": "Rimicoin",
-    "coin": "ZER"
-  },
-  {
-    "id": "BZ7JUcnd2cNTbNT4BIai",
-    "url": "https://shortlinksfaucet.xyz/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV",
-    "rank": 17,
-    "name": "Shorlinks Faucet",
     "status": "active",
-    "coin": "LTC"
+    "url": "https://rimicoins.com/?ref=78",
+    "rank": 16
   },
   {
     "id": "IJqQHAhB291KtAWOzKVP",
-    "status": "active",
-    "rank": 18,
-    "url": "https://shortlinksfaucet.xyz/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV",
     "name": "Shortlinkfaucet",
-    "coin": "LTC"
+    "status": "active",
+    "coin": "LTC",
+    "rank": 18,
+    "url": "https://shortlinksfaucet.xyz/?r=LTVoiuiT7YoSTSiJfedT4eXkdq7epLosAV"
   },
   {
     "id": "e5KcyTqU8EmlXvWNCRfz",
-    "url": "https://treaw.com/?r=1JJG43zZAR1x1JzeHuHZadEoUCPy6boFYQ",
     "rank": 19,
+    "url": "https://treaw.com/?r=1JJG43zZAR1x1JzeHuHZadEoUCPy6boFYQ",
     "name": "Treaw",
     "status": "active",
     "coin": "USDT"
   },
   {
     "id": "ejFi3spDHw7totSvm3Rf",
-    "name": "Trx.haaiy",
-    "rank": 20,
-    "url": "https://trx.hasit.in/?r=TUNh4pDqox9ThJJEaooDUMscEHYMfkSdQ2",
     "status": "active",
-    "coin": "TRX"
+    "name": "Trx.haaiy",
+    "coin": "TRX",
+    "rank": 20,
+    "url": "https://trx.hasit.in/?r=TUNh4pDqox9ThJJEaooDUMscEHYMfkSdQ2"
   },
   {
     "id": "vrriqsxQbMGDNeUxJzYm",
-    "coin": "ZER",
-    "clicks": 0,
-    "url": "https://victorychilds.com/?ref=5497",
-    "rank": 21,
+    "status": "active",
     "name": "Victorychilds",
-    "status": "active"
+    "coin": "ZER",
+    "rank": 21,
+    "url": "https://victorychilds.com/?ref=5497",
+    "clicks": 0
   },
   {
     "id": "A84A6kJ05w0vtMEE8AEw",
-    "name": "zerfaucet ovh",
-    "rank": 22,
     "url": "https://zerfaucet.ovh/?ref=622",
     "clicks": 0,
-    "status": "active",
-    "coin": "ZER"
+    "rank": 22,
+    "coin": "ZER",
+    "name": "zerfaucet ovh",
+    "status": "active"
   },
   {
     "id": "Sta0FTmBn28hTFzfw15u",
     "coin": "ZER",
-    "rank": 23,
-    "url": "https://zerocoin.top/?ref=t1gpW2t2BRc3hiDo8KA32TSRu2bVM2xCLno",
     "name": "ZerocoinT",
+    "status": "active",
     "clicks": 0,
-    "status": "active"
+    "url": "https://zerocoin.top/?ref=t1gpW2t2BRc3hiDo8KA32TSRu2bVM2xCLno",
+    "rank": 23
   },
   {
     "id": "6tCifCD2xe8zj7sKG0u8",
     "coin": "ZER",
-    "status": "active",
-    "rank": 24,
-    "url": "https://zeropick.pro/?ref=t1gpW2t2BRc3hiDo8KA32TSRu2bVM2xCLno",
     "name": "Zeropick",
-    "clicks": 0
+    "status": "active",
+    "clicks": 0,
+    "url": "https://zeropick.pro/?ref=t1gpW2t2BRc3hiDo8KA32TSRu2bVM2xCLno",
+    "rank": 24
   },
   {
     "id": "Z8MNrB7pTF90YEODpeMM",
-    "status": "active",
     "rank": 25,
     "url": "https://zfaucet.click/?ref=107",
-    "name": "Zfaucet click",
     "clicks": 0,
+    "status": "active",
+    "name": "Zfaucet click",
     "coin": "ZER"
   }
 ]
