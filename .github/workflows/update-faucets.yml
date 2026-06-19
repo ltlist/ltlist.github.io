@@ -24,7 +24,11 @@ jobs:
           KOIN_TARGET = ['DOGE', 'LTC', 'TRX', 'SOL', 'USDT', 'USDC', 'BCH']
 
           r = requests.get(URL)
-          data = r.json()
+
+print("STATUS:", r.status_code)
+print(r.text[:1000])
+
+exit()
 
           output = []
           rank = 1
