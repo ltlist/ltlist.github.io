@@ -2,7 +2,7 @@ name: Update Faucet List
 
 on:
   schedule:
-    - cron: 0 * # Tiap 1 jam pas menit 00 WIB
+    - cron: '0 *' # Tiap 1 jam pas menit 0
   workflow_dispatch: # Tombol buat jalanin manual
 
 jobs:
