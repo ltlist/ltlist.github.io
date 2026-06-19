@@ -1,0 +1,78 @@
+name: Update Faucet List
+
+on:
+  schedule:
+    - cron: '0 *' # Tiap 1 jam
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch & Filter FaucetPay
+        env:
+          REFLINK_ID: mudawarun@email # <-- GANTI INI
+        run: |
+          python3 << 'EOF'
+          import requests, json, os, re
+
+          REF_ID = os.getenv('REFLINK_ID')
+          URL = "https://faucetpay.io/api/listv1/faucetlist"
+          KOIN_TARGET = ['DOGE', 'LTC', 'TRX', 'SOL', 'USDT', 'USDC', 'BCH', 'PE']
+
+          # Kata kunci faucet wajib daftar. Kalau ada di URL, langsung skip
+          BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
+
+          r = requests.get(URL)
+          data = r.json()
+
+          output = []
+          for coin in KOIN_TARGET: # Cuma cek 8 koin ini
+              faucets = data['list_data']['normal'].get(coin, [])
+              for f in faucets:
+                  url = f['url'].lower()
+
+                  # Filter 1: Aktif, Reward > 0, Timer <= 60
+                  if not (f['is_enabled'] == '1' and float(f['reward']) > 0 and int(f['timer_in_minutes']) <= 60):
+                      continue
+
+                  # Filter 2: Anti Daftar. Skip kalau URL ada kata login/register/dll
+                  if any(word in url for word in BLOCKED_KEYWORDS):
+                      continue
+
+                  # Lolos filter = Instant Claim
+                  url_asli = f['url']
+                  separator = '&' if '?' in url_asli else '?'
+                  url_ref = f"{url_asli}{separator}ref={REF_ID}"
+
+                  output.append({
+                      "name": f['name'],
+                      "coin": coin,
+                      "url": url_ref,
+                      "timer": f"{f['timer_in_minutes']} menit",
+                      "reward": f['reward'],
+                      "health": f['health']
+                  })
+
+          output.sort(key=lambda x: int(x['health']), reverse=True)
+
+          with open('cards.json', 'w', encoding='utf-8') as f:
+              json.dump(output, f, indent=2, ensure_ascii=False)
+          print(f"Selesai. Total faucet instant: {len(output)}")
+          EOF
+
+      - name: Commit & Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add cards.json
+          git commit -m "Update faucet list [bot]" || exit 0
+          git push
