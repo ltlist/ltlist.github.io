@@ -2,19 +2,19 @@ name: Update Faucet List
 
 on:
   schedule:
-    - cron: '0 *' # Tiap 1 jam pas menit 0
-  workflow_dispatch: # Tombol buat jalanin manual
+    - cron: '0 *'  # <-- Ini yang dibenerin. Jalan tiap 1 jam
+  workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Wajib biar bisa push
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_TOKEN }} # Pake token biar bisa push
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -23,14 +23,14 @@ jobs:
 
       - name: Fetch & Filter FaucetPay
         env:
-          REFLINK_ID: 5725 # <-- GANTI INI PAKE ID FaucetPay KAMU
+          REFLINK_ID: 5725
         run: |
           python3 << 'EOF'
           import requests, json, os
 
           REF_ID = os.getenv('REFLINK_ID')
           URL = "https://faucetpay.io/api/listv1/faucetlist"
-          KOIN_TARGET = ['DOGE', 'LTC', 'TRX', 'SOL', 'USDT', 'USDC', 'BCH', 'PE'] # PE -> PEPE
+          KOIN_TARGET = ['DOGE', 'LTC', 'TRX', 'SOL', 'USDT', 'USDC', 'BCH', 'PE']
 
           # Skip faucet yang suruh daftar/login
           BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
@@ -49,40 +49,110 @@ jobs:
               for f in faucets:
                   url = f.get('url', '').lower()
 
-                  # Filter: Aktif, Reward > 0, Timer <= 60 menit
-                  if not (f.get('is_enabled') == '1' and float(f.get('reward', 0)) > 0 and int(f.get('timer_in_minutes', 999)) <= 60):
-                      continue
+                  # Skip faucet yang suruh daftar/login
+                  BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
 
-                  # Filter: Anti Daftar
-                  if any(word in url for word in BLOCKED_KEYWORDS):
-                      continue
+                  try:
+                    r = requests.get(URL, timeout=30)
+                    r.raise_for_status()
+                    data = r.json()
+                  except Exception as e:
+                    print(f"Gagal ambil data: {e}")
+                    exit(1)
 
-                  # Tambahin ref
-                  url_asli = f['url']
-                  separator = '&' if '?' in url_asli else '?'
-                  url_ref = f"{url_asli}{separator}ref={REF_ID}"
+          output = []
+          for coin in KOIN_TARGET:
+              faucets = data.get('list_data', {}).get('normal', {}).get(coin, [])
+              for f in faucets:
+                  url = f.get('url', '').lower()
 
-                  output.append({
-                      "name": f['name'],
-                      "coin": coin,
-                      "url": url_ref,
-                      "timer": f"{f['timer_in_minutes']} menit",
-                      "reward": f['reward'],
-                      "health": int(f.get('health', 0))
-                  })
+                  # Skip faucet yang suruh daftar/login
+                  BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
 
-          # Urut health tertinggi di atas
-          output.sort(key=lambda x: x['health'], reverse=True)
+                  try:
+                    r = requests.get(URL, timeout=30)
+                    r.raise_for_status()
+                    data = r.json()
+                  except Exception as e:
+                    print(f"Gagal ambil data: {e}")
+                    exit(1)
 
-          with open('cards.json', 'w', encoding='utf-8') as f:
-              json.dump(output, f, indent=2, ensure_ascii=False)
-          print(f"Selesai. Total faucet instant: {len(output)}")
-          EOF
+          output = []
+          for coin in KOIN_TARGET:
+              faucets = data.get('list_data', {}).get('normal', {}).get(coin, [])
+              for f in faucets:
+                  url = f.get('url', '').lower()
 
-      - name: Commit & Push
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add cards.json
-          git commit -m "Auto update faucet list [bot]" || exit 0
-          git push
+                  # Skip faucet yang suruh daftar/login
+                  BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
+
+                  try:
+                    r = requests.get(URL, timeout=30)
+                    r.raise_for_status()
+                    data = r.json()
+                  except Exception as e:
+                    print(f"Gagal ambil data: {e}")
+                    exit(1)
+
+          output = []
+          for coin in KOIN_TARGET:
+              faucets = data.get('list_data', {}).get('normal', {}).get(coin, [])
+              for f in faucets:
+                  url = f.get('url', '').lower()
+
+                  # Skip faucet yang suruh daftar/login
+                  BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
+
+                  try:
+                    r = requests.get(URL, timeout=30)
+                    r.raise_for_status()
+                    data = r.json()
+                  except Exception as e:
+                    print(f"Gagal ambil data: {e}")
+                    exit(1)
+
+          output = []
+          for coin in KOIN_TARGET:
+              faucets = data.get('list_data', {}).get('normal', {}).get(coin, [])
+              for f in faucets:
+                  url = f.get('url', '').lower()
+
+                  # Skip faucet yang suruh daftar/login
+                  BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
+
+                  try:
+                    r = requests.get(URL, timeout=30)
+                    r.raise_for_status()
+                    data = r.json()
+                  except Exception as e:
+                    print(f"Gagal ambil data: {e}")
+                    exit(1)
+
+          output = []
+          for coin in KOIN_TARGET:
+              faucets = data.get('list_data', {}).get('normal', {}).get(coin, [])
+              for f in faucets:
+                  url = f.get('url', '').lower()
+
+                  # Skip faucet yang suruh daftar/login
+                  BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
+
+                  try:
+                    r = requests.get(URL, timeout=30)
+                    r.raise_for_status()
+                    data = r.json()
+                  except Exception as e:
+                    print(f"Gagal ambil data: {e}")
+                    exit(1)
+
+          output = []
+          for coin in KOIN_TARGET:
+              faucets = data.get('list_data', {}).get('normal', {}).get(coin, [])
+              for f in faucets:
+                  url = f.get('url', '').lower()
+
+                  # Skip faucet yang suruh daftar/login
+                  BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
+
+                  try:
+                    r = requests.get(URL,
