@@ -1,59 +1,93 @@
 name: Update Faucet List
 
 on:
-  workflow_dispatch: # Ini biar bisa kita pencet manual buat tes
+  workflow_dispatch: # Pencet manual buat ngetes
+  # schedule:
+  # - cron: '0 */6 *' # Aktifin ini kalau udah jalan. = tiap 6 jam
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Izin buat push cards.json
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.PAT_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }} # Wajib pake PAT biar bisa push
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install requests
+        run: pip install requests
 
       - name: Fetch & Buat cards.json
         env:
-          REFLINK_ID: 5725 # <-- GANTI INI AJA DULU
+          REFLINK_ID: 5725 # <-- GANTI INI PAKE ID REF KAMU
         run: |
           python3 << 'EOF'
-          import requests, json, os
+          import requests, json, os, sys
 
           REF_ID = os.getenv('REFLINK_ID')
           URL = "https://faucetpay.io/api/listv1/faucetlist"
           KOIN_TARGET = ['DOGE', 'LTC', 'TRX', 'SOL', 'USDT', 'USDC', 'BCH']
           
-          headers = {"User-Agent": "Mozilla/5.0 ltlist-bot/1.0"} # Biar gak di-block
-          r = requests.get(URL, headers=headers, timeout=20)
-          r.raise_for_status() # Auto error kalau 403/500
+          # 1. Kasih headers biar gak di-block 403
+          headers = {
+              "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ltlist-bot/1.0"
+          }
           
-          data = r.json() # <-- Ini yang error tadi
+          try:
+              r = requests.get(URL, headers=headers, timeout=20)
+              r.raise_for_status() # Auto stop kalau 403/500
+          except requests.exceptions.HTTPError as e:
+              print(f"GAGAL FETCH API: {e}")
+              print(f"Response: {r.text[:500]}")
+              sys.exit(1) # Biar Actions merah + keliatan errornya
+          
+          data = r.json()
+
+          # 2. Safety check biar gak KeyError
+          if 'list_data' not in data or 'normal' not in data['list_data']:
+              print("ERROR: Struktur JSON FaucetPay berubah!")
+              print("Isi JSON:", json.dumps(data, indent=2)[:1000])
+              sys.exit(1)
 
           output = []
           rank = 1
           for coin in KOIN_TARGET:
               for f in data['list_data']['normal'].get(coin, []):
-                  if f['is_enabled'] == '1' and float(f['reward']) > 0:
-                      url_asli = f['url']
-                      sep = '&' if '?' in url_asli else '?'
-                      output.append({
-                          "id": f['name'].lower().replace(' ', '-'),
-                          "name": f['name'], "coin": coin,
-                          "url": f"{url_asli}{sep}ref={REF_ID}",
-                          "status": "active", "rank": rank,
-                          "uptime": int(f['health']), "clicks": 0
-                      })
-                      rank += 1
+                  try:
+                      if f.get('is_enabled') == '1' and float(f.get('reward', 0)) > 0:
+                          url_asli = f.get('url', '#')
+                          sep = '&' if '?' in url_asli else '?'
+                          output.append({
+                              "id": f.get('name', 'no-name').lower().replace(' ', '-'),
+                              "name": f.get('name'), 
+                              "coin": coin,
+                              "url": f"{url_asli}{sep}ref={REF_ID}",
+                              "status": "active", 
+                              "rank": rank,
+                              "uptime": int(f.get('health', 100)), 
+                              "clicks": 0
+                          })
+                          rank += 1
+                  except Exception as e:
+                      print(f"Skip faucet error: {f.get('name')} -> {e}")
 
           with open('cards.json', 'w', encoding='utf-8') as f:
               json.dump(output, f, indent=2, ensure_ascii=False)
           print(f"Selesai. Total faucet: {len(output)}")
           EOF
 
-      - name: Commit & Push
+      - name: Commit & Push cards.json
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add cards.json
-          git commit -m "chore: update faucet list [bot]" || exit 0
+          git commit -m "chore: auto update faucet list [bot]" || echo "Tidak ada perubahan"
           git push
