@@ -9,28 +9,44 @@ jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # <-- Ini wajib biar bisa push
-
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }} # <-- Pake token bawaan GitHub
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+          token: ${{ secrets.PAT_TOKEN }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          node-version: 20
-
-      - name: Run script
-        run: node update.js
-
+          python-version: '3.11'
+      - name: Fetch & Filter FaucetPay
+        env:
+          REFLINK_ID: 5725 # <-- GANTI PAKE ID KAMU
+        run: |
+          python3 << 'EOF'
+          import requests, json, os
+          REF_ID = os.getenv('REFLINK_ID')
+          URL = "https://faucetpay.io/api/listv1/faucetlist"
+          KOIN_TARGET = ['DOGE', 'LTC', 'TRX', 'SOL', 'USDT', 'USDC', 'BCH', 'PE']
+          BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
+          try:
+            r = requests.get(URL, timeout=30); r.raise_for_status(); data = r.json()
+          except Exception as e: print(f"Gagal ambil data: {e}"); exit(1)
+          output = []
+          for coin in KOIN_TARGET:
+              for f in data.get('list_data', {}).get('normal', {}).get(coin, []):
+                  if not (f.get('is_enabled') == '1' and float(f.get('reward', 0)) > 0 and int(f.get('timer_in_minutes', 999)) <= 60): continue
+                  if any(word in f.get('url', '').lower() for word in BLOCKED_KEYWORDS): continue
+                  url_asli = f['url']; separator = '&' if '?' in url_asli else '?'
+                  output.append({"name": f['name'], "coin": coin, "url": f"{url_asli}{separator}ref={REF_ID}", "timer": f"{f['timer_in_minutes']} menit", "reward": f['reward'], "health": int(f.get('health', 0))})
+          output.sort(key=lambda x: x['health'], reverse=True)
+          with open('cards.json', 'w', encoding='utf-8') as f: json.dump(output, f, indent=2, ensure_ascii=False)
+          print(f"Selesai. Total faucet instant: {len(output)}")
+          EOF
       - name: Commit & Push
         run: |
-          git config user.name github-actions[bot]
-          git config user.email github-actions[bot]@users.noreply.github.com
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add cards.json
-          git diff --staged --quiet || (
-            git commit -m "Update faucet list [bot]"
-            git push
-          )
+          git commit -m "Auto update faucet list [bot]" || exit 0
+          git push
