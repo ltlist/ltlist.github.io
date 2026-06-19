@@ -1,4 +1,4 @@
-const CARDS_URL = "https://ltlist.github.io/cards.json"; // + ?t= biar gak ke-cache
+const CARDS_URL = "https://ltlist.my.id/cards.json"; // + ?t= biar gak ke-cache
 
 const listDiv = document.getElementById("list");
 const trendingDiv = document.getElementById("trending");
