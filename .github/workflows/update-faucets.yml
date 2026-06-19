@@ -1,98 +1,56 @@
 name: Update Faucet List
 
 on:
-workflow_dispatch:
-schedule:
-- cron: '0 * * * *' # tiap 1 jam
+  workflow_dispatch: # Ini biar bisa kita pencet manual buat tes
 
 jobs:
-update:
-runs-on: ubuntu-latest
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
-steps:
-  - name: Checkout Repo
-    uses: actions/checkout@v4
-    with:
-      token: ${{ secrets.PAT_TOKEN }}
+      - name: Fetch & Buat cards.json
+        env:
+          REFLINK_ID: 5725 # <-- GANTI INI AJA DULU
+        run: |
+          python3 << 'EOF'
+          import requests, json, os
 
-  - name: Generate cards.json
-    env:
-      REFLINK_ID: 5725
-    run: |
-      python3 << 'EOF'
-      import requests
-      import json
-      import os
+          REF_ID = os.getenv('REFLINK_ID')
+          URL = "https://faucetpay.io/api/listv1/faucetlist"
+          KOIN_TARGET = ['DOGE', 'LTC', 'TRX', 'SOL', 'USDT', 'USDC', 'BCH']
 
-      REF_ID = os.getenv("REFLINK_ID")
+          r = requests.get(URL)
+          data = r.json()
 
-      URL = "https://faucetpay.io/api/listv1/faucetlist"
+          output = []
+          rank = 1
+          for coin in KOIN_TARGET:
+              for f in data['list_data']['normal'].get(coin, []):
+                  if f['is_enabled'] == '1' and float(f['reward']) > 0:
+                      url_asli = f['url']
+                      sep = '&' if '?' in url_asli else '?'
+                      output.append({
+                          "id": f['name'].lower().replace(' ', '-'),
+                          "name": f['name'], "coin": coin,
+                          "url": f"{url_asli}{sep}ref={REF_ID}",
+                          "status": "active", "rank": rank,
+                          "uptime": int(f['health']), "clicks": 0
+                      })
+                      rank += 1
 
-      KOIN_TARGET = [
-          "DOGE",
-          "LTC",
-          "TRX",
-          "SOL",
-          "USDT",
-          "USDC",
-          "BCH",
-      ]
+          with open('cards.json', 'w', encoding='utf-8') as f:
+              json.dump(output, f, indent=2, ensure_ascii=False)
+          print(f"Selesai. Total faucet: {len(output)}")
+          EOF
 
-      r = requests.get(URL, timeout=30)
-      r.raise_for_status()
-
-      data = r.json()
-
-      normal = data.get("list_data", {}).get("normal", {})
-
-      output = []
-      rank = 1
-
-      for coin in KOIN_TARGET:
-          faucets = normal.get(coin, [])
-
-          for f in faucets:
-              try:
-                  if f.get("is_enabled") != "1":
-                      continue
-
-                  reward = float(f.get("reward", 0))
-                  if reward <= 0:
-                      continue
-
-                  url_asli = f.get("url", "")
-                  sep = "&" if "?" in url_asli else "?"
-
-                  output.append({
-                      "id": f.get("name", "").lower().replace(" ", "-"),
-                      "name": f.get("name", ""),
-                      "coin": coin,
-                      "url": f"{url_asli}{sep}ref={REF_ID}",
-                      "status": "active",
-                      "rank": rank,
-                      "uptime": int(float(f.get("health", 0))),
-                      "clicks": 0
-                  })
-
-                  rank += 1
-
-              except Exception:
-                  pass
-
-      with open("cards.json", "w", encoding="utf-8") as fp:
-          json.dump(output, fp, indent=2, ensure_ascii=False)
-
-      print(f"Total faucet: {len(output)}")
-      EOF
-
-  - name: Commit Changes
-    run: |
-      git config user.name "github-actions[bot]"
-      git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      git add cards.json
-
-      git diff --staged --quiet || (
-        git commit -m "Auto update faucet list"
-        git push
-      )
+      - name: Commit & Push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "bot@users.noreply.github.com"
+          git add cards.json
+          git commit -m "chore: update faucet list [bot]" || exit 0
+          git push
