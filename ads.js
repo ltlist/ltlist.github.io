@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
       iframe = `
         <iframe
           class="ad-frame"
-          src="https://zerads.com/ad/ad.php?width=468&ref=11338"
+          src="https://zerads.com/ad/ad.php?width=468&ref=11448"
           width="468"
           height="60"
           frameborder="0"
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
       iframe = `
         <iframe
           class="ad-frame"
-          src="https://zerads.com/ad/ad.php?width=300&ref=11338"
+          src="https://zerads.com/ad/ad.php?width=300&ref=11448"
           width="300"
           height="250"
           frameborder="0"
