@@ -23,7 +23,7 @@ jobs:
 
       - name: Fetch & Filter FaucetPay
         env:
-          REFLINK_ID: 123456 # <-- GANTI INI PAKE ID FaucetPay KAMU
+          REFLINK_ID: 5725 # <-- GANTI INI PAKE ID FaucetPay KAMU
         run: |
           python3 << 'EOF'
           import requests, json, os
