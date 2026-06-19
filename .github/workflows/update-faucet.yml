@@ -2,15 +2,19 @@ name: Update Faucet List
 
 on:
   schedule:
-    - cron: '0 *' # Tiap 1 jam
-  workflow_dispatch:
+    - cron: '0 *' # Tiap 1 jam pas menit 00 WIB
+  workflow_dispatch: # Tombol buat jalanin manual
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Wajib biar bisa push
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }} # Pake token biar bisa push
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -19,36 +23,41 @@ jobs:
 
       - name: Fetch & Filter FaucetPay
         env:
-          REFLINK_ID: mudawarun@email # <-- GANTI INI
+          REFLINK_ID: 123456 # <-- GANTI INI PAKE ID FaucetPay KAMU
         run: |
           python3 << 'EOF'
-          import requests, json, os, re
+          import requests, json, os
 
           REF_ID = os.getenv('REFLINK_ID')
           URL = "https://faucetpay.io/api/listv1/faucetlist"
-          KOIN_TARGET = ['DOGE', 'LTC', 'TRX', 'SOL', 'USDT', 'USDC', 'BCH', 'PE']
+          KOIN_TARGET = ['DOGE', 'LTC', 'TRX', 'SOL', 'USDT', 'USDC', 'BCH', 'PE'] # PE -> PEPE
 
-          # Kata kunci faucet wajib daftar. Kalau ada di URL, langsung skip
+          # Skip faucet yang suruh daftar/login
           BLOCKED_KEYWORDS = ['login', 'register', 'account', 'member', 'dashboard', 'signup']
 
-          r = requests.get(URL)
-          data = r.json()
+          try:
+            r = requests.get(URL, timeout=30)
+            r.raise_for_status()
+            data = r.json()
+          except Exception as e:
+            print(f"Gagal ambil data: {e}")
+            exit(1)
 
           output = []
-          for coin in KOIN_TARGET: # Cuma cek 8 koin ini
-              faucets = data['list_data']['normal'].get(coin, [])
+          for coin in KOIN_TARGET:
+              faucets = data.get('list_data', {}).get('normal', {}).get(coin, [])
               for f in faucets:
-                  url = f['url'].lower()
+                  url = f.get('url', '').lower()
 
-                  # Filter 1: Aktif, Reward > 0, Timer <= 60
-                  if not (f['is_enabled'] == '1' and float(f['reward']) > 0 and int(f['timer_in_minutes']) <= 60):
+                  # Filter: Aktif, Reward > 0, Timer <= 60 menit
+                  if not (f.get('is_enabled') == '1' and float(f.get('reward', 0)) > 0 and int(f.get('timer_in_minutes', 999)) <= 60):
                       continue
 
-                  # Filter 2: Anti Daftar. Skip kalau URL ada kata login/register/dll
+                  # Filter: Anti Daftar
                   if any(word in url for word in BLOCKED_KEYWORDS):
                       continue
 
-                  # Lolos filter = Instant Claim
+                  # Tambahin ref
                   url_asli = f['url']
                   separator = '&' if '?' in url_asli else '?'
                   url_ref = f"{url_asli}{separator}ref={REF_ID}"
@@ -59,10 +68,11 @@ jobs:
                       "url": url_ref,
                       "timer": f"{f['timer_in_minutes']} menit",
                       "reward": f['reward'],
-                      "health": f['health']
+                      "health": int(f.get('health', 0))
                   })
 
-          output.sort(key=lambda x: int(x['health']), reverse=True)
+          # Urut health tertinggi di atas
+          output.sort(key=lambda x: x['health'], reverse=True)
 
           with open('cards.json', 'w', encoding='utf-8') as f:
               json.dump(output, f, indent=2, ensure_ascii=False)
@@ -74,5 +84,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add cards.json
-          git commit -m "Update faucet list [bot]" || exit 0
+          git commit -m "Auto update faucet list [bot]" || exit 0
           git push
