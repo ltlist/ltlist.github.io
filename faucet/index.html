@@ -34,7 +34,7 @@ th,td{padding:8px;border-bottom:1px solid #334155;text-align:left}
       <div class="badge" id="balance">Balance: 0</div>
       <div class="badge" id="daily">Today: 0/7</div>
     </div>
-    <div id="turnstile" class="cf-turnstile" data-sitekey="0x4AAAAAAA_SITEKEY_KAMU"></div>
+    <div id="turnstile" class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
     <div class="row">
       <button id="btnClaim" onclick="claim()">Claim +160</button>
       <button id="btnWD" onclick="payout()">Withdraw</button>
@@ -50,7 +50,7 @@ th,td{padding:8px;border-bottom:1px solid #334155;text-align:left}
 </div>
 
 <script>
-const API_URL = "https://lt-faucet.YOURNAME.workers.dev"; // GANTI INI
+const API_URL = "https://lingering-haze-29a9.cnamelist.workers.dev"; // GANTI INI
 let wallet = localStorage.getItem('wallet') || '';
 let cfg = {reward:160, cooldown:3600, dailyLimit:7, minPayout:50, refBonus:20};
 let lastClaim = 0;
