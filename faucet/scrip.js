@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-const API = "https://calm-art-584f.cnamelist.workers.dev";
+const API = "https://tight-limit-fc5f.cnamelist.workers.dev";
 const COOLDOWN = 60 * 60 * 1000; // 60 minutes
 const animalIcons = { cat:"🐱", dog:"🐶", rabbit:"🐰", cow:"🐮", lion:"🦁" };
 let sessionId = "";
