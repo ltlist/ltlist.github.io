@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>LT Faucet</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+<style>
+body{
+  font-family:Arial;
+  background:#0f172a;
+  color:white;
+  text-align:center;
+  padding:30px;
+}
+
+.box{
+  max-width:400px;
+  margin:auto;
+  background:#1e293b;
+  padding:20px;
+  border-radius:15px;
+}
+
+input,button{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:8px;
+  border:0;
+}
+
+button{
+  background:#22c55e;
+  color:white;
+  font-weight:bold;
+}
+
+#result{
+  margin-top:15px;
+}
+</style>
+
+</head>
+
+<body>
+
+
+<div class="box">
+
+<h2>LT Faucet</h2>
+
+
+<input id="wallet" placeholder="FaucetPay Email">
+
+
+<h3 id="question">
+Loading captcha...
+</h3>
+
+
+<input id="answer" placeholder="Jawaban">
+
+
+<div 
+class="cf-turnstile"
+data-sitekey="0x4AAAAAADk00FmP5a2Feee3"
+data-callback="turnstileDone">
+</div>
+
+
+<button onclick="claim()">
+CLAIM
+</button>
+
+
+<div id="result"></div>
+
+
+</div>
+
+
+<script>
+
+const API =
+"https://lingering-haze-29a9.cnamelist.workers.dev";
+
+
+let challengeId="";
+let turnstileToken="";
+
+
+// ambil soal
+async function loadChallenge(){
+
+ const res =
+ await fetch(
+  API+"/challenge"
+ );
+
+ const data =
+ await res.json();
+
+
+ challengeId =
+ data.challengeId;
+
+
+ document.getElementById("question")
+ .innerHTML =
+ "Berapa hasil: "+data.question;
+
+}
+
+
+function turnstileDone(token){
+
+ turnstileToken=token;
+
+}
+
+
+
+// claim
+
+async function claim(){
+
+ const wallet =
+ document.getElementById("wallet").value;
+
+
+ const answer =
+ document.getElementById("answer").value;
+
+
+
+ document.getElementById("result")
+ .innerHTML="Processing...";
+
+
+
+ // verifikasi angka dulu
+
+ const verify =
+ await fetch(
+ API+"/verify-challenge",
+ {
+  method:"POST",
+
+  headers:{
+   "Content-Type":"application/json"
+  },
+
+  body:JSON.stringify({
+
+   challengeId,
+   answer
+
+  })
+
+ });
+
+
+ const v =
+ await verify.json();
+
+
+
+ if(!v.success){
+
+  result.innerHTML=v.error;
+  return;
+
+ }
+
+
+
+ // claim
+
+ const res =
+ await fetch(
+ API+"/claim",
+ {
+  method:"POST",
+
+  headers:{
+   "Content-Type":"application/json"
+  },
+
+  body:JSON.stringify({
+
+   wallet,
+
+   turnstileToken
+
+  })
+
+ });
+
+
+
+ const data =
+ await res.json();
+
+
+
+ document.getElementById("result")
+ .innerHTML =
+ JSON.stringify(data);
+
+}
+
+
+loadChallenge();
+
+</script>
+
+
+</body>
+</html>
