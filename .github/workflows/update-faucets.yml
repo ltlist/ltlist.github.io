@@ -84,10 +84,22 @@ jobs:
           print(f"Selesai. Total faucet: {len(output)}")
           EOF
 
-      - name: Commit & Push cards.json
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add cards.json
-          git commit -m "chore: auto update faucet list [bot]" || echo "Tidak ada perubahan"
-          git push
+      - name: Fetch & Buat cards.json
+  run: |
+    python3 << 'EOF'
+    import requests, json
+
+    URL = "https://faucetpay.io/api/listv1/faucetlist"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 ltlist-bot/1.0"
+    }
+    
+    r = requests.get(URL, headers=headers, timeout=20)
+    
+    print("=== STATUS CODE ===")
+    print(r.status_code) # 200 = ok, 403 = di-block
+    
+    print("=== ISI 1000 KARAKTER PERTAMA ===")
+    print(r.text[:1000]) # Ini kuncinya. Kita liat FaucetPay ngasih apa
+    
+    EOF
