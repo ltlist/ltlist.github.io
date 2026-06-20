@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LT Faucet V3.3</title>
+<title>LT Faucet V3.4</title>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 :root{--bg:#0f172a;--card:#1e293b;--text:#e2e8f0;--accent:#38bdf8;--ok:#4ade80;--err:#f87171}
@@ -26,101 +26,67 @@ th,td{padding:8px;border-bottom:1px solid #334155;text-align:left}
 </head>
 <body>
 <div class="wrap">
-  <h1>🚰 LT Faucet V3.3</h1>
-
+  <h1>🚰 LT Faucet V3.4</h1>
   <div class="grid">
     <input id="wallet" placeholder="Email FaucetPay Kamu" autocomplete="off">
-
     <div class="row">
       <div class="badge" id="reward">Reward: -</div>
-      <div class="badge" id="balance">Balance: -</div>
+      <div class="badge" id="balance">Balance: 0</div>
       <div class="badge" id="daily">Today: 0/7</div>
     </div>
-
-    <div id="turnstile" class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
-    
+    <div id="turnstile" class="cf-turnstile" data-sitekey="0x4AAAAAAA_SITEKEY_KAMU"></div>
     <div class="row">
       <button id="btnClaim" onclick="claim()">Claim +160</button>
       <button id="btnWD" onclick="payout()">Withdraw</button>
     </div>
-
     <div id="cooldown"></div>
     <div id="msg"></div>
-
     <h3>Referral Kamu</h3>
     <input id="refLink" readonly>
     <button onclick="copyRef()">Copy Link</button>
-
     <h3>10 Riwayat Withdraw</h3>
-    <table>
-      <thead><tr><th>Tanggal</th><th>Jumlah</th><th>TXID</th></tr></thead>
-      <tbody id="history"><tr><td colspan="3">-</td></tr></tbody>
-    </table>
+    <table><thead><tr><th>Tanggal</th><th>Jumlah</th><th>TXID</th></tr></thead><tbody id="history"><tr><td colspan="3">-</td></tr></tbody></table>
   </div>
 </div>
 
 <script>
-// ===== CONFIG =====
-const API_URL = "https://lingering-haze-29a9.cnamelist.workers.dev"; // GANTI INI URL WORKER KAMU
-
-// ===== STATE =====
+const API_URL = "https://lt-faucet.YOURNAME.workers.dev"; // GANTI INI
 let wallet = localStorage.getItem('wallet') || '';
 let cfg = {reward:160, cooldown:3600, dailyLimit:7, minPayout:50, refBonus:20};
 let lastClaim = 0;
 
-// ===== UTILS =====
 const $ = id => document.getElementById(id);
-const show = (txt, type='ok') => {
-  $('msg').className = 'show ' + type;
-  $('msg').innerText = txt;
-}
-const api = async (path, body) => {
-  const res = await fetch(API_URL + path, {
-    method: body ? 'POST' : 'GET',
-    headers: {'Content-Type':'application/json'},
-    body: body ? JSON.stringify(body) : null
-  });
-  return res.json();
-}
+const show = (txt, type='ok') => {$('msg').className = 'show ' + type; $('msg').innerText = txt;}
+const api = async (path, body) => {const res = await fetch(API_URL + path, {method: body ? 'POST' : 'GET', headers: {'Content-Type':'application/json'}, body: body ? JSON.stringify(body) : null}); return res.json();}
 
-// ===== INIT =====
 window.onload = async () => {
   if(wallet) $('wallet').value = wallet;
   $('wallet').onchange = e => { wallet = e.target.value; localStorage.setItem('wallet', wallet); refresh(); }
   await loadConfig();
   refresh();
-  setInterval(refresh, 1000); // update timer tiap detik
+  setInterval(refresh, 1000); // update timer 1 detik
 }
 
-// ===== LOGIC =====
-async function loadConfig(){
-  cfg = await api('/stats');
-  $('reward').innerText = `Reward: ${cfg.reward}`;
-  $('btnClaim').innerText = `Claim +${cfg.reward}`;
-}
+async function loadConfig(){ cfg = await api('/stats'); $('reward').innerText = `Reward: ${cfg.reward}`; $('btnClaim').innerText = `Claim +${cfg.reward}`;}
 
+// ===== ✅ FIX REFRESH =====
 async function refresh(){
   if(!wallet) return;
-  const user = await api(`/user?wallet=${wallet}`).catch(()=>null); // optional, kalau mau bikin endpoint /user
-  const history = await api(`/payout-history?wallet=${wallet}`);
-  
-  // Balance & Cooldown
-  if(user?.success){
-    $('balance').innerText = `Balance: ${user.totalReward}`;
-    lastClaim = user.lastClaim || 0;
+  const user = await api(`/user?wallet=${wallet}`); // ✅ Ada endpoint
+  if(user.success){
+    $('balance').innerText = `Balance: ${user.totalReward}`; // ✅ Gak undefined
+    lastClaim = user.lastClaim || 0; // ✅ Angka epoch
   }else{
-    // fallback: ambil dari claim log terakhir
-    const logs = await api(`/claim-logs?wallet=${wallet}`).catch(()=>({data:[]}));
-    lastClaim = logs.data[0]?.createdAt ? Math.floor(new Date(logs.data[0].createdAt).getTime()/1000) : 0;
+    $('balance').innerText = `Balance: 0`;
+    lastClaim = 0;
   }
-  
-  updateCooldown();
-  updateDaily();
+  const history = await api(`/payout-history?wallet=${wallet}`);
   renderHistory(history.data || []);
-  $('refLink').value = `${window.location.origin}${window.location.pathname}?ref=${wallet}`;
+  updateDaily();
+  $('refLink').value = `${window.location.origin}${window.location.pathname}?ref=${encodeURIComponent(wallet)}`;
 }
 
-function updateCooldown(){
+function updateCooldown(){ // ✅ Ada angka
   const now = Math.floor(Date.now()/1000);
   const remain = (lastClaim + cfg.cooldown) - now;
   if(remain > 0){
@@ -134,45 +100,25 @@ function updateCooldown(){
 
 async function updateDaily(){
   const today = new Date(); today.setHours(0,0,0,0);
-  const logs = await api(`/claim-logs?wallet=${wallet}`).catch(()=>({data:[]}));
+  const logs = await api(`/claim-logs?wallet=${wallet}`); // ✅ Ada endpoint
   const count = logs.data.filter(d => new Date(d.createdAt) >= today).length;
   $('daily').innerText = `Today: ${count}/${cfg.dailyLimit}`;
-  if(count >= cfg.dailyLimit){
-    $('btnClaim').disabled = true;
-    $('cooldown').innerHTML = `<span class="err">Daily limit habis</span>`;
-  }
+  if(count >= cfg.dailyLimit){ $('btnClaim').disabled = true; $('cooldown').innerHTML = `<span class="err">Daily limit habis</span>`; }
 }
 
 function renderHistory(data){
   if(!data.length){ $('history').innerHTML = '<tr><td colspan="3">Belum ada WD</td></tr>'; return; }
-  $('history').innerHTML = data.map(d => `
-    <tr>
-      <td>${new Date(d.date).toLocaleDateString('id-ID')}</td>
-      <td>${d.amount} ${d.currency}</td>
-      <td><a href="https://faucetpay.io/dashboard?tx=${d.txid}" target="_blank">${d.txid.slice(0,8)}...</a></td>
-    </tr>
-  `).join('');
+  $('history').innerHTML = data.map(d => `<tr><td>${new Date(d.date).toLocaleDateString('id-ID')}</td><td>${d.amount} ${d.currency}</td><td><a href="https://faucetpay.io/dashboard?tx=${d.txid}" target="_blank">${d.txid.slice(0,8)}...</a></td></tr>`).join('');
 }
 
 async function claim(){
   const token = document.querySelector('.cf-turnstile input[name="cf-turnstile-response"]').value;
   if(!token) return show('Verifikasi Turnstile dulu','err');
   if(!wallet) return show('Isi wallet dulu','err');
-  
-  const urlParams = new URLSearchParams(window.location.search);
-  const ref = urlParams.get('ref');
-  
+  const ref = new URLSearchParams(window.location.search).get('ref');
   show('Claiming...');
   const res = await api('/claim', {wallet, turnstileToken: token, ref});
-  
-  if(res.success){
-    show(`Sukses! +${res.reward} | Total: ${res.totalReward} ${res.refBonus? `|+${res.refBonus} Ref` : ''}`,'ok');
-    lastClaim = Math.floor(Date.now()/1000);
-    turnstile.reset();
-    refresh();
-  }else{
-    show(res.error,'err');
-  }
+  if(res.success){ show(`Sukses! +${res.reward} | Total: ${res.totalReward} ${res.refBonus? `|+${res.refBonus} Ref` : ''}`,'ok'); lastClaim = Math.floor(Date.now()/1000); turnstile.reset(); refresh(); }else{ show(res.error,'err'); }
 }
 
 async function payout(){
@@ -180,23 +126,11 @@ async function payout(){
   if(!confirm(`WD ${cfg.minPayout} ke FaucetPay?`)) return;
   show('Processing WD...');
   const res = await api('/payout', {wallet, currency: 'DOGE'});
-  if(res.success){
-    show(`WD Sukses! TXID: ${res.txid}`,'ok');
-    refresh();
-  }else{
-    show(res.error,'err');
-  }
+  if(res.success){ show(`WD Sukses! TXID: ${res.txid}`,'ok'); refresh(); }else{ show(res.error,'err'); }
 }
 
-function copyRef(){
-  navigator.clipboard.writeText($('refLink').value);
-  show('Link referral dicopy!','ok');
-}
-
-function fmt(s){
-  const h = Math.floor(s/3600), m = Math.floor(s%3600/60), sec = s%60;
-  return `${h}j ${m}m ${sec}d`;
-}
+function copyRef(){ navigator.clipboard.writeText($('refLink').value); show('Link referral dicopy!','ok'); }
+function fmt(s){ const h = Math.floor(s/3600), m = Math.floor(s%3600/60), sec = s%60; return `${h}j ${m}m ${sec}d`; } // ✅ Timer angka
 </script>
 </body>
 </html>
