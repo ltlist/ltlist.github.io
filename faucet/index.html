@@ -1,70 +1,123 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>LT Faucet</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
 <style>
+
 body{
-  font-family:Arial;
+  margin:0;
   background:#0f172a;
   color:white;
-  text-align:center;
-  padding:30px;
+  font-family:Arial,sans-serif;
 }
 
-.box{
-  max-width:400px;
-  margin:auto;
-  background:#1e293b;
+.container{
+  max-width:420px;
+  margin:40px auto;
   padding:20px;
+}
+
+.card{
+  background:#1e293b;
+  padding:25px;
   border-radius:15px;
+  box-shadow:0 0 20px #0005;
+}
+
+h2{
+ text-align:center;
 }
 
 input,button{
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:8px;
-  border:0;
+
+ width:100%;
+ box-sizing:border-box;
+ padding:12px;
+ margin-top:12px;
+ border-radius:8px;
+ border:none;
+
 }
+
+
+input{
+ background:#334155;
+ color:white;
+}
+
 
 button{
-  background:#22c55e;
-  color:white;
-  font-weight:bold;
+
+ background:#22c55e;
+ color:white;
+ font-weight:bold;
+ cursor:pointer;
+
 }
 
-#result{
-  margin-top:15px;
+
+button:hover{
+ opacity:.8;
 }
+
+
+#question{
+
+ background:#334155;
+ padding:12px;
+ border-radius:8px;
+ text-align:center;
+
+}
+
+
+#result{
+
+ margin-top:15px;
+ text-align:center;
+
+}
+
 </style>
 
 </head>
 
+
 <body>
 
 
-<div class="box">
+<div class="container">
 
-<h2>LT Faucet</h2>
+<div class="card">
 
-
-<input id="wallet" placeholder="FaucetPay Email">
-
-
-<h3 id="question">
-Loading captcha...
-</h3>
+<h2>
+🚰 LT Faucet
+</h2>
 
 
-<input id="answer" placeholder="Jawaban">
+<input 
+id="wallet"
+placeholder="FaucetPay Email">
 
 
-<div 
+<div id="question">
+Mengambil soal...
+</div>
+
+
+<input
+id="answer"
+placeholder="Jawaban angka">
+
+
+<div
 class="cf-turnstile"
 data-sitekey="0x4AAAAAADk00FmP5a2Feee3"
 data-callback="turnstileDone">
@@ -81,27 +134,42 @@ CLAIM
 
 </div>
 
+</div>
+
+
 
 <script>
+
 
 const API =
 "https://lingering-haze-29a9.cnamelist.workers.dev";
 
 
 let challengeId="";
+
 let turnstileToken="";
 
 
-// ambil soal
+
+// =====================
+// AMBIL CHALLENGE
+// =====================
+
 async function loadChallenge(){
+
+ try{
 
  const res =
  await fetch(
   API+"/challenge"
  );
 
+
  const data =
  await res.json();
+
+
+ console.log(data);
 
 
  challengeId =
@@ -110,10 +178,28 @@ async function loadChallenge(){
 
  document.getElementById("question")
  .innerHTML =
- "Berapa hasil: "+data.question;
+ "Hitung: " + data.question;
+
+
+ }
+ catch(e){
+
+ document.getElementById("question")
+ .innerHTML =
+ "Gagal mengambil soal";
+
+ console.log(e);
+
+ }
 
 }
 
+
+
+
+// =====================
+// TURNSTILE
+// =====================
 
 function turnstileDone(token){
 
@@ -123,97 +209,146 @@ function turnstileDone(token){
 
 
 
-// claim
+
+// =====================
+// CLAIM
+// =====================
 
 async function claim(){
 
- const wallet =
- document.getElementById("wallet").value;
+
+const wallet =
+document.getElementById("wallet").value.trim();
 
 
- const answer =
- document.getElementById("answer").value;
-
-
-
- document.getElementById("result")
- .innerHTML="Processing...";
+const answer =
+document.getElementById("answer").value.trim();
 
 
 
- // verifikasi angka dulu
-
- const verify =
- await fetch(
- API+"/verify-challenge",
- {
-  method:"POST",
-
-  headers:{
-   "Content-Type":"application/json"
-  },
-
-  body:JSON.stringify({
-
-   challengeId,
-   answer
-
-  })
-
- });
-
-
- const v =
- await verify.json();
-
-
-
- if(!v.success){
-
-  result.innerHTML=v.error;
-  return;
-
- }
-
-
-
- // claim
-
- const res =
- await fetch(
- API+"/claim",
- {
-  method:"POST",
-
-  headers:{
-   "Content-Type":"application/json"
-  },
-
-  body:JSON.stringify({
-
-   wallet,
-
-   turnstileToken
-
-  })
-
- });
-
-
-
- const data =
- await res.json();
-
-
+if(!wallet){
 
  document.getElementById("result")
- .innerHTML =
- JSON.stringify(data);
+ .innerHTML="Isi wallet dulu";
+
+ return;
 
 }
 
 
+if(!answer){
+
+ document.getElementById("result")
+ .innerHTML="Jawab soal dulu";
+
+ return;
+
+}
+
+
+
+document.getElementById("result")
+.innerHTML="Processing...";
+
+
+
+
+// VERIFY ANGKA
+
+const verify =
+await fetch(
+
+ API+"/verify-challenge",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+challengeId:challengeId,
+
+answer:answer
+
+})
+
+}
+
+);
+
+
+
+const v =
+await verify.json();
+
+
+
+if(!v.success){
+
+document.getElementById("result")
+.innerHTML=v.error;
+
+return;
+
+}
+
+
+
+
+// CLAIM
+
+const res =
+await fetch(
+
+API+"/claim",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+wallet:wallet,
+
+turnstileToken:turnstileToken
+
+})
+
+}
+
+);
+
+
+
+const data =
+await res.json();
+
+
+document.getElementById("result")
+.innerHTML =
+JSON.stringify(data);
+
+
+
+}
+
+
+
+
 loadChallenge();
+
 
 </script>
 
