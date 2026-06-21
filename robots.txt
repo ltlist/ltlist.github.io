@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /claim
+Disallow: /dashboard
+
+Sitemap: https://ltlist.my.id/sitemap.xml
