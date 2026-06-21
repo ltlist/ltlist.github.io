@@ -19,21 +19,21 @@
 
   <url>
     <loc>https://ltlist.my.id/marketcap</loc>
-    <lastmod>2025-06-01</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://ltlist.my.id/marketcap/coin.html</loc>
-    <lastmod>2025-06-01</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
     <loc>https://ltlist.my.id/marketcap/article.html</loc>
-    <lastmod>2025-06-01</lastmod>
+    <lastmod>2026-06-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
