@@ -1,14 +1,20 @@
-function detectZERAds() {
+function detectAdBlock() {
 
-  const frame = document.querySelector(
+  const iframe = document.querySelector(
     'iframe[src*="zerads.com"]'
   );
 
-  if (!frame) return true;
+  if (!iframe) {
+    return true;
+  }
+
+  const style = window.getComputedStyle(iframe);
 
   if (
-    frame.offsetWidth === 0 ||
-    frame.offsetHeight === 0
+    style.display === "none" ||
+    style.visibility === "hidden" ||
+    iframe.offsetWidth === 0 ||
+    iframe.offsetHeight === 0
   ) {
     return true;
   }
@@ -16,19 +22,28 @@ function detectZERAds() {
   return false;
 }
 
+
 function showBlock() {
-  document.getElementById("adblock-overlay").style.display = "flex";
-  document.getElementById("main").style.display = "none";
+  const overlay = document.getElementById("adblock-overlay");
+  const main = document.getElementById("main");
+
+  if (overlay) overlay.style.display = "flex";
+  if (main) main.style.display = "none";
 }
 
+
 function hideBlock() {
-  document.getElementById("adblock-overlay").style.display = "none";
-  document.getElementById("main").style.display = "block";
+  const overlay = document.getElementById("adblock-overlay");
+  const main = document.getElementById("main");
+
+  if (overlay) overlay.style.display = "none";
+  if (main) main.style.display = "block";
 }
+
 
 function checkAdBlock() {
 
-  if (detectZERAds()) {
+  if (detectAdBlock()) {
     showBlock();
   } else {
     hideBlock();
@@ -36,6 +51,11 @@ function checkAdBlock() {
 
 }
 
+
 window.addEventListener("load", () => {
-  setTimeout(checkAdBlock, 3000);
+
+  setTimeout(() => {
+    checkAdBlock();
+  }, 5000);
+
 });
