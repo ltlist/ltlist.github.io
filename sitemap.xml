@@ -29,11 +29,25 @@
     <priority>0.7</priority>
   </url>
 
+<url>
+    <loc>https://ltlist.my.id/marketcap/article.html?id=bitcoin</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <url>
     <loc>https://ltlist.my.id/marketcap/coin.html?id=ethereum</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.7</priority>
+  </url>
+
+<url>
+    <loc>https://ltlist.my.id/marketcap/article.html?id=ethereum</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
   </url>
 
  <url>
@@ -43,11 +57,25 @@
     <priority>0.7</priority>
   </url>
 
+<url>
+    <loc>https://ltlist.my.id/marketcap/article.html?id=tether</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <url>
     <loc>https://ltlist.my.id/marketcap/coin.html?id=binancecoin</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.7</priority>
+  </url>
+
+<url>
+    <loc>https://ltlist.my.id/marketcap/article.html?id=binancecoin</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
   </url>
 
  <url>
@@ -57,11 +85,53 @@
     <priority>0.7</priority>
   </url>
 
+<url>
+    <loc>https://ltlist.my.id/marketcap/article.html?id=usd-coin</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
   <url>
     <loc>https://ltlist.my.id/marketcap/coin.html?id=dogecoin</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>yearly</changefreq>
-    <priority>0.6</priority>
+    <priority>0.7</priority>
+  </url>
+
+<url>
+    <loc>https://ltlist.my.id/marketcap/article.html?id=dogecoin</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+ <url>
+    <loc>https://ltlist.my.id/marketcap/coin.html?id=litecoin</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+<url>
+    <loc>https://ltlist.my.id/marketcap/article.html?id=litecoin</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+<url>
+    <loc>https://ltlist.my.id/marketcap/coin.html?id=tron</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+<url>
+    <loc>https://ltlist.my.id/marketcap/article.html?id=tron</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
   </url>
 
 </urlset>
