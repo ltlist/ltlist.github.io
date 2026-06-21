@@ -131,7 +131,15 @@ async function loadHistory(){
     const data = await res.json();
     const historyEl = document.getElementById("history");
     if(data.length){
-      historyEl.innerHTML = data.map(h => `<li><span class="user">${h.user}</span><span class="detail">${h.amount} | ${new Date(h.time).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit', hour12:false})}</span></li>`).join("");
+      historyEl.innerHTML = data.map(h => `<li><span class="user">${h.user}</span><span class="detail">${h.amount} | ${new Date(h.time * 1000).toLocaleTimeString(
+'id-ID',
+{
+ hour:'2-digit',
+ minute:'2-digit',
+ second:'2-digit',
+ hour12:false
+}
+)}</span></li>`).join("");
     } else {
       historyEl.innerHTML = `<li style="background:transparent; justify-content:center; color:#94a3b8">Belum ada claim</li>`;
     }
