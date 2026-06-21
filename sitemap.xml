@@ -23,14 +23,42 @@
   </url>
 
   <url>
-    <loc>https://ltlist.my.id/marketcap/coin.html</loc>
+    <loc>https://ltlist.my.id/marketcap/coin.html?id=bitcoin</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://ltlist.my.id/marketcap/article.html</loc>
+    <loc>https://ltlist.my.id/marketcap/coin.html?id=ethereum</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+ <url>
+    <loc>https://ltlist.my.id/marketcap/coin.html?id=tether</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://ltlist.my.id/marketcap/coin.html?id=binancecoin</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+ <url>
+    <loc>https://ltlist.my.id/marketcap/coin.html?id=usd-coin</loc>
+    <lastmod>2026-06-01</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://ltlist.my.id/marketcap/coin.html?id=dogecoin</loc>
     <lastmod>2026-06-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
