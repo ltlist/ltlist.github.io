@@ -18,6 +18,7 @@ body{
   background:#0f172a;
   position:sticky;
   top:0;
+  z-index:9999;
   border-bottom:1px solid #1e293b;
 }
 .navbar .logo{ font-size:22px; font-weight:800; color:#2dd4bf; }
