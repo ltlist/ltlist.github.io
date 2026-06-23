@@ -11,20 +11,6 @@ body{
   padding-bottom:60px;
 }
 
-container{ 
-  max-width: 500px; /* <--- KUNCI 1: Perkecil dari 600px jadi 500px */
-  margin: 0 auto; /* <--- KUNCI 2: Auto kiri-kanan biar ke tengah */
-  padding: 20px 0 16px 0; /* <--- KUNCI 3: Padding kiri-kanan 0. Biar jaraknya dari body */
-}
-
-/* SEMUA KOTAK DI DALAM CONTAINER KASIH MARGIN KIRI-KAN */
-.header,
-.coin-item,
-.card,
-#searchBox{
-  margin-left: 12px; /* <--- Jarak kiri */
-  margin-right: 12px; /* <--- Jarak kanan */
-}
 /* =====================
    HEADER
 ===================== */
