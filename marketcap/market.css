@@ -20,6 +20,7 @@ body{
   position:sticky;
   top:0;
   border-bottom:1px solid #1e293b;
+  z-index: 1001; /* <--- Biar di atas header pas scroll */
 }
 .navbar .logo{ font-size:22px; font-weight:800; color:#2dd4bf; }
 .navbar a{ color:#2dd4bf; text-decoration:none; margin-left:18px; font-size:14px; }
@@ -27,28 +28,27 @@ body{
 .container{ 
   max-width:600px; 
   margin:auto; 
-  padding: 20px 12px 16px 12px; /* <--- 12px = Jarak kiri-kanan semua konten */
+  padding: 20px 12px 16px 12px; /* <--- Jarak kiri-kanan semua konten = 12px */
 }
 
-
+h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:center; gap:8px; }
+#totalFaucets{ font-size:13px; color:#94a3b8; margin:12px 0; }
 
 /* =====================
    HEADER
 ===================== */
 .header{
-  position:sticky;
-  top:0;
-  z-index:1000;
   background:#0f172a;
-  padding:12px;
+  padding:14px 12px; /* <--- Padding dalem dikit */
   text-align:center;
-  border-bottom:1px solid #1f2937;
-  margin: 0 0 16px 0; /* <--- TAMBAHIN INI. Bawah 16px biar ada jarak ke search */
-  border-radius: 12px; /* <--- BIAR KOTAKNYA BULETAN KAYAK COIN */
+  border:1px solid #1f2937; /* <--- Ganti border-bottom jadi border full */
+  margin: 0 0 16px 0; /* <--- Jarak bawah ke search */
+  border-radius: 12px; /* <--- BUAT SEJAJAR SAMA COIN */
 }
 
 .header h1{
   font-size:18px;
+  margin-bottom: 4px;
 }
 
 .header p{
@@ -60,7 +60,7 @@ body{
    PAGE WRAPPER
 ===================== */
 .page{
-  padding:15px;
+  padding:0; /* <--- Dikosongin biar ngikutin container aja */
 }
 
 /* =====================
@@ -69,8 +69,8 @@ body{
 .card{
   background:#111827;
   padding:15px;
-  border-radius:10px;
-  margin-top:10px;
+  border-radius:12px; /* <--- DISEMAKAN JADI 12px */
+  margin-bottom:12px; /* <--- Ganti margin-top jadi margin-bottom biar rapi */
 }
 
 /* =====================
@@ -78,13 +78,14 @@ body{
 ===================== */
 #searchBox{
   width:100%;
-  padding:10px;
-  margin:10px 0;
+  padding:12px; /* <--- Dinaikin dikit biar empuk */
+  margin:0 0 12px 0; /* <--- Margin bawah aja */
   border:none;
-  border-radius:8px;
+  border-radius:12px; /* <--- DISEMAKAN JADI 12px */
   background:#111827;
   color:#fff;
   outline:none;
+  border:1px solid #1f2937;
 }
 
 /* =====================
@@ -96,14 +97,16 @@ body{
   align-items:center;
   padding:12px;
   background:#111827;
-  margin-bottom:8px;
-  border-radius:10px;
+  margin-bottom:10px; /* <--- Jarak antar coin */
+  border-radius:12px; /* <--- DISEMAKAN JADI 12px */
+  border:1px solid #1f2937; /* <--- Kasih garis biar keliatan kotak */
   cursor:pointer;
   transition:0.2s;
 }
 
 .coin-item:hover{
   background:#1f2937;
+  border-color:#2dd4bf;
 }
 
 .coin-left{
@@ -127,8 +130,9 @@ body{
   background:#1f2937;
   border:none;
   color:#fff;
-  border-radius:8px;
+  border-radius:12px; /* <--- DISEMAKAN JADI 12px */
   cursor:pointer;
+  border:1px solid #374151;
 }
 
 #loadMoreBtn:hover{
@@ -150,7 +154,7 @@ body{
   background:#1f2937;
   border:none;
   color:#fff;
-  border-radius:6px;
+  border-radius:8px; /* <--- DISEMAKAN JADI 8px */
   cursor:pointer;
   font-size:12px;
 }
@@ -164,6 +168,8 @@ body{
 ===================== */
 .chart-wrap{
   position:relative;
+  border-radius:12px;
+  overflow:hidden;
 }
 
 /* candle + overlay */
@@ -246,7 +252,7 @@ body{
   padding:6px 10px;
   background:#111827;
   border:1px solid #1f2937;
-  border-radius:6px;
+  border-radius:8px; /* <--- DISEMAKAN JADI 8px */
   transition:0.2s;
 }
 
@@ -266,6 +272,7 @@ body{
   border-top:1px solid #1f2937;
   color:#94a3b8;
   font-size:16px;
+  border-radius:12px; /* <--- Biar sama buletnya */
 }
 
 .footer .sub{
@@ -286,4 +293,5 @@ body{
   border:0;
   overflow:hidden;
   max-width:100%;
+  border-radius:12px; /* <--- Biar iklannya gak kotak banget */
 }
