@@ -40,6 +40,8 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
   padding:12px;
   text-align:center;
   border-bottom:1px solid #1f2937;
+  margin: 0 0 16px 0; /* <--- TAMBAHIN INI. Bawah 16px biar ada jarak ke search */
+  border-radius: 12px; /* <--- BIAR KOTAKNYA BULETAN KAYAK COIN */
 }
 
 .header h1{
