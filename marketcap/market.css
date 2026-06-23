@@ -11,44 +11,26 @@ body{
   padding-bottom:60px;
 }
 
-.navbar{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:12px 16px;
-  background:#0f172a;
-  position:sticky;
-  top:0;
-  border-bottom:1px solid #1e293b;
-  z-index: 1001; /* <--- Biar di atas header pas scroll */
+container{ 
+  max-width: 500px; /* <--- KUNCI 1: Perkecil dari 600px jadi 500px */
+  margin: 0 auto; /* <--- KUNCI 2: Auto kiri-kanan biar ke tengah */
+  padding: 20px 0 16px 0; /* <--- KUNCI 3: Padding kiri-kanan 0. Biar jaraknya dari body */
 }
-.navbar .logo{ font-size:22px; font-weight:800; color:#2dd4bf; }
-.navbar a{ color:#2dd4bf; text-decoration:none; margin-left:18px; font-size:14px; }
-
-.container{ 
-  max-width:600px; 
-  margin:auto; 
-  padding: 20px 12px 16px 12px; /* <--- Jarak kiri-kanan semua konten = 12px */
-}
-
-h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:center; gap:8px; }
-#totalFaucets{ font-size:13px; color:#94a3b8; margin:12px 0; }
-
 /* =====================
    HEADER
 ===================== */
 .header{
+  position:sticky;
+  top:0;
+  z-index:1000;
   background:#0f172a;
-  padding:14px 12px; /* <--- Padding dalem dikit */
+  padding:12px;
   text-align:center;
-  border:1px solid #1f2937; /* <--- Ganti border-bottom jadi border full */
-  margin: 0 0 16px 0; /* <--- Jarak bawah ke search */
-  border-radius: 12px; /* <--- BUAT SEJAJAR SAMA COIN */
+  border-bottom:1px solid #1f2937;
 }
 
 .header h1{
   font-size:18px;
-  margin-bottom: 4px;
 }
 
 .header p{
@@ -60,7 +42,7 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
    PAGE WRAPPER
 ===================== */
 .page{
-  padding:0; /* <--- Dikosongin biar ngikutin container aja */
+  padding:15px;
 }
 
 /* =====================
@@ -69,8 +51,8 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
 .card{
   background:#111827;
   padding:15px;
-  border-radius:12px; /* <--- DISEMAKAN JADI 12px */
-  margin-bottom:12px; /* <--- Ganti margin-top jadi margin-bottom biar rapi */
+  border-radius:10px;
+  margin-top:10px;
 }
 
 /* =====================
@@ -78,14 +60,13 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
 ===================== */
 #searchBox{
   width:100%;
-  padding:12px; /* <--- Dinaikin dikit biar empuk */
-  margin:0 0 12px 0; /* <--- Margin bawah aja */
+  padding:10px;
+  margin:10px 0;
   border:none;
-  border-radius:12px; /* <--- DISEMAKAN JADI 12px */
+  border-radius:8px;
   background:#111827;
   color:#fff;
   outline:none;
-  border:1px solid #1f2937;
 }
 
 /* =====================
@@ -97,16 +78,14 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
   align-items:center;
   padding:12px;
   background:#111827;
-  margin-bottom:10px; /* <--- Jarak antar coin */
-  border-radius:12px; /* <--- DISEMAKAN JADI 12px */
-  border:1px solid #1f2937; /* <--- Kasih garis biar keliatan kotak */
+  margin-bottom:8px;
+  border-radius:10px;
   cursor:pointer;
   transition:0.2s;
 }
 
 .coin-item:hover{
   background:#1f2937;
-  border-color:#2dd4bf;
 }
 
 .coin-left{
@@ -130,9 +109,8 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
   background:#1f2937;
   border:none;
   color:#fff;
-  border-radius:12px; /* <--- DISEMAKAN JADI 12px */
+  border-radius:8px;
   cursor:pointer;
-  border:1px solid #374151;
 }
 
 #loadMoreBtn:hover{
@@ -154,7 +132,7 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
   background:#1f2937;
   border:none;
   color:#fff;
-  border-radius:8px; /* <--- DISEMAKAN JADI 8px */
+  border-radius:6px;
   cursor:pointer;
   font-size:12px;
 }
@@ -168,8 +146,6 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
 ===================== */
 .chart-wrap{
   position:relative;
-  border-radius:12px;
-  overflow:hidden;
 }
 
 /* candle + overlay */
@@ -252,7 +228,7 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
   padding:6px 10px;
   background:#111827;
   border:1px solid #1f2937;
-  border-radius:8px; /* <--- DISEMAKAN JADI 8px */
+  border-radius:6px;
   transition:0.2s;
 }
 
@@ -272,7 +248,6 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
   border-top:1px solid #1f2937;
   color:#94a3b8;
   font-size:16px;
-  border-radius:12px; /* <--- Biar sama buletnya */
 }
 
 .footer .sub{
@@ -293,5 +268,4 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
   border:0;
   overflow:hidden;
   max-width:100%;
-  border-radius:12px; /* <--- Biar iklannya gak kotak banget */
 }
