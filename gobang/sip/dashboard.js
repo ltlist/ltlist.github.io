@@ -155,7 +155,6 @@ window.saveEdit = async function(){
     name: document.getElementById("editName").value.trim(),
     url: document.getElementById("editUrl").value.trim(),
     coin: document.getElementById("editCoin").value.trim().toUpperCase(),
-    uptime: parseInt(document.getElementById("editUptime").value) || 0,
     status: document.getElementById("editStatus").value
   };
   await updateDoc(doc(db, "faucets", id), data);
