@@ -221,20 +221,25 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
 /* =====================
    FOOTER
 ===================== */
-.footer{
-  margin-top:20px;
-  padding:15px;
-  text-align:center;
-  background:#0f172a;
-  border-top:1px solid #1f2937;
-  color:#94a3b8;
-  font-size:16px;
+.footer{ 
+  text-align:center; 
+  color:#64748b; 
+  font-size:13px; 
+  padding:20px 0; 
+  margin-top:30px; 
+  border-top:1px solid #1e293b; 
 }
 
-.footer .sub{
-  font-size:15px;
-  color:#64748b;
-  margin-top:5px;
+/* KUNCI: Warna link di footer */
+.footer a{
+  color: #2dd4bf; /* Hijau tosa */
+  text-decoration: none; /* Buang garis bawah */
+  font-weight: 600;
+}
+
+.footer a:hover{
+  color: #5eead4; /* Hijau lebih terang pas di-hover */
+  text-decoration: underline;
 }
 
 .ad-slot{
