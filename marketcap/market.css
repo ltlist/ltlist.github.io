@@ -219,34 +219,6 @@ h2{ font-size:20px; color:#fff; margin:20px 0 12px; display:flex; align-items:ce
 }
 
 /* =====================
-   NAV RIGHT LINKS
-===================== */
-.nav-right{
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  margin-top:15px;
-  flex-wrap:wrap;
-  padding:10px;
-}
-
-.nav-right a{
-  text-decoration:none;
-  color:#94a3b8;
-  font-size:16px;
-  padding:6px 10px;
-  background:#111827;
-  border:1px solid #1f2937;
-  border-radius:6px;
-  transition:0.2s;
-}
-
-.nav-right a:hover{
-  background:#1f2937;
-  color:#fff;
-}
-
-/* =====================
    FOOTER
 ===================== */
 .footer{
