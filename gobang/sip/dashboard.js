@@ -143,7 +143,6 @@ window.openEdit = function(data){
   document.getElementById("editUrl").value = data.url;
   document.getElementById("editCoin").value = data.coin;
   document.getElementById("editStatus").value = data.status;
-  document.getElementById("editUptime").value = data.uptime ?? 0;
   modalDiv.classList.add("show");
 };
 
