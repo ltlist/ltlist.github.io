@@ -25,49 +25,36 @@
   </div>
 </nav>
 
-<!-- HEADER -->
-<div class="header">
-  <h1>LTList MarketCap</h1>
-  <p>Crypto Prices • Live Market</p>
-</div>
-   <div class="ad-slot" data-network="zerads-468"></div>
-<!-- PAGE -->
-<div class="page">
+<!-- KUNCI: BUNGKUS SEMUA ISI PAKE CONTAINER -->
+<div class="container">
 
-  <!-- SEARCH -->
-  <input 
-    id="searchBox" 
-    type="text"
-    placeholder="Search coin (btc, eth, sol...)"
-    oninput="filterCoins()"
-  />
+  <!-- HEADER -->
+  <div class="header">
+    <h1>LTList MarketCap</h1>
+    <p>Crypto Prices • Live Market</p>
+  </div>
 
-  <!-- COIN LIST -->
-  <div id="coinList"></div>
+  <div class="ad-slot" data-network="zerads-468"></div>
 
-  <!-- LOAD MORE -->
-  <button id="loadMoreBtn" onclick="loadMore()">
-    Load More
-  </button>
+  <!-- PAGE -->
+  <div class="page">
+    <input id="searchBox" type="text" placeholder="Search coin (btc, eth, sol...)" oninput="filterCoins()" />
+    <div id="coinList"></div>
+    <button id="loadMoreBtn" onclick="loadMore()">Load More</button>
+  </div>
 
-</div>
+  <div class="loading" id="loadingText" style="display:none;">Loading more coins...</div>
 
-<!-- LOADING TEXT (optional) -->
-<div class="loading" id="loadingText" style="display:none;">
-  Loading more coins...
-</div>
+  <div class="nav-right">
+    <a href="/">HOME</a>
+  </div>
 
-<!-- NAV LINK -->
-<div class="nav-right">
-  <a href="/">HOME</a>
-</div>
-
-<!-- FOOTER -->
   <footer class="footer">
     © LTList Faucet - All rights reserved
   </footer>
 
-<!-- SCRIPT -->
+</div> <!-- TUTUP CONTAINER DISINI -->
+
 <script src="market.js"></script>
 <script src="/ads.js"></script>
 </body>
