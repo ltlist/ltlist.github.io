@@ -41,10 +41,13 @@ function startTimer(endTime){
 // ===== 2. KLIK NEXT = CEK EMAIL + BUKA POPUP =====
 mainBtn.onclick = () => {
   const username = document.getElementById("username").value.trim();
-  if(!username || username.length < 3){ 
-    document.getElementById("result").innerHTML = "❌ FaucetPay Email"; 
-    return; 
-  }
+  const walletRegex = /^t[a-zA-Z0-9]{20,}$/;
+
+if(!walletRegex.test(username)){
+  document.getElementById("result").innerHTML =
+  "❌ Wallet ZER tidak valid";
+  return;
+}
   document.getElementById("result").innerHTML = ""; // Hapus error
   modal.style.display = "flex";
   getChallenge(); // Ambil soal baru tiap buka popup
@@ -85,26 +88,59 @@ async function getChallenge(){
 }
 
 async function claim(){
-  const username = document.getElementById("username").value.trim();
-  const token = window.turnstile? turnstile.getResponse() : null;
-  const mathAnswer = document.getElementById("mathAnswer").value;
 
-  if(!token ||!mathAnswer ||!selectedAnimal){ 
-    document.getElementById("result").innerHTML = "❌ Complete all data"; 
-    return; 
+  const wallet =
+  document.getElementById("username").value.trim();
+
+  const token =
+  window.turnstile ? turnstile.getResponse() : null;
+
+  const mathAnswer =
+  document.getElementById("mathAnswer").value;
+
+  if(!token || !mathAnswer || !selectedAnimal){
+    document.getElementById("result").innerHTML =
+    "❌ Complete all data";
+    return;
   }
 
   finalBtn.disabled = true;
-  document.getElementById("result").innerHTML = "⏳ Processing...";
 
   try{
-    const res = await fetch(API + "/api/claim", {
+
+    const res = await fetch(API + "/api/claim",{
       method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ email: username, token, sessionId, mathAnswer, animalAnswer: selectedAnimal })
+      headers:{
+        "Content-Type":"application/json"
+      },
+      body:JSON.stringify({
+        wallet,
+        token,
+        sessionId,
+        mathAnswer,
+        animalAnswer:selectedAnimal
+      })
     });
+
     const data = await res.json();
-    document.getElementById("result").innerHTML = data.success? "✅ " + data.message + " | Sisa: " + data.remaining : "❌ " + data.error;
+
+    document.getElementById("result").innerHTML =
+      data.success
+      ? "✅ " + data.message
+      : "❌ " + data.error;
+
+  }catch(e){
+
+    document.getElementById("result").innerHTML =
+    "❌ Server error";
+
+  }finally{
+
+    finalBtn.disabled = false;
+
+  }
+
+}
     
     if(data.success){
       modal.style.display = "none"; // Tutup popup kalau sukses
