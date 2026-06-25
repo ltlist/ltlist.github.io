@@ -16,7 +16,9 @@ input,button{width:100%;padding:12px;margin-top:6px;border-radius:10px;border:1p
 button{background:var(--brand);border:0;font-weight:700;cursor:pointer;margin-top:16px}
 button:disabled{background:#475569;cursor:not-allowed;opacity:.7}
 .box{background:#0f172a;padding:14px;border-radius:12px;margin-top:12px;border:1px dashed var(--muted)}
-#result{margin-top:12px;font-size:14px;font-weight:600;min-height:20px}
+#result{margin-top:12px;font-size:14px;font-weight:600;min-height:20px;padding:8px;border-radius:8px}
+#result.ok{background:#052e16;color:var(--ok)}
+#result.err{background:#450a0a;color:var(--err)}
 .history{margin-top:20px}
 .history h4{margin:0 0 8px 0;font-size:14px;color:#94a3b8}
 .history li{display:flex;justify-content:space-between;padding:6px 8px;border-bottom:1px dashed var(--muted);font-size:13px;list-style:none;background:#0f172a;border-radius:6px;margin-top:4px}
@@ -25,7 +27,6 @@ button:disabled{background:#475569;cursor:not-allowed;opacity:.7}
 .animal.active{border-color:var(--brand);background:#1e40af}
 .animal::before{content:attr(data-emoji);display:block;font-size:28px;line-height:1;margin-bottom:4px}
 .row{display:flex;gap:8px}
-.row > *{flex:1}
 .small{font-size:12px;color:#94a3b8}
 </style>
 </head>
@@ -35,7 +36,7 @@ button:disabled{background:#475569;cursor:not-allowed;opacity:.7}
   <div class="small">Claim ZER gratis. Cooldown 1 jam, Max 5x/hari.</div>
 
   <label>ZER Wallet</label>
-  <input id="username" placeholder="t1xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+  <input id="wallet" placeholder="t1xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
 
   <div id="challengeBox" class="box" style="display:none">
     <label>Soal 1: Berapa hasil dari <b id="mathQ"></b> ?</label>
@@ -46,9 +47,9 @@ button:disabled{background:#475569;cursor:not-allowed;opacity:.7}
   </div>
 
   <label>Verifikasi</label>
-  <div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div> <!-- GANTI INI -->
+  <div id="cf-turnstile" class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div> <!-- GANTI INI -->
 
-  <button id="mainClaimBtn">CLAIM</button>
+  <button id="claimBtn">CLAIM</button>
   <div id="result"></div>
 
   <div class="history">
@@ -64,50 +65,59 @@ const COOLDOWN = 60 * 60 * 1000; // 60 minutes
 const animalIcons = { cat:"🐱", dog:"🐶", rabbit:"🐰", cow:"🐮", lion:"🦁" };
 let sessionId = "";
 let selectedAnimal = "";
+let turnstileWidgetId = null; // Buat reset turnstile
 
-const mainBtn = document.getElementById('mainClaimBtn');
+const claimBtn = document.getElementById('claimBtn');
 const resultEl = document.getElementById('result');
 
-// ===== 1. CEK COOLDOWN SAAT BUKA HALAMAN =====
+function showResult(msg, ok=false){
+  resultEl.innerHTML = msg;
+  resultEl.className = ok ? 'ok' : 'err';
+  console.log('[FAUCET]', msg); // Debug di console F12
+}
+
+// ===== 1. COOLDOWN =====
 function checkCooldown(){
   const endTime = localStorage.getItem("ltcCooldown");
   if(endTime && new Date().getTime() < endTime){
     startTimer(parseInt(endTime));
   } else {
-    mainBtn.innerText = "CLAIM"; 
-    mainBtn.disabled = false;
-    getChallenge(); // Langsung load soal
+    claimBtn.innerText = "CLAIM"; 
+    claimBtn.disabled = false;
+    getChallenge(); 
   }
 }
 
 function startTimer(endTime){
-  mainBtn.disabled = true;
+  claimBtn.disabled = true;
   const timer = setInterval(() => {
     const distance = endTime - new Date().getTime();
     if (distance < 0) {
       clearInterval(timer);
-      mainBtn.innerText = "CLAIM"; 
-      mainBtn.disabled = false;
+      claimBtn.innerText = "CLAIM"; 
+      claimBtn.disabled = false;
       localStorage.removeItem("ltcCooldown");
-      getChallenge(); // Refresh soal baru
+      getChallenge(); 
       return;
     }
     const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     const s = Math.floor((distance % (1000 * 60)) / 1000);
-    mainBtn.innerText = `Wait ${m}:${s < 10 ? '0' : ''}${s}`;
+    claimBtn.innerText = `Wait ${m}:${s < 10 ? '0' : ''}${s}`;
   }, 1000);
 }
 
-// ===== 2. LOGIC CAPTCHA + CLAIM LANGSUNG =====
+// ===== 2. CAPTCHA =====
 async function getChallenge(){
   try{
-    resultEl.innerHTML = "";
+    showResult('', true);
     document.getElementById("mathAnswer").value = "";
     selectedAnimal = "";
     document.getElementById("challengeBox").style.display = "block";
 
     const res = await fetch(API + "/api/challenge");
     const data = await res.json();
+    if(!data.success) throw new Error(data.error);
+
     sessionId = data.sessionId;
     document.getElementById("mathQ").innerText = data.question;
     document.getElementById("emojiQ").innerText = animalIcons[data.animal];
@@ -126,69 +136,91 @@ async function getChallenge(){
       };
       box.appendChild(div);
     });
-  }catch(e){ resultEl.innerHTML = "❌ Gagal load challenge"; }
+  }catch(e){ showResult("❌ Gagal load challenge: " + e.message); }
 }
 
+// ===== 3. CLAIM =====
 async function claim(){
-  const username = document.getElementById("username").value.trim();
-  const token = window.turnstile? turnstile.getResponse() : null;
+  const wallet = document.getElementById("wallet").value.trim();
+  // Fix: Ambil token pake API turnstile beneran
+  const token = turnstileWidgetId !== null ? turnstile.getResponse(turnstileWidgetId) : null;
   const mathAnswer = document.getElementById("mathAnswer").value;
 
-  if(!username || username.length < 3){ 
-    resultEl.innerHTML = "❌ Isi ZER Wallet dulu"; 
+  if(!wallet || !wallet.startsWith('t') || wallet.length < 20){ 
+    showResult("❌ Isi ZER Wallet yang valid"); 
     return; 
   }
-  if(!token ||!mathAnswer ||!selectedAnimal){ 
-    resultEl.innerHTML = "❌ Isi semua captcha dulu"; 
+  if(!token){ 
+    showResult("❌ Centang captcha Cloudflare dulu"); 
+    return; 
+  }
+  if(!mathAnswer || !selectedAnimal){ 
+    showResult("❌ Isi jawaban math + pilih hewan dulu"); 
     return; 
   }
 
-  mainBtn.disabled = true;
-  resultEl.innerHTML = "⏳ Processing...";
+  claimBtn.disabled = true;
+  showResult("⏳ Processing...", true);
 
   try{
+    const payload = { wallet, token, sessionId, mathAnswer, animalAnswer: selectedAnimal }; // FIX: kirim 'wallet' bukan 'email'
+    console.log('[FAUCET] Kirim:', payload); // Debug
+
     const res = await fetch(API + "/api/claim", {
       method:"POST",
       headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({ email: username, token, sessionId, mathAnswer, animalAnswer: selectedAnimal }) // Backend kamu masih pake 'email'
+      body: JSON.stringify(payload)
     });
+    
+    if(!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
-    resultEl.innerHTML = data.success? `✅ ${data.message} | Sisa: ${data.remaining}` : `❌ ${data.error}`;
+    console.log('[FAUCET] Balasan:', data); // Debug
+
+    showResult(data.success? `✅ ${data.message} | Sisa: ${data.remaining}` : `❌ ${data.error}`, data.success);
     
     if(data.success){
-      // ===== SET COOLDOWN CUMA KALAU SUKSES =====
       const endTime = new Date().getTime() + COOLDOWN;
       localStorage.setItem("ltcCooldown", endTime);
       startTimer(endTime);
     } else {
-      if(window.turnstile) window.turnstile.reset();
-      getChallenge(); // Ganti soal baru kalau gagal
-      mainBtn.disabled = false;
+      turnstile.reset(turnstileWidgetId);
+      getChallenge(); 
+      claimBtn.disabled = false;
     }
   }catch(e){ 
-    resultEl.innerHTML = "❌ Server error"; 
-    mainBtn.disabled = false;
+    showResult("❌ Server error: " + e.message); 
+    claimBtn.disabled = false;
+    turnstile.reset(turnstileWidgetId);
   }
   loadHistory();
 }
 
-mainBtn.onclick = claim; // 1 Tombol aja
+claimBtn.onclick = claim;
 
+// ===== 4. HISTORY =====
 async function loadHistory(){
   try{
     const res = await fetch(API + "/api/history");
     const data = await res.json();
     const historyEl = document.getElementById("history");
     if(data.length){
-      historyEl.innerHTML = data.map(h => `<li><span class="user">${h.user}</span><span class="detail">${h.amount} | ${new Date(h.time * 1000).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}</span></li>`).join("");
+      historyEl.innerHTML = data.map(h => `<li><span>${h.user}</span><span>${h.amount} | ${new Date(h.time * 1000).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span></li>`).join("");
     } else {
       historyEl.innerHTML = `<li style="background:transparent; justify-content:center; color:#94a3b8">Belum ada claim</li>`;
     }
   }catch(e){ document.getElementById("history").innerHTML = `<li style="background:transparent; justify-content:center; color:#f87171">Gagal load history</li>`; }
 }
 
+// Callback turnstile biar dapet widgetId
+window.onloadTurnstileCallback = function () {
+  turnstileWidgetId = turnstile.render('#cf-turnstile', {
+    sitekey: '0x4AAAAAAA...GANTI_DENGAN_SITEKEY_KAMU', // SAMA KAN
+    callback: function(token){ showResult('✅ Verifikasi OK', true); },
+  });
+};
+
 loadHistory();
-checkCooldown(); // Jalanin pas pertama load
+checkCooldown(); 
 });
 </script>
 </body>
