@@ -128,19 +128,6 @@ async function claim(){
       data.success
       ? "✅ " + data.message
       : "❌ " + data.error;
-
-  }catch(e){
-
-    document.getElementById("result").innerHTML =
-    "❌ Server error";
-
-  }finally{
-
-    finalBtn.disabled = false;
-
-  }
-
-}
     
     if(data.success){
       modal.style.display = "none"; // Tutup popup kalau sukses
