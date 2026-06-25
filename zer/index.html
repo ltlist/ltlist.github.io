@@ -1,227 +1,82 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LT Faucet PRO</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LTlist Faucet</title>
+<meta name="description" content="Verified crypto faucets with active payouts and ranking.">
+<link rel="icon" href="/favicon.png">
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<style>
-:root{--bg:#0f172a;--card:#1e293b;--muted:#334155;--text:#e2e8f0;--ok:#4ade80;--err:#f87171;--brand:#3b82f6;}
-*{box-sizing:border-box}
-body{font-family:Inter,system-ui;background:var(--bg);color:var(--text);margin:0;padding:20px;display:flex;justify-content:center}
-.wrap{width:100%;max-width:460px;background:var(--card);padding:24px;border-radius:20px;border:1px solid var(--muted)}
-h2{margin:0 0 8px 0}
-label{font-size:13px;color:#94a3b8;margin-top:12px;display:block}
-input,button{width:100%;padding:12px;margin-top:6px;border-radius:10px;border:1px solid var(--muted);background:#0f172a;color:var(--text);font-size:15px}
-button{background:var(--brand);border:0;font-weight:700;cursor:pointer;margin-top:16px}
-button:disabled{background:#475569;cursor:not-allowed;opacity:.7}
-.box{background:#0f172a;padding:14px;border-radius:12px;margin-top:12px;border:1px dashed var(--muted)}
-#result{margin-top:12px;font-size:14px;font-weight:600;min-height:20px;padding:8px;border-radius:8px}
-#result.ok{background:#052e16;color:var(--ok)}
-#result.err{background:#450a0a;color:var(--err)}
-.history{margin-top:20px}
-.history h4{margin:0 0 8px 0;font-size:14px;color:#94a3b8}
-.history li{display:flex;justify-content:space-between;padding:6px 8px;border-bottom:1px dashed var(--muted);font-size:13px;list-style:none;background:#0f172a;border-radius:6px;margin-top:4px}
-.animalBox{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
-.animal{border:2px solid var(--muted);border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-size:13px;user-select:none}
-.animal.active{border-color:var(--brand);background:#1e40af}
-.animal::before{content:attr(data-emoji);display:block;font-size:28px;line-height:1;margin-bottom:4px}
-.row{display:flex;gap:8px}
-.small{font-size:12px;color:#94a3b8}
-</style>
+<link rel="stylesheet" href="fau.css">
 </head>
 <body>
-<div class="wrap">
-  <h2>LT Faucet PRO</h2>
-  <div class="small">Claim ZER gratis. Cooldown 1 jam, Max 5x/hari.</div>
+<header class="navbar">
+  <div class="nav-brand">LTList</div>
+  <nav class="nav-links">
+    <a href="/">HOME</a>
+    <a href="/marketcap">MARKETCAP</a>
+  </nav>
+</header>
 
+<div id="adblock-overlay">
+  <div class="adb-box">
+    <h2>🚫 AdBlock Detected</h2>
+    <p>Please disable AdBlock to claim rewards.</p>
+
+    <button onclick="checkAdBlock()">
+      ✅ I Disabled AdBlock
+    </button>
+
+    <button onclick="location.reload()">
+      🔄 Reload Page
+    </button>
+  </div>
+</div>
+
+
+<div class="container">
+  <h1 class="page-title"><img src="https://cryptologos.cc/logos/litecoin-ltc-logo.svg?v=032" width="30" style="vertical-align: middle;"> LTC FAUCET</h1>
+  <div class="ad-slot" data-network="zerads-468"></div>
+  <div class="small" style="margin-bottom:25px;">160 Litoshi • 60 min • Max 7/day</div>
+
+  <!-- MAIN CARD -->
+  <div class="card">
   <label>ZER Wallet</label>
   <input id="wallet" placeholder="t1xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
 
-  <div id="challengeBox" class="box" style="display:none">
-    <label>Soal 1: Berapa hasil dari <b id="mathQ"></b> ?</label>
-    <input id="mathAnswer" type="number" placeholder="Jawaban" inputmode="numeric" />
-    
-    <label style="margin-top:10px">Soal 2: Pilih gambar <b id="emojiQ"></b></label>
-    <div id="animalBox" class="animalBox"></div>
+    <button id="mainClaimBtn" class="btn-claim">CLAIM</button>
+    <div id="result" class="small"></div>
   </div>
-
-  <label>Verifikasi</label>
-  <div id="cf-turnstile" class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div> <!-- GANTI INI -->
-
-  <button id="claimBtn">CLAIM</button>
-  <div id="result"></div>
-
-  <div class="history">
-    <h4>Last 10 Claims</h4>
+   <div class="ad-slot" data-network="zerads-468"></div>
+  <!-- HISTORY -->
+  <div class="card">
+    <h3 style="text-align:center">📜 Last Claims</h3>
     <ul id="history"></ul>
   </div>
 </div>
 
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-const API = "https://empty-king-143e.cnamelist.workers.dev"; // API KAMU
-const COOLDOWN = 60 * 60 * 1000; // 60 minutes
-const animalIcons = { cat:"🐱", dog:"🐶", rabbit:"🐰", cow:"🐮", lion:"🦁" };
-let sessionId = "";
-let selectedAnimal = "";
-let turnstileWidgetId = null; // Buat reset turnstile
-
-const claimBtn = document.getElementById('claimBtn');
-const resultEl = document.getElementById('result');
-
-function showResult(msg, ok=false){
-  resultEl.innerHTML = msg;
-  resultEl.className = ok ? 'ok' : 'err';
-  console.log('[FAUCET]', msg); // Debug di console F12
-}
-
-// ===== 1. COOLDOWN =====
-function checkCooldown(){
-  const endTime = localStorage.getItem("ltcCooldown");
-  if(endTime && new Date().getTime() < endTime){
-    startTimer(parseInt(endTime));
-  } else {
-    claimBtn.innerText = "CLAIM"; 
-    claimBtn.disabled = false;
-    getChallenge(); 
-  }
-}
-
-function startTimer(endTime){
-  claimBtn.disabled = true;
-  const timer = setInterval(() => {
-    const distance = endTime - new Date().getTime();
-    if (distance < 0) {
-      clearInterval(timer);
-      claimBtn.innerText = "CLAIM"; 
-      claimBtn.disabled = false;
-      localStorage.removeItem("ltcCooldown");
-      getChallenge(); 
-      return;
-    }
-    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const s = Math.floor((distance % (1000 * 60)) / 1000);
-    claimBtn.innerText = `Wait ${m}:${s < 10 ? '0' : ''}${s}`;
-  }, 1000);
-}
-
-// ===== 2. CAPTCHA =====
-async function getChallenge(){
-  try{
-    showResult('', true);
-    document.getElementById("mathAnswer").value = "";
-    selectedAnimal = "";
-    document.getElementById("challengeBox").style.display = "block";
-
-    const res = await fetch(API + "/api/challenge");
-    const data = await res.json();
-    if(!data.success) throw new Error(data.error);
-
-    sessionId = data.sessionId;
-    document.getElementById("mathQ").innerText = data.question;
-    document.getElementById("emojiQ").innerText = animalIcons[data.animal];
-
-    const box = document.getElementById("animalBox");
-    box.innerHTML = "";
-    data.animals.forEach(a => {
-      const div = document.createElement("div");
-      div.className = "animal";
-      div.setAttribute("data-emoji", animalIcons[a]);
-      div.innerHTML = a;
-      div.onclick = () => {
-        document.querySelectorAll(".animal").forEach(b => b.classList.remove("active"));
-        div.classList.add("active");
-        selectedAnimal = a;
-      };
-      box.appendChild(div);
-    });
-  }catch(e){ showResult("❌ Gagal load challenge: " + e.message); }
-}
-
-// ===== 3. CLAIM =====
-async function claim(){
-  const wallet = document.getElementById("wallet").value.trim();
-  // Fix: Ambil token pake API turnstile beneran
-  const token = turnstileWidgetId !== null ? turnstile.getResponse(turnstileWidgetId) : null;
-  const mathAnswer = document.getElementById("mathAnswer").value;
-
-  if(!wallet || !wallet.startsWith('t') || wallet.length < 20){ 
-    showResult("❌ Isi ZER Wallet yang valid"); 
-    return; 
-  }
-  if(!token){ 
-    showResult("❌ Centang captcha Cloudflare dulu"); 
-    return; 
-  }
-  if(!mathAnswer || !selectedAnimal){ 
-    showResult("❌ Isi jawaban math + pilih hewan dulu"); 
-    return; 
-  }
-
-  claimBtn.disabled = true;
-  showResult("⏳ Processing...", true);
-
-  try{
-    const payload = { wallet, token, sessionId, mathAnswer, animalAnswer: selectedAnimal }; // FIX: kirim 'wallet' bukan 'email'
-    console.log('[FAUCET] Kirim:', payload); // Debug
-
-    const res = await fetch(API + "/api/claim", {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify(payload)
-    });
+<!-- MODAL POPUP VERIFIKASI -->
+<div id="claimModal" class="modal" style="display:none;">
+  <div class="modal-content">
+    <span id="closeModal" class="close">&times;</span>
+    <h3>Verifikasi</h3>
     
-    if(!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    console.log('[FAUCET] Balasan:', data); // Debug
+    <div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
+    <p>Soal: <b id="mathQ"></b> | <b id="emojiQ"></b></p>
+    <input id="mathAnswer" type="number" placeholder="Number Answer">
+    <div id="animalBox" class="emoji-grid"></div>
+    <button id="finalClaimBtn">2. CLAIM</button>
+  </div>
+</div>
 
-    showResult(data.success? `✅ ${data.message} | Sisa: ${data.remaining}` : `❌ ${data.error}`, data.success);
-    
-    if(data.success){
-      const endTime = new Date().getTime() + COOLDOWN;
-      localStorage.setItem("ltcCooldown", endTime);
-      startTimer(endTime);
-    } else {
-      turnstile.reset(turnstileWidgetId);
-      getChallenge(); 
-      claimBtn.disabled = false;
-    }
-  }catch(e){ 
-    showResult("❌ Server error: " + e.message); 
-    claimBtn.disabled = false;
-    turnstile.reset(turnstileWidgetId);
-  }
-  loadHistory();
-}
+<footer class="footer">
+  <p>Crypto faucets with a fast payout system to <a href="https://faucetpay.io/?r=5725">Faucetpay</a>.</p>
+  <p>© LTList Faucet - All rights reserved</p>
+</footer>
 
-claimBtn.onclick = claim;
+<script src="scrip.js"></script>
+<script src="/ads.js"></script>
+<script src="src.js"></script>
 
-// ===== 4. HISTORY =====
-async function loadHistory(){
-  try{
-    const res = await fetch(API + "/api/history");
-    const data = await res.json();
-    const historyEl = document.getElementById("history");
-    if(data.length){
-      historyEl.innerHTML = data.map(h => `<li><span>${h.user}</span><span>${h.amount} | ${new Date(h.time * 1000).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</span></li>`).join("");
-    } else {
-      historyEl.innerHTML = `<li style="background:transparent; justify-content:center; color:#94a3b8">Belum ada claim</li>`;
-    }
-  }catch(e){ document.getElementById("history").innerHTML = `<li style="background:transparent; justify-content:center; color:#f87171">Gagal load history</li>`; }
-}
-
-// Callback turnstile biar dapet widgetId
-window.onloadTurnstileCallback = function () {
-  turnstileWidgetId = turnstile.render('#cf-turnstile', {
-    sitekey: '0x4AAAAAAA...GANTI_DENGAN_SITEKEY_KAMU', // SAMA KAN
-    callback: function(token){ showResult('✅ Verifikasi OK', true); },
-  });
-};
-
-loadHistory();
-checkCooldown(); 
-});
-</script>
 </body>
 </html>
