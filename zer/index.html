@@ -6,123 +6,190 @@
 <title>LT Faucet PRO</title>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
-body{font-family:system-ui;background:#0f172a;color:#e2e8f0;margin:0;padding:20px;display:flex;justify-content:center}
-.wrap{width:100%;max-width:420px;background:#1e293b;padding:24px;border-radius:16px}
-input,button,select{width:100%;padding:12px;margin-top:8px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:16px}
-button{background:#3b82f6;border:0;font-weight:700;cursor:pointer}
-button:disabled{background:#475569;cursor:not-allowed}
-.logo{display:flex;align-items:center;gap:8px;margin-bottom:16px}
-.logo img{width:24px}
+:root{--bg:#0f172a;--card:#1e293b;--muted:#334155;--text:#e2e8f0;--ok:#4ade80;--err:#f87171;--brand:#3b82f6;}
+*{box-sizing:border-box}
+body{font-family:Inter,system-ui;background:var(--bg);color:var(--text);margin:0;padding:20px;display:flex;justify-content:center}
+.wrap{width:100%;max-width:460px;background:var(--card);padding:24px;border-radius:20px;border:1px solid var(--muted)}
+h2{margin:0 0 8px 0}
+label{font-size:13px;color:#94a3b8;margin-top:12px;display:block}
+input,button{width:100%;padding:12px;margin-top:6px;border-radius:10px;border:1px solid var(--muted);background:#0f172a;color:var(--text);font-size:15px}
+button{background:var(--brand);border:0;font-weight:700;cursor:pointer;margin-top:16px}
+button:disabled{background:#475569;cursor:not-allowed;opacity:.7}
+.box{background:#0f172a;padding:14px;border-radius:12px;margin-top:12px;border:1px dashed var(--muted)}
+#result{margin-top:12px;font-size:14px;font-weight:600;min-height:20px}
+.history{margin-top:20px}
+.history h4{margin:0 0 8px 0;font-size:14px;color:#94a3b8}
+.history li{display:flex;justify-content:space-between;padding:6px 8px;border-bottom:1px dashed var(--muted);font-size:13px;list-style:none;background:#0f172a;border-radius:6px;margin-top:4px}
+.animalBox{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:8px}
+.animal{border:2px solid var(--muted);border-radius:10px;padding:10px;text-align:center;cursor:pointer;font-size:13px;user-select:none}
+.animal.active{border-color:var(--brand);background:#1e40af}
+.animal::before{content:attr(data-emoji);display:block;font-size:28px;line-height:1;margin-bottom:4px}
 .row{display:flex;gap:8px}
-.box{background:#0f172a;padding:12px;border-radius:8px;margin-top:12px}
-#status{margin-top:12px;font-size:14px}
-.history{margin-top:16px;font-size:13px}
-.history div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #334155}
+.row > *{flex:1}
+.small{font-size:12px;color:#94a3b8}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div class="logo">
-    <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1578.png" alt="LINK">
-    <h2>LT Faucet PRO</h2>
-  </div>
+  <h2>LT Faucet PRO</h2>
+  <div class="small">Claim ZER gratis. Cooldown 1 jam, Max 5x/hari.</div>
 
-  <input id="wallet" placeholder="Masukkan ZER Wallet t..." />
+  <label>ZER Wallet</label>
+  <input id="username" placeholder="t1xxxxxxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
 
   <div id="challengeBox" class="box" style="display:none">
-    <div id="qText"></div>
-    <input id="mathAns" type="number" placeholder="Jawaban matematika" />
-    <select id="animalAns"></select>
+    <label>Soal 1: Berapa hasil dari <b id="mathQ"></b> ?</label>
+    <input id="mathAnswer" type="number" placeholder="Jawaban" inputmode="numeric" />
+    
+    <label style="margin-top:10px">Soal 2: Pilih gambar <b id="emojiQ"></b></label>
+    <div id="animalBox" class="animalBox"></div>
   </div>
 
-  <div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
+  <label>Verifikasi</label>
+  <div class="cf-turnstile" data-sitekey="0x4AAAAAAA...GANTI_DENGAN_SITEKEY_KAMU"></div> <!-- GANTI INI -->
 
-  <button id="btn" onclick="claim()">CLAIM ZER</button>
-  <div id="status"></div>
+  <button id="mainClaimBtn">CLAIM</button>
+  <div id="result"></div>
 
   <div class="history">
     <h4>Last 10 Claims</h4>
-    <div id="historyList">Loading...</div>
+    <ul id="history"></ul>
   </div>
 </div>
 
 <script>
-const API = "https://empty-king-143e.cnamelist.workers.dev"; // GANTI KE URL WORKER KAMU
-let sessionId = null;
+document.addEventListener("DOMContentLoaded", () => {
+const API = "https://tight-limit-fc5f.cnamelist.workers.dev"; // API KAMU
+const COOLDOWN = 60 * 60 * 1000; // 60 minutes
+const animalIcons = { cat:"🐱", dog:"🐶", rabbit:"🐰", cow:"🐮", lion:"🦁" };
+let sessionId = "";
+let selectedAnimal = "";
 
-const setStatus = (msg, ok=false) => {
-  const el = document.getElementById('status');
-  el.textContent = msg;
-  el.style.color = ok ? '#4ade80' : '#f87171';
+const mainBtn = document.getElementById('mainClaimBtn');
+const resultEl = document.getElementById('result');
+
+// ===== 1. CEK COOLDOWN SAAT BUKA HALAMAN =====
+function checkCooldown(){
+  const endTime = localStorage.getItem("ltcCooldown");
+  if(endTime && new Date().getTime() < endTime){
+    startTimer(parseInt(endTime));
+  } else {
+    mainBtn.innerText = "CLAIM"; 
+    mainBtn.disabled = false;
+    getChallenge(); // Langsung load soal
+  }
 }
 
-async function loadChallenge(){
-  const res = await fetch(API + "/api/challenge");
-  const data = await res.json();
-  if(!data.success) return setStatus(data.error);
-  
-  sessionId = data.sessionId;
-  document.getElementById('qText').textContent = `Berapa hasil dari: ${data.question} ?`;
-  
-  const sel = document.getElementById('animalAns');
-  sel.innerHTML = data.animals.map(a => `<option value="${a}">${a}</option>`).join('');
-  document.getElementById('challengeBox').style.display = 'block';
+function startTimer(endTime){
+  mainBtn.disabled = true;
+  const timer = setInterval(() => {
+    const distance = endTime - new Date().getTime();
+    if (distance < 0) {
+      clearInterval(timer);
+      mainBtn.innerText = "CLAIM"; 
+      mainBtn.disabled = false;
+      localStorage.removeItem("ltcCooldown");
+      getChallenge(); // Refresh soal baru
+      return;
+    }
+    const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const s = Math.floor((distance % (1000 * 60)) / 1000);
+    mainBtn.innerText = `Wait ${m}:${s < 10 ? '0' : ''}${s}`;
+  }, 1000);
 }
 
-async function loadHistory(){
-  const res = await fetch(API + "/api/history");
-  const data = await res.json();
-  document.getElementById('historyList').innerHTML = data.map(h => 
-    `<div><span>${h.user}</span><span>${h.amount} ZER</span></div>`
-  ).join('') || 'Belum ada';
+// ===== 2. LOGIC CAPTCHA + CLAIM LANGSUNG =====
+async function getChallenge(){
+  try{
+    resultEl.innerHTML = "";
+    document.getElementById("mathAnswer").value = "";
+    selectedAnimal = "";
+    document.getElementById("challengeBox").style.display = "block";
+
+    const res = await fetch(API + "/api/challenge");
+    const data = await res.json();
+    sessionId = data.sessionId;
+    document.getElementById("mathQ").innerText = data.question;
+    document.getElementById("emojiQ").innerText = animalIcons[data.animal];
+
+    const box = document.getElementById("animalBox");
+    box.innerHTML = "";
+    data.animals.forEach(a => {
+      const div = document.createElement("div");
+      div.className = "animal";
+      div.setAttribute("data-emoji", animalIcons[a]);
+      div.innerHTML = a;
+      div.onclick = () => {
+        document.querySelectorAll(".animal").forEach(b => b.classList.remove("active"));
+        div.classList.add("active");
+        selectedAnimal = a;
+      };
+      box.appendChild(div);
+    });
+  }catch(e){ resultEl.innerHTML = "❌ Gagal load challenge"; }
 }
 
 async function claim(){
-  const btn = document.getElementById('btn');
-  const wallet = document.getElementById('wallet').value.trim();
-  const token = document.querySelector('input[name="cf-turnstile-response"]').value;
-  const mathAnswer = document.getElementById('mathAns').value;
-  const animalAnswer = document.getElementById('animalAns').value;
+  const username = document.getElementById("username").value.trim();
+  const token = window.turnstile? turnstile.getResponse() : null;
+  const mathAnswer = document.getElementById("mathAnswer").value;
 
-  if(!wallet) return setStatus('Isi wallet dulu');
-  if(!token) return setStatus('Centang captcha dulu');
-  if(!sessionId) return setStatus('Load captcha dulu');
+  if(!username || username.length < 3){ 
+    resultEl.innerHTML = "❌ Isi ZER Wallet dulu"; 
+    return; 
+  }
+  if(!token ||!mathAnswer ||!selectedAnimal){ 
+    resultEl.innerHTML = "❌ Isi semua captcha dulu"; 
+    return; 
+  }
 
-  btn.disabled = true;
-  setStatus('Memproses...', true);
+  mainBtn.disabled = true;
+  resultEl.innerHTML = "⏳ Processing...";
 
   try{
     const res = await fetch(API + "/api/claim", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({
-        wallet, token, sessionId, mathAnswer, animalAnswer
-      })
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ email: username, token, sessionId, mathAnswer, animalAnswer: selectedAnimal }) // Backend kamu masih pake 'email'
     });
     const data = await res.json();
+    resultEl.innerHTML = data.success? `✅ ${data.message} | Sisa: ${data.remaining}` : `❌ ${data.error}`;
     
     if(data.success){
-      setStatus(`Berhasil! +${data.reward} ZER. Sisa claim: ${data.remaining}`, true);
-      loadHistory();
-      document.getElementById('challengeBox').style.display = 'none';
-      turnstile.reset();
-    }else{
-      setStatus(data.error);
-      if(data.error.includes('Session expired') || data.error.includes('salah')){
-        loadChallenge(); // minta captcha baru
-        turnstile.reset();
-      }
+      // ===== SET COOLDOWN CUMA KALAU SUKSES =====
+      const endTime = new Date().getTime() + COOLDOWN;
+      localStorage.setItem("ltcCooldown", endTime);
+      startTimer(endTime);
+    } else {
+      if(window.turnstile) window.turnstile.reset();
+      getChallenge(); // Ganti soal baru kalau gagal
+      mainBtn.disabled = false;
     }
-  }catch(e){
-    setStatus('Error: ' + e.message);
+  }catch(e){ 
+    resultEl.innerHTML = "❌ Server error"; 
+    mainBtn.disabled = false;
   }
-  btn.disabled = false;
+  loadHistory();
 }
 
-// Init
-loadChallenge();
+mainBtn.onclick = claim; // 1 Tombol aja
+
+async function loadHistory(){
+  try{
+    const res = await fetch(API + "/api/history");
+    const data = await res.json();
+    const historyEl = document.getElementById("history");
+    if(data.length){
+      historyEl.innerHTML = data.map(h => `<li><span class="user">${h.user}</span><span class="detail">${h.amount} | ${new Date(h.time * 1000).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}</span></li>`).join("");
+    } else {
+      historyEl.innerHTML = `<li style="background:transparent; justify-content:center; color:#94a3b8">Belum ada claim</li>`;
+    }
+  }catch(e){ document.getElementById("history").innerHTML = `<li style="background:transparent; justify-content:center; color:#f87171">Gagal load history</li>`; }
+}
+
 loadHistory();
-setInterval(loadHistory, 15000); // refresh history tiap 15s
+checkCooldown(); // Jalanin pas pertama load
+});
 </script>
 </body>
 </html>
