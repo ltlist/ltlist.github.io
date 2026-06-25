@@ -1,72 +1,128 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>LTlist Faucet</title>
-<meta name="robots" content="index, follow">
-<meta name="description" content="Verified crypto faucets with active payouts.">
-<link rel="icon" href="/favicon.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LT Faucet PRO</title>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-<link rel="stylesheet" href="fau.css">
+<style>
+body{font-family:system-ui;background:#0f172a;color:#e2e8f0;margin:0;padding:20px;display:flex;justify-content:center}
+.wrap{width:100%;max-width:420px;background:#1e293b;padding:24px;border-radius:16px}
+input,button,select{width:100%;padding:12px;margin-top:8px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e2e8f0;font-size:16px}
+button{background:#3b82f6;border:0;font-weight:700;cursor:pointer}
+button:disabled{background:#475569;cursor:not-allowed}
+.logo{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.logo img{width:24px}
+.row{display:flex;gap:8px}
+.box{background:#0f172a;padding:12px;border-radius:8px;margin-top:12px}
+#status{margin-top:12px;font-size:14px}
+.history{margin-top:16px;font-size:13px}
+.history div{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #334155}
+</style>
 </head>
 <body>
-<header class="navbar">
-  <div class="nav-brand">LTList</div>
-  <nav class="nav-links">
-    <a href="/">HOME</a>
-    <a href="/faucet">LTC</a>
-    <a href="/marketcap">MARKET</a>
-  </nav>
-</header>
-
-<div class="container">
-  <h1 class="page-title"><img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1578.png" width="30" style="vertical-align: middle;"> ZER FAUCET</h1>
-  <div class="ad-slot" data-network="zerads-468"></div>
-  <div class="small" style="margin-bottom:25px;">0.00200000 zatoshi • 60 min • Max 5/day</div>
-
-  <!-- MAIN CARD -->
-  <div class="card">
-    <input
-  id="username"
-  placeholder="Wallet ZER"
-  autocomplete="off">
-<div class="ad-slot" data-network="zerads-300"></div>  
-   <button id="mainClaimBtn" class="btn-claim">NEXT</button>
-    <div id="result" class="small"></div>
+<div class="wrap">
+  <div class="logo">
+    <img src="https://s2.coinmarketcap.com/static/img/coins/64x64/1578.png" alt="LINK">
+    <h2>LT Faucet PRO</h2>
   </div>
-   <div class="ad-slot" data-network="zerads-468"></div>
-  <!-- HISTORY -->
-  <div class="card">
-    <h3 style="text-align:center">📜 Last Claims</h3>
-    <ul id="history"></ul>
+
+  <input id="wallet" placeholder="Masukkan ZER Wallet t..." />
+
+  <div id="challengeBox" class="box" style="display:none">
+    <div id="qText"></div>
+    <input id="mathAns" type="number" placeholder="Jawaban matematika" />
+    <select id="animalAns"></select>
+  </div>
+
+  <div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
+
+  <button id="btn" onclick="claim()">CLAIM ZER</button>
+  <div id="status"></div>
+
+  <div class="history">
+    <h4>Last 10 Claims</h4>
+    <div id="historyList">Loading...</div>
   </div>
 </div>
 
-<!-- MODAL POPUP VERIFIKASI -->
-<div id="claimModal" class="modal" style="display:none;">
-  <div class="modal-content">
-    <span id="closeModal" class="close">&times;</span>
-    <h3>Verifikasi</h3>
+<script>
+const API = "https://misty-truth-00e3.workers.dev"; // GANTI KE URL WORKER KAMU
+let sessionId = null;
+
+const setStatus = (msg, ok=false) => {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.style.color = ok ? '#4ade80' : '#f87171';
+}
+
+async function loadChallenge(){
+  const res = await fetch(API + "/api/challenge");
+  const data = await res.json();
+  if(!data.success) return setStatus(data.error);
+  
+  sessionId = data.sessionId;
+  document.getElementById('qText').textContent = `Berapa hasil dari: ${data.question} ?`;
+  
+  const sel = document.getElementById('animalAns');
+  sel.innerHTML = data.animals.map(a => `<option value="${a}">${a}</option>`).join('');
+  document.getElementById('challengeBox').style.display = 'block';
+}
+
+async function loadHistory(){
+  const res = await fetch(API + "/api/history");
+  const data = await res.json();
+  document.getElementById('historyList').innerHTML = data.map(h => 
+    `<div><span>${h.user}</span><span>${h.amount} ZER</span></div>`
+  ).join('') || 'Belum ada';
+}
+
+async function claim(){
+  const btn = document.getElementById('btn');
+  const wallet = document.getElementById('wallet').value.trim();
+  const token = document.querySelector('input[name="cf-turnstile-response"]').value;
+  const mathAnswer = document.getElementById('mathAns').value;
+  const animalAnswer = document.getElementById('animalAns').value;
+
+  if(!wallet) return setStatus('Isi wallet dulu');
+  if(!token) return setStatus('Centang captcha dulu');
+  if(!sessionId) return setStatus('Load captcha dulu');
+
+  btn.disabled = true;
+  setStatus('Memproses...', true);
+
+  try{
+    const res = await fetch(API + "/api/claim", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        wallet, token, sessionId, mathAnswer, animalAnswer
+      })
+    });
+    const data = await res.json();
     
-    <div class="cf-turnstile" data-sitekey="0x4AAAAAADk00FmP5a2Feee3"></div>
-    <p>Soal: <b id="mathQ"></b> | <b id="emojiQ"></b></p>
-    <input id="mathAnswer" type="number" placeholder="Number Answer">
-    <div id="animalBox" class="emoji-grid"></div>
-  <div class="ad-slot" data-network="zerads-300"></div>
-    <button id="finalClaimBtn">2. CLAIM</button>
-  <div class="ad-slot" data-network="zerads-468"></div>
-  </div>
-</div>
+    if(data.success){
+      setStatus(`Berhasil! +${data.reward} ZER. Sisa claim: ${data.remaining}`, true);
+      loadHistory();
+      document.getElementById('challengeBox').style.display = 'none';
+      turnstile.reset();
+    }else{
+      setStatus(data.error);
+      if(data.error.includes('Session expired') || data.error.includes('salah')){
+        loadChallenge(); // minta captcha baru
+        turnstile.reset();
+      }
+    }
+  }catch(e){
+    setStatus('Error: ' + e.message);
+  }
+  btn.disabled = false;
+}
 
-<footer class="footer">
-  <p>Crypto faucets with a fast payout system to <a href="https://zerochain.info/wallet">ZeroChain</a>.</p>
-  <p>© LTList Faucet - All rights reserved</p>
-</footer>
-
-<script src="scrip.js"></script>
-<script src="/ads.js"></script>
-<script src="/faucet/src.js"></script>
-
+// Init
+loadChallenge();
+loadHistory();
+setInterval(loadHistory, 15000); // refresh history tiap 15s
+</script>
 </body>
 </html>
